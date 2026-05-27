@@ -6,3 +6,12 @@ export interface Employee {
   name: string;
   lineOrArea: string;
 }
+
+export interface AttendanceRecord {
+  employeeId: string;
+  monday: AttendanceStatus;
+  tuesday: AttendanceStatus;
+  wednesday: AttendanceStatus;
+  thursday: AttendanceStatus;
+  friday: AttendanceStatus;
+}
