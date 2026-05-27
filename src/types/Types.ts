@@ -20,7 +20,7 @@ export interface TrainingEventData {
   id: string;
   topic: string;
   instructor: string;
-  dateForm: string;
+  dateFrom: string;
   dateTo: string;
   area: string;
 }
