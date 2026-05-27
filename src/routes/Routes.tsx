@@ -4,7 +4,7 @@ import { TrainingEvent } from "../pages/TrainingEvent/TrainingEvent";
 export const MyRoutes = () => {
   return (
     <Routes>
-      <Route path="/" element={<TrainingEvent />} />
+      <Route path="/lista-asistencia" element={<TrainingEvent />} />
     </Routes>
   );
 };
