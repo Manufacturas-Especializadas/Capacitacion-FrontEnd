@@ -12,20 +12,22 @@ export interface Employee {
   lineOrArea: string;
 }
 
+export interface TopicEvaluation {
+  status: AttendanceStatus;
+  grade: number | "";
+}
+
 export interface AttendanceRecord {
   employeeId: string;
-  monday: AttendanceStatus;
-  tuesday: AttendanceStatus;
-  wednesday: AttendanceStatus;
-  thursday: AttendanceStatus;
-  friday: AttendanceStatus;
+  evaluations: TopicEvaluation[];
 }
 
 export interface TrainingEventData {
   id: string;
-  topic: string;
+  courseName: string;
   instructor: string;
   dateFrom: string;
   dateTo: string;
   area: string;
+  evaluationTopics: string[];
 }
