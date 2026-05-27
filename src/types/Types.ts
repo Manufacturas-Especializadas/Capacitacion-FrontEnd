@@ -1,5 +1,10 @@
 export type AttendanceStatus = "PRESENT" | "ABSENT" | "EMPTY";
 
+export interface DailyRecord {
+  status: AttendanceStatus;
+  grade: number | "";
+}
+
 export interface Employee {
   id: string;
   employeeNumber: string;
