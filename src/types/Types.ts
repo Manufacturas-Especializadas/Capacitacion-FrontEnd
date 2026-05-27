@@ -15,3 +15,12 @@ export interface AttendanceRecord {
   thursday: AttendanceStatus;
   friday: AttendanceStatus;
 }
+
+export interface TrainingEventData {
+  id: string;
+  topic: string;
+  instructor: string;
+  dateForm: string;
+  dateTo: string;
+  area: string;
+}
