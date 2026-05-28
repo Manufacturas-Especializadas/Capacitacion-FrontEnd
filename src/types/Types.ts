@@ -13,8 +13,14 @@ export interface Employee {
 }
 
 export interface TopicEvaluation {
+  isEnrolled: boolean;
   status: AttendanceStatus;
   grade: number | "";
+}
+
+export interface TrainingDay {
+  dayOfWeek: "Lunes" | "Martes" | "Miércoles" | "Jueves" | "Viernes";
+  topicName: string;
 }
 
 export interface AttendanceRecord {
