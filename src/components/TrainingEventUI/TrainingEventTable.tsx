@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useAttendanceGrid } from "../../hooks/useAttendanceGrid";
 import type {
   TrainingEventData,
@@ -5,6 +6,7 @@ import type {
   AttendanceRecord,
   TopicEvaluation,
 } from "../../types/Types";
+import { SignatureModal } from "../SignatureModal/SignatureModal";
 
 const TopicCell = ({
   evaluation,
@@ -39,7 +41,7 @@ const TopicCell = ({
         <button
           onClick={onToggleStatus}
           className={`flex-1 h-full rounded flex items-center justify-center text-xl 
-            transition-colors active:scale-95 ${config.style}`}
+          transition-colors active:scale-95 ${config.style}`}
         >
           {config.icon}
         </button>
@@ -67,23 +69,59 @@ interface TrainingEventProps {
   employees: Employee[];
   initialAttendance: AttendanceRecord[];
 }
+
 export const TrainingEventTable = ({
   eventData,
   employees,
   initialAttendance,
 }: TrainingEventProps) => {
-  const { records, toggleAttendance, updateGrade, comments, setComments } =
-    useAttendanceGrid(initialAttendance);
+  const {
+    records,
+    toggleAttendance,
+    updateGrade,
+    setSignature,
+    comments,
+    setComments,
+  } = useAttendanceGrid(initialAttendance);
+
+  const [modalOpen, setModalOpen] = useState(false);
+  const [currentSignerId, setCurrentSignerId] = useState<string | null>(null);
+  const [currentSignerName, setCurrentSignerName] = useState("");
+
+  const [instructorSignature, setInstructorSignature] = useState<string | null>(
+    null,
+  );
+
+  const openSignatureModal = (id: string, name: string) => {
+    setCurrentSignerId(id);
+    setCurrentSignerName(name);
+    setModalOpen(true);
+  };
+
+  const handleSaveSignature = (signatureData: string) => {
+    if (currentSignerId === "instructor") {
+      setInstructorSignature(signatureData);
+    } else if (currentSignerId) {
+      setSignature(currentSignerId, signatureData);
+    }
+    setModalOpen(false);
+  };
+
+  const handleSaveAll = () => {
+    console.log("Datos listos para enviar al backend:", {
+      eventData,
+      records,
+      comments,
+      instructorSignature,
+    });
+  };
 
   return (
     <div
       className="w-full max-w-375 mx-auto p-6 bg-white rounded-xl shadow-sm 
       border border-slate-200"
     >
-      <div
-        className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 p-4 bg-slate-50 
-        rounded-lg border border-slate-200"
-      >
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 p-4 bg-slate-50 rounded-lg border border-slate-200">
         <div>
           <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
             Curso / Plática
@@ -150,6 +188,13 @@ export const TrainingEventTable = ({
                   {topic || `Tema ${idx + 1}`}
                 </th>
               ))}
+
+              <th
+                className="p-3 border-b border-slate-300 border-l w-32 uppercase text-center"
+                rowSpan={2}
+              >
+                Firma del Participante
+              </th>
             </tr>
             <tr className="bg-slate-50 text-[10px] text-slate-500 uppercase tracking-wider">
               {eventData.evaluationTopics.map((_, idx) => (
@@ -205,6 +250,35 @@ export const TrainingEventTable = ({
                       }
                     />
                   ))}
+
+                  <td className="p-2 border-slate-300 border-l text-center">
+                    {record.signature ? (
+                      <div className="relative group flex justify-center">
+                        <img
+                          src={record.signature}
+                          alt="Firma"
+                          className="h-10 object-contain"
+                        />
+                        <button
+                          onClick={() => openSignatureModal(emp.id, emp.name)}
+                          className="absolute inset-0 bg-black/60 text-white text-[10px] 
+                          uppercase font-bold tracking-wider opacity-0 group-hover:opacity-100 
+                          transition-opacity flex items-center justify-center rounded"
+                        >
+                          Re-firmar
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => openSignatureModal(emp.id, emp.name)}
+                        className="px-3 py-1.5 bg-slate-100 text-slate-600 text-xs 
+                        font-semibold rounded border border-slate-300 hover:bg-slate-200 
+                        hover:cursor-pointer transition-colors w-full"
+                      >
+                        Firmar
+                      </button>
+                    )}
+                  </td>
                 </tr>
               );
             })}
@@ -217,26 +291,93 @@ export const TrainingEventTable = ({
           htmlFor="event-comments"
           className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-3"
         >
-          Comentarios
+          Comentarios / Observaciones
         </label>
         <textarea
           id="event-comments"
-          rows={4}
+          rows={3}
           value={comments}
           onChange={(e) => setComments(e.target.value)}
-          className="w-full p-4 rounded-md border border-slate-300 bg-white text-sm text-slate-700
-          focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y transition-shadow"
+          className="w-full p-4 rounded-md border border-slate-300 bg-white text-sm 
+          text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y 
+          transition-shadow"
         />
       </div>
 
-      <div className="mt-6 flex justify-end">
+      <div className="mt-8 pt-8 border-t border-slate-200 grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="flex flex-col items-center justify-end">
+          <div
+            className="w-64 border-b border-slate-800 mb-2 text-center h-16 flex items-end 
+            justify-center pb-1"
+          ></div>
+          <p className="text-sm font-semibold text-slate-800">Irene Santiago</p>
+          <p className="text-xs text-slate-500 uppercase tracking-wider">
+            Coord. De Capacitación
+          </p>
+        </div>
+
+        <div className="flex flex-col items-center justify-end">
+          <div
+            className="w-64 border-b border-slate-800 mb-2 text-center h-16 flex items-end 
+            justify-center pb-1 relative group cursor-pointer"
+            onClick={() =>
+              openSignatureModal("instructor", eventData.instructor)
+            }
+          >
+            {instructorSignature ? (
+              <img
+                src={instructorSignature}
+                alt="Firma Instructor"
+                className="h-14 object-contain"
+              />
+            ) : (
+              <span
+                className="text-slate-400 text-sm mb-2 group-hover:text-blue-600 
+                transition-colors"
+              >
+                Clic para firmar
+              </span>
+            )}
+          </div>
+          <p className="text-sm font-semibold text-slate-800">
+            {eventData.instructor}
+          </p>
+          <p className="text-xs text-slate-500 uppercase tracking-wider">
+            Instructor de la sesión
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-8 flex justify-end">
         <button
-          className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold
-          rounded-lg shadow-sm transition-colors active:scale-95 hover:cursor-pointer"
+          onClick={handleSaveAll}
+          className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold 
+          rounded-lg shadow-sm transition-colors active:scale-95 hover:cursor-pointer flex 
+          items-center gap-2"
         >
-          Guardar registro
+          <svg
+            className="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M5 13l4 4L19 7"
+            />
+          </svg>
+          Guardar Registro Final
         </button>
       </div>
+
+      <SignatureModal
+        isOpen={modalOpen}
+        title={currentSignerName}
+        onClose={() => setModalOpen(false)}
+        onSave={handleSaveSignature}
+      />
     </div>
   );
 };
