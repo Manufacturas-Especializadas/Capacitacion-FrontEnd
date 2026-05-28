@@ -26,6 +26,7 @@ export interface TrainingDay {
 export interface AttendanceRecord {
   employeeId: string;
   evaluations: TopicEvaluation[];
+  signature?: string | null;
 }
 
 export interface TrainingEventData {
