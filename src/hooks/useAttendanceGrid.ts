@@ -59,10 +59,23 @@ export const useAttendanceGrid = (
     );
   };
 
+  const setSignature = (employeeId: string, signatureBase64: string) => {
+    setRecords((prev) =>
+      prev.map((record) => {
+        if (record.employeeId === employeeId) {
+          return { ...record, signature: signatureBase64 };
+        }
+
+        return record;
+      }),
+    );
+  };
+
   return {
     records,
     toggleAttendance,
     updateGrade,
+    setSignature,
     setComments,
     comments,
   };
