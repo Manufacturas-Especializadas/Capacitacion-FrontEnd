@@ -10,6 +10,7 @@ export const API_CONFIG = {
     trainingEvent: {
       createEvent: "/api/TrainingEvents/create-event",
       assingAttendees: "/api/TrainingEvents/assign-attendees",
+      saveAttendance: "/api/TrainingEvents/save-attendance/",
     },
   },
 };
