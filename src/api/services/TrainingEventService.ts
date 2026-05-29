@@ -3,15 +3,24 @@ import type {
   AssignAttendees,
   CreateTrainingEvent,
   SaveAttendance,
+  TrainingEventDetail,
 } from "../../types/Types";
 import { apiClient } from "../client";
 
 class TrainingEventService {
+  private getDetailsEndpoint =
+    API_CONFIG.endpoint.trainingEvent.trainingEventsDetails;
   private createEventEndpoint = API_CONFIG.endpoint.trainingEvent.createEvent;
   private assignAttendeesEndpoint =
     API_CONFIG.endpoint.trainingEvent.assingAttendees;
   private saveAttendanceEndpoint =
     API_CONFIG.endpoint.trainingEvent.saveAttendance;
+
+  async getDetails(id: number): Promise<TrainingEventDetail> {
+    return apiClient.get<TrainingEventDetail>(
+      `${this.getDetailsEndpoint}${id}`,
+    );
+  }
 
   async createEvent(data: CreateTrainingEvent): Promise<number> {
     const response = await apiClient.post<{ eventId: number }>(
