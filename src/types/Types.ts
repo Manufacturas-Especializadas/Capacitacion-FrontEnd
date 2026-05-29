@@ -9,7 +9,7 @@ export interface Employee {
   id: string;
   employeeNumber: string;
   name: string;
-  lineOrArea: string;
+  line: string;
 }
 
 export interface TopicEvaluation {
