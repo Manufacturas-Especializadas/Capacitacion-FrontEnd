@@ -38,3 +38,12 @@ export interface TrainingEventData {
   area: string;
   evaluationTopics: string[];
 }
+
+export interface CreateTrainingEvent {
+  courseName: string;
+  instructorName: string;
+  roomId: number;
+  dateFrom: string;
+  dateTo: string;
+  evaluationTopics: string[];
+}
