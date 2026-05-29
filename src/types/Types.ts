@@ -44,6 +44,11 @@ export interface TrainingRooms {
   name: string;
 }
 
+export interface ProductionLines {
+  id: number;
+  name: string;
+}
+
 export interface CreateTrainingEvent {
   courseName: string;
   instructorName: string;
