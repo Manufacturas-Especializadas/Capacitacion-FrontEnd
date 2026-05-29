@@ -25,8 +25,8 @@ class TrainingEventService {
     return apiClient.post<void>(this.assignAttendeesEndpoint, data);
   }
 
-  async saveAttendance(data: SaveAttendance): Promise<void> {
-    return apiClient.post<void>(this.saveAttendanceEndpoint, data);
+  async saveAttendance(data: SaveAttendance, id: number): Promise<void> {
+    return apiClient.post<void>(`${this.saveAttendanceEndpoint}${id}`, data);
   }
 }
 
