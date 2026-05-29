@@ -13,7 +13,10 @@ export const MyRoutes = () => {
         path="/registro-asistencia/usuarios"
         element={<EnrollmentMatrix />}
       />
-      <Route path="/lista-asistencia" element={<TrainingEvent />} />
+      <Route
+        path="/registro-asistencia/ejecucion/:id"
+        element={<TrainingEvent />}
+      />
     </Routes>
   );
 };
