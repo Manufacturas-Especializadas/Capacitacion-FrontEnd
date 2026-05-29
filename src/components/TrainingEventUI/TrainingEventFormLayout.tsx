@@ -1,17 +1,34 @@
-import { useState, type ChangeEvent, type SyntheticEvent } from "react";
+import {
+  useState,
+  useEffect,
+  type ChangeEvent,
+  type SyntheticEvent,
+} from "react";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useTrainingEventMutations } from "../../hooks/useTrainingEventMutations";
+import { useCatalogs } from "../../hooks/useCatalogs";
+import InputField from "../Inputs/InputField";
+import SelectField from "../Inputs/SelectField";
 
 export const TrainingEventFormLayout = () => {
+  const navigate = useNavigate();
+  const { createEvent, isCreating } = useTrainingEventMutations();
+  const { rooms, fetchRooms } = useCatalogs();
+
+  useEffect(() => {
+    fetchRooms();
+  }, []);
+
   const [formData, setFormData] = useState({
+    courseName: "",
     instructor: "",
     room: "",
+    date: "",
     startTime: "",
     endTime: "",
     attendeeCount: "",
   });
-
-  const navigate = useNavigate();
 
   const [topics, setTopics] = useState<string[]>([""]);
 
@@ -39,18 +56,48 @@ export const TrainingEventFormLayout = () => {
     setTopics(newTopics);
   };
 
-  const handleSubmit = (e: SyntheticEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    navigate("/registro-asistencia/usuarios");
+    const validTopics = topics.filter((t) => t.trim() !== "");
+
+    const payload = {
+      courseName: formData.courseName,
+      instructorName: formData.instructor,
+      roomId: Number(formData.room),
+      dateFrom: `${formData.date}T${formData.startTime}:00`,
+      dateTo: `${formData.date}T${formData.endTime}:00`,
+      evaluationTopics: validTopics,
+    };
+
+    const eventId = await createEvent(payload as any);
+
+    if (eventId) {
+      navigate("/registro-asistencia/usuarios", {
+        state: {
+          eventId,
+          expectedAttendees: formData.attendeeCount,
+        },
+      });
+    }
   };
+
+  const roomOptions = [
+    { value: "", label: "Selecciona una sala..." },
+    ...rooms.map((room) => ({
+      value: room.id,
+      label: room.name,
+    })),
+  ];
 
   return (
     <div className="w-full max-w-4xl mx-auto p-6 min-h-screen font-sans">
       <div className="mb-8">
         <button
+          type="button"
+          onClick={() => navigate(-1)}
           className="text-slate-500 hover:text-blue-600 flex items-center 
-          gap-2 mb-4 transition-colors font-medium text-sm hover:cursor-pointer"
+          gap-2 mb-4 transition-colors font-medium text-sm cursor-pointer"
         >
           <ArrowLeft size={20} />
           Volver al Historial
@@ -70,142 +117,106 @@ export const TrainingEventFormLayout = () => {
         <div className="p-8 space-y-8">
           <div>
             <h2
-              className="text-lg font-semibold text-slate-800 mb-4 border-b border-slate-100 
-              pb-2"
+              className="text-lg font-semibold text-slate-800 mb-6 border-b 
+              border-slate-100 pb-2"
             >
               Datos de la Sesión
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2">
               <div className="col-span-1 md:col-span-2">
-                <label
-                  className="block text-xs font-bold text-slate-600 uppercase tracking-wider 
-                  mb-2"
-                >
-                  Nombre del Instructor
-                </label>
-                <input
-                  type="text"
-                  name="instructor"
-                  value={formData.instructor}
+                <InputField
+                  label="Curso / Plática"
+                  name="courseName"
+                  value={formData.courseName}
                   onChange={handleInputChange}
-                  placeholder="Ej. Ing. Roberto Sánchez"
-                  className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 
-                  focus:ring-blue-500 focus:border-blue-500 outline-none transition-all 
-                  text-slate-700"
                   required
                 />
               </div>
 
-              <div>
-                <label
-                  className="block text-xs font-bold text-slate-600 uppercase 
-                  tracking-wider mb-2"
-                >
-                  Sala de Capacitación
-                </label>
-                <div className="relative">
-                  <select
-                    name="room"
-                    value={formData.room}
-                    onChange={handleInputChange}
-                    className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 
-                    focus:ring-blue-500 focus:border-blue-500 outline-none appearance-none 
-                    bg-white text-slate-700"
-                    required
-                  >
-                    <option value="" disabled>
-                      Selecciona una sala...
-                    </option>
-                    <option value="Sala CCA">Sala CCA</option>
-                    <option value="Sala de acuerdos">Sala de Acuerdos</option>
-                    <option value="Sala aluminio">Sala Aluminio</option>
-                  </select>
-                  <div className="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-slate-500">
-                    <svg
-                      className="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M19 9l-7 7-7-7"
-                      />
-                    </svg>
-                  </div>
-                </div>
+              <div className="col-span-1">
+                <InputField
+                  label="Nombre del Instructor"
+                  name="instructor"
+                  value={formData.instructor}
+                  onChange={handleInputChange}
+                  required
+                />
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">
-                  Cantidad de Asistentes
-                </label>
-                <input
+              <div className="col-span-1">
+                <SelectField
+                  label="Sala de Capacitación"
+                  name="room"
+                  value={formData.room}
+                  onChange={handleInputChange}
+                  options={roomOptions}
+                  required
+                />
+              </div>
+
+              <div className="col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-x-4">
+                <InputField
+                  type="date"
+                  label="Fecha"
+                  name="date"
+                  value={formData.date}
+                  onChange={handleInputChange}
+                  required
+                />
+                <InputField
+                  type="time"
+                  label="Hora Inicio"
+                  name="startTime"
+                  value={formData.startTime}
+                  onChange={handleInputChange}
+                  required
+                />
+                <InputField
+                  type="time"
+                  label="Hora Fin"
+                  name="endTime"
+                  value={formData.endTime}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+
+              <div className="col-span-1">
+                <InputField
                   type="number"
+                  label="Cantidad de Asistentes Esperados"
                   name="attendeeCount"
                   min="1"
                   value={formData.attendeeCount}
                   onChange={handleInputChange}
-                  placeholder="Ej. 15"
-                  className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-slate-700"
                   required
                 />
-              </div>
-
-              {/* Horario */}
-              <div className="col-span-1 md:col-span-2 grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">
-                    Hora de Inicio
-                  </label>
-                  <input
-                    type="time"
-                    name="startTime"
-                    value={formData.startTime}
-                    onChange={handleInputChange}
-                    className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-slate-700"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">
-                    Hora de Fin
-                  </label>
-                  <input
-                    type="time"
-                    name="endTime"
-                    value={formData.endTime}
-                    onChange={handleInputChange}
-                    className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-slate-700"
-                    required
-                  />
-                </div>
               </div>
             </div>
           </div>
 
           <div>
-            <div className="flex justify-between items-end mb-4 border-b border-slate-100 pb-2">
+            <div className="flex justify-between items-end mb-6 border-b border-slate-100 pb-2">
               <h2 className="text-lg font-semibold text-slate-800">
                 Temas a Impartir / Evaluar
               </h2>
-              <span className="text-xs font-medium text-slate-500 bg-slate-100 px-2 py-1 rounded">
+              <span
+                className="text-xs font-medium text-slate-500 bg-slate-100 px-2 
+                py-1 rounded"
+              >
                 Máximo 6 columnas
               </span>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-2">
               {topics.map((topic, index) => (
-                <div key={index} className="flex items-center gap-3">
+                <div key={index} className="flex items-start gap-3">
                   <div className="grow">
-                    <input
-                      type="text"
+                    <InputField
+                      label={`Tema ${index + 1}`}
                       value={topic}
                       onChange={(e) => handleTopicChange(index, e.target.value)}
-                      placeholder={`Ej. Tema ${index + 1}`}
-                      className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-slate-700"
                       required
                     />
                   </div>
@@ -213,7 +224,8 @@ export const TrainingEventFormLayout = () => {
                     <button
                       type="button"
                       onClick={() => removeTopic(index)}
-                      className="p-3 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors"
+                      className="p-3 mt-1 text-slate-400 hover:text-rose-500 
+                      hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
                       title="Eliminar tema"
                     >
                       <svg
@@ -239,7 +251,8 @@ export const TrainingEventFormLayout = () => {
               <button
                 type="button"
                 onClick={addTopic}
-                className="mt-4 flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-800 transition-colors"
+                className="mt-2 flex items-center gap-2 text-sm font-semibold text-blue-600 
+                hover:text-blue-800 transition-colors cursor-pointer"
               >
                 <svg
                   className="w-4 h-4"
@@ -263,17 +276,23 @@ export const TrainingEventFormLayout = () => {
         <div className="bg-slate-50 p-6 border-t border-slate-200 flex justify-end gap-4">
           <button
             type="button"
+            onClick={() => navigate(-1)}
             className="px-6 py-3 bg-white border border-slate-300 text-slate-700 
-            font-semibold rounded-lg hover:bg-slate-50 transition-colors"
+            font-semibold rounded-lg hover:bg-slate-50 transition-colors cursor-pointer"
           >
             Cancelar
           </button>
           <button
             type="submit"
-            className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-sm 
-            hover:bg-blue-700 transition-colors active:scale-95"
+            disabled={isCreating}
+            className={`px-6 py-3 font-semibold rounded-lg shadow-sm transition-all 
+              flex items-center gap-2 ${
+                isCreating
+                  ? "bg-blue-400 text-white cursor-not-allowed"
+                  : "bg-blue-600 hover:bg-blue-700 text-white active:scale-95 cursor-pointer"
+              }`}
           >
-            Generar Tabla de Asistencia
+            {isCreating ? "Generando..." : "Generar Tabla de Asistencia"}
           </button>
         </div>
       </form>
