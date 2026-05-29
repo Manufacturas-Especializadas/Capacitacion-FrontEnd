@@ -16,5 +16,8 @@ export const API_CONFIG = {
       assingAttendees: "/api/TrainingEvents/assign-attendees",
       saveAttendance: "/api/TrainingEvents/save-attendance/",
     },
+    employees: {
+      allEmployees: "/api/Employees/allEmployees",
+    },
   },
 };
