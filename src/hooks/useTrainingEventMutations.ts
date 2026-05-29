@@ -43,10 +43,10 @@ export const useTrainingEventMutations = () => {
     }
   };
 
-  const saveFinalAttendance = async (data: SaveAttendance) => {
+  const saveFinalAttendance = async (data: SaveAttendance, id: number) => {
     setIsSaving(true);
 
-    toast.promise(trainingEventService.saveAttendance(data), {
+    toast.promise(trainingEventService.saveAttendance(data, id), {
       loading: "Guardando registro y subiendo firmas...",
       success: () => {
         return "Registro de capacitación completado";
