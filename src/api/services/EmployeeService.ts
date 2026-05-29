@@ -10,8 +10,8 @@ class EmployeeService {
     return apiClient.get<Employee[]>(this.getAllEmployeeEndpoint);
   }
 
-  async createEmployee(data: CreateEmployee): Promise<void> {
-    return apiClient.post<void>(this.createEmployeeEndpoint, data);
+  async createEmployee(data: CreateEmployee): Promise<Employee> {
+    return apiClient.post<Employee>(this.createEmployeeEndpoint, data);
   }
 }
 
