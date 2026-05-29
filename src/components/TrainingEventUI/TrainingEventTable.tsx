@@ -126,7 +126,7 @@ export const TrainingEventTable = ({
       })),
     };
 
-    await saveFinalAttendance(payload);
+    await saveFinalAttendance(payload, Number(eventData.id));
   };
 
   return (
