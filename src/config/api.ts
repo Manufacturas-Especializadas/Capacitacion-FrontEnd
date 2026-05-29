@@ -9,6 +9,7 @@ export const API_CONFIG = {
   endpoint: {
     catalgos: {
       rooms: "/api/Catalogs/rooms",
+      lines: "/api/Catalogs/lines",
     },
     trainingEvent: {
       createEvent: "/api/TrainingEvents/create-event",
