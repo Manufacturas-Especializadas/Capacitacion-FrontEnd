@@ -12,6 +12,12 @@ export interface Employee {
   line: string;
 }
 
+export interface CreateEmployee {
+  employeeNumber: string;
+  name: string;
+  productionLineId: number;
+}
+
 export interface TopicEvaluation {
   isEnrolled: boolean;
   status: AttendanceStatus;
