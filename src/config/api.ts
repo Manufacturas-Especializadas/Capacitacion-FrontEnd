@@ -9,6 +9,7 @@ export const API_CONFIG = {
   endpoint: {
     trainingEvent: {
       createEvent: "/api/TrainingEvents/create-event",
+      assingAttendees: "/api/TrainingEvents/assign-attendees",
     },
   },
 };
