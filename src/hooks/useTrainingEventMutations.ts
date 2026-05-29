@@ -13,15 +13,15 @@ export const useTrainingEventMutations = () => {
   const [isSaving, setIsSaving] = useState(false);
 
   const createEvent = async (data: CreateTrainingEvent) => {
-    setIsAssigning(true);
+    setIsCreating(true);
     try {
-      await trainingEventService.createEvent(data);
-      toast.success("Evento de capacitación registrado");
-      return true;
-    } catch (err) {
-      console.error("Error creating event: ", err);
-      toast.error("Ocurrio un error al crear el evento. Intenta de nuevo");
-      return false;
+      const eventId = await trainingEventService.createEvent(data);
+      toast.success("Evento de capacitación creado con éxito");
+      return eventId;
+    } catch (error) {
+      console.error("Error creating event:", error);
+      toast.error("Ocurrió un error al crear el evento. Intenta de nuevo.");
+      return null;
     } finally {
       setIsCreating(false);
     }

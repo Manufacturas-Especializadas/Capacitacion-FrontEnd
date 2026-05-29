@@ -13,8 +13,12 @@ class TrainingEventService {
   private saveAttendanceEndpoint =
     API_CONFIG.endpoint.trainingEvent.saveAttendance;
 
-  async createEvent(data: CreateTrainingEvent): Promise<void> {
-    return apiClient.post<void>(this.createEventEndpoint, data);
+  async createEvent(data: CreateTrainingEvent): Promise<number> {
+    const response = await apiClient.post<{ eventId: number }>(
+      this.createEventEndpoint,
+      data,
+    );
+    return response.eventId;
   }
 
   async assignAttendees(data: AssignAttendees): Promise<void> {
