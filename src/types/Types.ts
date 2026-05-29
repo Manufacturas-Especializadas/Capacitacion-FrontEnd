@@ -47,3 +47,15 @@ export interface CreateTrainingEvent {
   dateTo: string;
   evaluationTopics: string[];
 }
+
+export interface AssignAttendees {
+  eventId: number;
+  attendees: Attendee[];
+}
+
+export interface Attendee {
+  employeeNumber: string;
+  name: string;
+  lineName: string;
+  enrollments: boolean[];
+}
