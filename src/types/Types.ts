@@ -93,3 +93,17 @@ export interface Evaluation {
   status: string;
   grade: number | null;
 }
+
+export interface TrainingEventDetail {
+  eventData: {
+    id: number;
+    courseName: string;
+    instructor: string;
+    area: string;
+    dateFrom: string;
+    dateTo: string;
+    evaluationTopics: string[];
+  };
+  employees: any[];
+  initialAttendance: any[];
+}
