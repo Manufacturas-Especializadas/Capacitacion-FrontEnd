@@ -59,3 +59,21 @@ export interface Attendee {
   lineName: string;
   enrollments: boolean[];
 }
+
+export interface SaveAttendance {
+  eventId: number;
+  comments: string;
+  instructorSignature: string;
+  employeeRecords: EmployeeRecord[];
+}
+
+export interface EmployeeRecord {
+  employeeId: number;
+  signature: string;
+  evaluations: Evaluation[];
+}
+
+export interface Evaluation {
+  status: string;
+  grade: number;
+}
