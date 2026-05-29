@@ -39,6 +39,11 @@ export interface TrainingEventData {
   evaluationTopics: string[];
 }
 
+export interface TrainingRooms {
+  id: number;
+  name: string;
+}
+
 export interface CreateTrainingEvent {
   courseName: string;
   instructorName: string;
