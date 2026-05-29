@@ -7,6 +7,9 @@ if (!API_BASE_URL) {
 export const API_CONFIG = {
   baseUrl: API_BASE_URL,
   endpoint: {
+    catalgos: {
+      rooms: "/api/Catalogs/rooms",
+    },
     trainingEvent: {
       createEvent: "/api/TrainingEvents/create-event",
       assingAttendees: "/api/TrainingEvents/assign-attendees",
