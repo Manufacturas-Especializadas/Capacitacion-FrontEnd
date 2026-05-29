@@ -63,17 +63,17 @@ export interface Attendee {
 export interface SaveAttendance {
   eventId: number;
   comments: string;
-  instructorSignature: string;
+  instructorSignature: string | null;
   employeeRecords: EmployeeRecord[];
 }
 
 export interface EmployeeRecord {
   employeeId: number;
-  signature: string;
+  signature: string | null;
   evaluations: Evaluation[];
 }
 
 export interface Evaluation {
   status: string;
-  grade: number;
+  grade: number | null;
 }
