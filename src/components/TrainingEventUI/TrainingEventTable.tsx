@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useAttendanceGrid } from "../../hooks/useAttendanceGrid";
 import { useTrainingEventMutations } from "../../hooks/useTrainingEventMutations";
 import { EmployeeRow } from "./EmployeeRow";
@@ -75,7 +75,6 @@ export const TrainingEventTable = ({
     formData.append("Comments", comments || "");
     formData.append("IsFinalSave", isFinal.toString());
 
-    // 1. Validamos que la firma del instructor sea NUEVA (Base64)
     if (instructorSignature && instructorSignature.startsWith("data:image")) {
       const file = dataURLtoFile(
         instructorSignature,
@@ -107,7 +106,10 @@ export const TrainingEventTable = ({
           `EmployeeRecords[${index}].Evaluations[${evIndex}].Status`,
           ev.status,
         );
-        if (ev.grade !== "" && ev.grade !== null) {
+
+        const isAbsent = ev.status === "ABSENT" || ev.status === "X";
+
+        if (!isAbsent && ev.grade !== null && ev.grade !== null) {
           formData.append(
             `EmployeeRecords[${index}].Evaluations[${evIndex}].Grade`,
             ev.grade.toString(),
@@ -121,36 +123,57 @@ export const TrainingEventTable = ({
     navigate("/");
   };
 
-  const topicStats = eventData.evaluationTopics.map((_, topicIdx) => {
-    let possible = 0;
-    let actual = 0;
-    let sumGrades = 0;
-    let countGrades = 0;
+  const topicStats = useMemo(() => {
+    return eventData.evaluationTopics.map((_, topicIdx) => {
+      let possible = 0;
+      let actual = 0;
+      let sumGrades = 0;
+      let countGrades = 0;
 
-    records.forEach((record) => {
-      const evaluation = record.evaluations[topicIdx];
-      if (evaluation) {
-        possible++;
-        if (evaluation.status === "PRESENT") actual++;
+      records.forEach((record) => {
+        const evaluation = record.evaluations[topicIdx];
 
-        const grade = Number(evaluation.grade);
-        if (
-          evaluation.grade !== null &&
-          evaluation.grade !== "" &&
-          !isNaN(grade) &&
-          grade > 0
-        ) {
-          sumGrades += grade;
-          countGrades++;
+        if (evaluation && evaluation.status) {
+          const status = evaluation.status.toUpperCase() as string;
+
+          if (status !== "EMPTY" && status !== "PENDING") {
+            possible++;
+
+            const isPresentOrLate = [
+              "PRESENT",
+              "LATE",
+              "TARDY",
+              "R",
+              "RETARDO",
+            ].includes(status);
+
+            if (isPresentOrLate) {
+              actual++;
+            }
+
+            const isAbsent = ["ABSENT", "X", "FALTA"].includes(status);
+            const grade = Number(evaluation.grade);
+
+            if (
+              !isAbsent &&
+              evaluation.grade !== null &&
+              evaluation.grade !== null &&
+              !isNaN(grade) &&
+              grade > 0
+            ) {
+              sumGrades += grade;
+              countGrades++;
+            }
+          }
         }
-      }
-    });
+      });
 
-    return {
-      attendance: possible > 0 ? Math.round((actual / possible) * 100) : 0,
-      average: countGrades > 0 ? Math.round(sumGrades / countGrades) : null,
-    };
-  });
+      return {
+        attendance: possible > 0 ? Math.round((actual / possible) * 100) : 0,
+        average: countGrades > 0 ? Math.round(sumGrades / countGrades) : null,
+      };
+    });
+  }, [records, eventData.evaluationTopics]);
 
   return (
     <div
