@@ -13,10 +13,10 @@ export const useAttendanceGrid = (
       case "EMPTY":
         return "PRESENT";
       case "PRESENT":
-        return "ABSENT";
-      case "ABSENT":
         return "TARDY";
       case "TARDY":
+        return "ABSENT";
+      case "ABSENT":
         return "EMPTY";
       default:
         return "EMPTY";
@@ -42,7 +42,7 @@ export const useAttendanceGrid = (
   const updateGrade = (
     employeeId: string,
     topicIndex: number,
-    newGrade: number | "",
+    grade: number | null,
   ) => {
     setRecords((prev) =>
       prev.map((record) => {
@@ -50,7 +50,7 @@ export const useAttendanceGrid = (
           const newEvaluations = [...record.evaluations];
           newEvaluations[topicIndex] = {
             ...newEvaluations[topicIndex],
-            grade: newGrade,
+            grade: grade,
           };
           return { ...record, evaluations: newEvaluations };
         }
