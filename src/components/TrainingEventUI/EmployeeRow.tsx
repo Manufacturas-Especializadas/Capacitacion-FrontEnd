@@ -17,6 +17,22 @@ export const EmployeeRow = ({
   updateGrade,
   openSignatureModal,
 }: EmployeeRowProps) => {
+  const totalTopics = record.evaluations.length;
+  const presentCount = record.evaluations.filter(
+    (e) => e.status === "PRESENT",
+  ).length;
+  const attendancePercentage =
+    totalTopics > 0 ? Math.round((presentCount / totalTopics) * 100) : 0;
+
+  const validGrades = record.evaluations
+    .map((e) => Number(e.grade))
+    .filter((g) => g !== null && !isNaN(g) && g > 0);
+
+  const gradeAverage =
+    validGrades.length > 0
+      ? Math.round(validGrades.reduce((a, b) => a + b, 0) / validGrades.length)
+      : null;
+
   return (
     <tr className="border-b border-slate-200 hover:bg-slate-50">
       <td className="p-2 border-r border-slate-300 text-center font-medium text-slate-500">
@@ -40,6 +56,34 @@ export const EmployeeRow = ({
           onChangeGrade={(val) => updateGrade(employee.id, topicIndex, val)}
         />
       ))}
+
+      <td className="p-2 border-r border-slate-300 text-center font-bold">
+        <span
+          className={`px-2 py-1 rounded text-xs ${
+            attendancePercentage >= 80
+              ? "bg-emerald-100 text-emerald-700"
+              : "bg-rose-100 text-rose-700"
+          }`}
+        >
+          {attendancePercentage}%
+        </span>
+      </td>
+
+      <td className="p-2 border-r border-slate-300 text-center font-bold">
+        {gradeAverage !== null ? (
+          <span
+            className={`px-2 py-1 rounded text-xs ${
+              gradeAverage >= 80
+                ? "bg-emerald-100 text-emerald-700"
+                : "bg-red-100 text-rose-700"
+            }`}
+          >
+            {gradeAverage}
+          </span>
+        ) : (
+          <span className="text-slate-400">-</span>
+        )}
+      </td>
 
       <td className="p-2 border-slate-300 border-l text-center">
         {record.signature && record.signature.trim() !== "" ? (
