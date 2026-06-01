@@ -59,15 +59,11 @@ export const useAttendanceGrid = (
     );
   };
 
-  const setSignature = (employeeId: string, signatureBase64: string) => {
+  const setSignature = (empId: string | number, signatureData: string) => {
     setRecords((prev) =>
-      prev.map((record) => {
-        if (record.employeeId === employeeId) {
-          return { ...record, signature: signatureBase64 };
-        }
-
-        return record;
-      }),
+      prev.map((r) =>
+        r.employeeId == empId ? { ...r, signature: signatureData } : r,
+      ),
     );
   };
 
