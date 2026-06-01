@@ -35,6 +35,12 @@ export const EmployeeRow = memo(
           {employee.name}
         </td>
 
+        <td className="p-2 border-r border-slate-300 text-xs font-semibold text-slate-600 text-center">
+          <span className="bg-slate-100 px-2 py-1 rounded border border-slate-200">
+            {employee.line}
+          </span>
+        </td>
+
         {record.evaluations.map((evaluation, topicIndex) => (
           <TopicCell
             key={`${employee.id}-topic-${topicIndex}`}
