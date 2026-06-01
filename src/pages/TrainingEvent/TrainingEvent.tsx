@@ -1,65 +1,69 @@
+import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import { TrainingEventTable } from "../../components/TrainingEventUI/TrainingEventTable";
 import type {
   TrainingEventData,
   Employee,
   AttendanceRecord,
-  TopicEvaluation,
 } from "../../types/Types";
+import { trainingEventService } from "../../api/services/TrainingEventService";
 
-const mockEmployees: Employee[] = [
-  {
-    id: "emp-1",
-    employeeNumber: "7021",
-    name: "Yoshio Asaet Estudiilo G.",
-    lineOrArea: "L-02",
-  },
-  {
-    id: "emp-2",
-    employeeNumber: "7025",
-    name: "Dora Nelly Martinez Flores",
-    lineOrArea: "L-12",
-  },
-  {
-    id: "emp-3",
-    employeeNumber: "7030",
-    name: "Victor Benito de la Cruz",
-    lineOrArea: "L-14",
-  },
-];
-
-const mockEventData: TrainingEventData = {
-  id: "evt-001",
-  courseName: "Inducción General y Calidad",
-  instructor: "Ing. Roberto Sánchez",
-  dateFrom: "2026-05-25",
-  dateTo: "2026-05-25",
-  area: "Todas las líneas",
-  evaluationTopics: [
-    "Uso de EPP",
-    "Normas de Seguridad",
-    "Manejo de Residuos",
-    "Políticas de Calidad",
-    "Reporte de Scrap",
-    "Evaluación Final",
-  ],
-};
-
-const generateEmptyEvaluations = (): TopicEvaluation[] =>
-  Array(6).fill({ status: "EMPTY", grade: "" });
-
-const mockInitialAttendance: AttendanceRecord[] = [
-  { employeeId: "emp-1", evaluations: generateEmptyEvaluations() },
-  { employeeId: "emp-2", evaluations: generateEmptyEvaluations() },
-  { employeeId: "emp-3", evaluations: generateEmptyEvaluations() },
-];
+interface EventDetailsResponse {
+  eventData: TrainingEventData;
+  employees: Employee[];
+  initialAttendance: AttendanceRecord[];
+}
 
 export const TrainingEvent = () => {
+  const { id } = useParams();
+
+  const [isLoading, setIsLoading] = useState(true);
+  const [details, setDetails] = useState<EventDetailsResponse | null>(null);
+
+  useEffect(() => {
+    const fetchEventDetails = async () => {
+      if (!id) return;
+
+      try {
+        setIsLoading(true);
+        const data = await trainingEventService.getDetails(Number(id));
+        setDetails(data as unknown as EventDetailsResponse);
+      } catch (error) {
+        console.error("Error al cargar la lista de asistencia:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchEventDetails();
+  }, [id]);
+
+  if (isLoading) {
+    return (
+      <div className="p-8 bg-slate-100 min-h-screen flex items-center justify-center">
+        <div className="text-slate-500 font-medium text-lg animate-pulse">
+          Preparando lista de asistencia...
+        </div>
+      </div>
+    );
+  }
+
+  if (!details) {
+    return (
+      <div className="p-8 bg-slate-100 min-h-screen flex items-center justify-center">
+        <div className="text-rose-500 font-medium text-lg bg-white p-6 rounded-lg shadow-sm border border-rose-100">
+          No se pudo cargar la información del evento #{id}.
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="p-8 bg-slate-100 min-h-screen">
       <TrainingEventTable
-        eventData={mockEventData}
-        employees={mockEmployees}
-        initialAttendance={mockInitialAttendance}
+        eventData={details.eventData}
+        employees={details.employees}
+        initialAttendance={details.initialAttendance}
       />
     </div>
   );
