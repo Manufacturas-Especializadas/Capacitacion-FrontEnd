@@ -374,6 +374,13 @@ export const TrainingEventTable = ({
 
       <div className="mt-8 flex justify-end gap-4">
         <button
+          onClick={() => navigate("/")}
+          className="px-6 py-3 font-semibold rounded-lg shadow-sm transition-all flex 
+          hover:cursor-pointer bg-blue-600 hover:bg-blue-700 text-white"
+        >
+          Regresar
+        </button>
+        <button
           onClick={() => handleSaveAll(false)}
           disabled={isSaving}
           className={`px-6 py-3 font-semibold rounded-lg shadow-sm transition-all flex 
