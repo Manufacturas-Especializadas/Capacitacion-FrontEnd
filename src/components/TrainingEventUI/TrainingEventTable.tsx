@@ -9,6 +9,9 @@ import type {
   AttendanceRecord,
 } from "../../types/Types";
 import { useNavigate } from "react-router-dom";
+import { Printer } from "lucide-react"; // <-- NUEVO: Ícono de impresora
+import jsPDF from "jspdf"; // <-- NUEVO: Librería PDF
+import autoTable from "jspdf-autotable"; // <-- NUEVO: Librería para tablas en PDF
 
 interface TrainingEventProps {
   eventData: TrainingEventData;
@@ -119,9 +122,68 @@ export const TrainingEventTable = ({
     });
 
     await saveFinalAttendance(formData as any, Number(eventData.id));
-
     navigate("/");
   };
+
+  // --- NUEVA FUNCIÓN: GENERADOR DE AVISO EN PDF ---
+  const generateNoticePDF = () => {
+    const doc = new jsPDF();
+
+    // 1. Título y Encabezado
+    doc.setFontSize(18);
+    doc.setTextColor(15, 23, 42); // slate-900
+    doc.text("Aviso de Convocatoria a Capacitación", 14, 22);
+
+    doc.setFontSize(10);
+    doc.setTextColor(100, 116, 139); // slate-500
+    doc.text("Manufacturas Especializadas, S.A. (MESA)", 14, 28);
+
+    // 2. Información del Curso
+    doc.setFontSize(11);
+    doc.setTextColor(15, 23, 42);
+    doc.text(`Curso / Plática: ${eventData.courseName}`, 14, 40);
+    doc.text(`Instructor: ${eventData.instructor}`, 14, 46);
+    doc.text(`Fechas: ${eventData.dateFrom} al ${eventData.dateTo}`, 14, 52);
+
+    // 3. Preparar los datos de la tabla
+    const tableColumn = [
+      "N°",
+      "N° Nómina",
+      "Nombre del Operador / Empleado",
+      "Firma de Enterado",
+    ];
+    const tableRows: any[] = [];
+
+    employees.forEach((emp, index) => {
+      const rowData = [
+        index + 1,
+        emp.employeeNumber,
+        emp.name,
+        "", // Espacio en blanco para que el operador firme de enterado físicamente
+      ];
+      tableRows.push(rowData);
+    });
+
+    // 4. Dibujar la tabla
+    autoTable(doc, {
+      head: [tableColumn],
+      body: tableRows,
+      startY: 60,
+      theme: "grid",
+      styles: { fontSize: 9, cellPadding: 3 },
+      headStyles: { fillColor: [37, 99, 235], textColor: [255, 255, 255] }, // bg-blue-600
+      columnStyles: {
+        0: { cellWidth: 15, halign: "center" },
+        1: { cellWidth: 25, halign: "center" },
+        2: { cellWidth: 80 },
+        3: { cellWidth: 50 }, // Columna ancha para la firma física
+      },
+    });
+
+    // 5. Descargar el archivo
+    doc.save(`Aviso_${eventData.courseName.replace(/\s+/g, "_")}.pdf`);
+  };
+  // ------------------------------------------------
 
   const topicStats = useMemo(() => {
     return eventData.evaluationTopics.map((_, topicIdx) => {
@@ -138,7 +200,6 @@ export const TrainingEventTable = ({
 
           if (status !== "EMPTY" && status !== "PENDING") {
             possible++;
-
             const isPresentOrLate = [
               "PRESENT",
               "LATE",
@@ -146,10 +207,7 @@ export const TrainingEventTable = ({
               "R",
               "RETARDO",
             ].includes(status);
-
-            if (isPresentOrLate) {
-              actual++;
-            }
+            if (isPresentOrLate) actual++;
 
             const isAbsent = ["ABSENT", "X", "FALTA"].includes(status);
             const grade = Number(evaluation.grade);
@@ -180,40 +238,51 @@ export const TrainingEventTable = ({
       className="w-full max-w-375 mx-auto p-6 bg-white rounded-xl shadow-sm border 
       border-slate-200"
     >
-      <div
-        className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 p-4 bg-slate-50 
-        rounded-lg border border-slate-200"
-      >
-        <div>
-          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-            Curso / Plática
-          </p>
-          <p className="text-sm font-medium text-slate-900">
-            {eventData.courseName}
-          </p>
+      {/* HEADER DE DATOS DEL CURSO CON BOTÓN DE IMPRESIÓN */}
+      <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 p-5 bg-slate-50 rounded-lg border border-slate-200 grow w-full">
+          <div>
+            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+              Curso / Plática
+            </p>
+            <p className="text-sm font-medium text-slate-900">
+              {eventData.courseName}
+            </p>
+          </div>
+          <div>
+            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+              Instructor
+            </p>
+            <p className="text-sm font-medium text-slate-900">
+              {eventData.instructor}
+            </p>
+          </div>
+          <div>
+            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+              Área
+            </p>
+            <p className="text-sm font-medium text-slate-900">
+              {eventData.area}
+            </p>
+          </div>
+          <div>
+            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+              Fechas
+            </p>
+            <p className="text-sm font-medium text-slate-900">
+              {eventData.dateFrom} - {eventData.dateTo}
+            </p>
+          </div>
         </div>
-        <div>
-          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-            Instructor
-          </p>
-          <p className="text-sm font-medium text-slate-900">
-            {eventData.instructor}
-          </p>
-        </div>
-        <div>
-          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-            Área
-          </p>
-          <p className="text-sm font-medium text-slate-900">{eventData.area}</p>
-        </div>
-        <div>
-          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-            Fechas
-          </p>
-          <p className="text-sm font-medium text-slate-900">
-            {eventData.dateFrom} - {eventData.dateTo}
-          </p>
-        </div>
+
+        <button
+          onClick={generateNoticePDF}
+          className="shrink-0 flex items-center justify-center gap-2 px-5 py-3 bg-white border-2 border-blue-600 text-blue-700 font-bold rounded-lg shadow-sm hover:bg-blue-50 transition-colors active:scale-95 cursor-pointer"
+          title="Descargar lista para aviso a operadores"
+        >
+          <Printer size={18} />
+          Imprimir Aviso
+        </button>
       </div>
 
       <div className="overflow-x-auto rounded-lg border border-slate-300">
@@ -237,6 +306,13 @@ export const TrainingEventTable = ({
                 rowSpan={2}
               >
                 Nombre del Empleado
+              </th>
+
+              <th
+                className="p-3 border-b border-r border-slate-300 w-28 uppercase text-center"
+                rowSpan={2}
+              >
+                Línea
               </th>
 
               {eventData.evaluationTopics.map((topic, idx) => (
@@ -403,7 +479,7 @@ export const TrainingEventTable = ({
         <button
           onClick={() => navigate("/")}
           className="px-6 py-3 font-semibold rounded-lg shadow-sm transition-all flex 
-          hover:cursor-pointer bg-blue-600 hover:bg-blue-700 text-white"
+          hover:cursor-pointer bg-slate-100 border border-slate-300 hover:bg-slate-200 text-slate-700"
         >
           Regresar
         </button>
