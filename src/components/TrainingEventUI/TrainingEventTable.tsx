@@ -68,11 +68,15 @@ export const TrainingEventTable = ({
     setModalOpen(false);
   };
 
-  const handleSaveAll = async () => {
+  // --- MODIFICACIÓN 1: Recibimos la bandera 'isFinal' ---
+  const handleSaveAll = async (isFinal: boolean) => {
     const formData = new FormData();
 
     formData.append("EventId", eventData.id.toString());
     formData.append("Comments", comments || "");
+
+    // Agregamos la bandera para el backend
+    formData.append("IsFinalSave", isFinal.toString());
 
     if (instructorSignature) {
       const file = dataURLtoFile(
@@ -115,7 +119,6 @@ export const TrainingEventTable = ({
     navigate("/");
   };
 
-  // --- NUEVO: CÁLCULO DE RESULTADOS POR TEMA ---
   const topicStats = eventData.evaluationTopics.map((_, topicIdx) => {
     let possible = 0;
     let actual = 0;
@@ -146,7 +149,6 @@ export const TrainingEventTable = ({
       average: countGrades > 0 ? Math.round(sumGrades / countGrades) : null,
     };
   });
-  // ----------------------------------------------
 
   return (
     <div
@@ -263,7 +265,6 @@ export const TrainingEventTable = ({
               );
             })}
 
-            {/* --- NUEVO: FOOTER POR TEMA --- */}
             {employees.length > 0 && (
               <tr className="bg-slate-100/80 border-t-2 border-slate-300">
                 <td
@@ -273,14 +274,12 @@ export const TrainingEventTable = ({
                   RESULTADOS POR TEMA:
                 </td>
 
-                {/* Renderizamos las métricas debajo de cada columna de tema correspondiente */}
                 {topicStats.map((stat, idx) => (
                   <td
                     key={`stat-${idx}`}
                     className="p-2 border-r border-slate-300 text-center"
                   >
                     <div className="flex justify-center items-center gap-1">
-                      {/* Porcentaje de Asistencia */}
                       <span
                         className={`px-1.5 py-1 rounded text-[10px] font-bold ${
                           stat.attendance >= 80
@@ -291,7 +290,6 @@ export const TrainingEventTable = ({
                       >
                         {stat.attendance}%
                       </span>
-                      {/* Promedio de Calificación */}
                       <span
                         className={`px-1.5 py-1 rounded text-[10px] font-bold ${
                           stat.average !== null
@@ -376,9 +374,31 @@ export const TrainingEventTable = ({
         </div>
       </div>
 
-      <div className="mt-8 flex justify-end">
+      {/* --- MODIFICACIÓN 2: Doble botón con confirmación --- */}
+      <div className="mt-8 flex justify-end gap-4">
         <button
-          onClick={handleSaveAll}
+          onClick={() => handleSaveAll(false)}
+          disabled={isSaving}
+          className={`px-6 py-3 font-semibold rounded-lg shadow-sm transition-all flex 
+            items-center gap-2 ${
+              isSaving
+                ? "bg-slate-200 text-slate-400 cursor-not-allowed"
+                : "bg-white border border-blue-600 text-blue-600 hover:bg-blue-50 active:scale-95 hover:cursor-pointer"
+            }`}
+        >
+          Guardar Progreso
+        </button>
+
+        <button
+          onClick={() => {
+            if (
+              window.confirm(
+                "¿Estás seguro de finalizar el curso? Una vez cerrado, ya no podrás hacer modificaciones a las calificaciones ni asistencias.",
+              )
+            ) {
+              handleSaveAll(true);
+            }
+          }}
           disabled={isSaving}
           className={`px-8 py-3 font-semibold rounded-lg shadow-sm transition-all flex 
             items-center gap-2 ${
@@ -387,7 +407,7 @@ export const TrainingEventTable = ({
                 : "bg-blue-600 hover:bg-blue-700 text-white active:scale-95 hover:cursor-pointer"
             }`}
         >
-          {isSaving ? "Guardando Registro..." : "Guardar Registro Final"}
+          {isSaving ? "Guardando..." : "Finalizar y Cerrar Curso"}
         </button>
       </div>
 
