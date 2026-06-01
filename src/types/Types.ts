@@ -1,4 +1,12 @@
-export type AttendanceStatus = "PRESENT" | "ABSENT" | "TARDY" | "EMPTY";
+export type AttendanceStatus =
+  | "EMPTY"
+  | "PRESENT"
+  | "ABSENT"
+  | "TARDY"
+  | "PENDING"
+  | "R"
+  | "X"
+  | "LATE";
 
 export interface DailyRecord {
   status: AttendanceStatus;
