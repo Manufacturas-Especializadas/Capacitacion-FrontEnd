@@ -107,3 +107,13 @@ export interface TrainingEventDetail {
   employees: any[];
   initialAttendance: any[];
 }
+
+export interface TrainingEvents {
+  id: number;
+  courseName: string;
+  instructorName: string;
+  dateFrom: string;
+  dateTo: string;
+  status: string;
+  attendeeCount: number;
+}
