@@ -12,7 +12,9 @@ export const TopicCell = ({
 }: TopicCellProps) => {
   const isEnrolled = evaluation.isEnrolled !== false;
   const getStatusConfig = () => {
-    if (!isEnrolled) return { style: "bg-slate-100 text-slate-300", icon: "-" };
+    if (!isEnrolled) {
+      return { style: "bg-slate-100 text-slate-300", icon: "-" };
+    }
 
     switch (evaluation.status) {
       case "PRESENT":
@@ -50,8 +52,8 @@ export const TopicCell = ({
           onClick={onToggleStatus}
           disabled={!isEnrolled}
           className={`flex-1 h-full rounded flex items-center justify-center text-xl transition-colors 
-          ${isEnrolled ? "active:scale-95 cursor-pointer" : "cursor-not-allowed opacity-60"} 
-          ${config.style}`}
+            ${isEnrolled ? "active:scale-95 cursor-pointer" : "cursor-not-allowed"} 
+            ${config.style}`}
         >
           {config.icon}
         </button>
@@ -63,9 +65,8 @@ export const TopicCell = ({
           onChange={handleGradeChange}
           disabled={!isEnrolled}
           placeholder="-"
-          className={`flex-1 h-full w-full rounded border border-slate-200 text-center text-sm font-medium 
-          focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none transition-colors
-          ${isEnrolled ? "bg-white text-slate-700" : "bg-slate-100 text-slate-400 cursor-not-allowed"}`}
+          className={`flex-1 h-full w-full rounded border border-slate-200 text-center text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none transition-colors 
+            ${isEnrolled ? "bg-white text-slate-700" : "bg-slate-100 text-slate-400 cursor-not-allowed"}`}
         />
       </div>
     </td>
