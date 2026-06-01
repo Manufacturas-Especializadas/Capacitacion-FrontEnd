@@ -205,7 +205,7 @@ export const TrainingEventFormLayout = () => {
                 className="text-xs font-medium text-slate-500 bg-slate-100 px-2 
                 py-1 rounded"
               >
-                Máximo 6 columnas
+                Máximo 5 columnas
               </span>
             </div>
 
