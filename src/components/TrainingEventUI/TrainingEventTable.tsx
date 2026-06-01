@@ -73,10 +73,10 @@ export const TrainingEventTable = ({
 
     formData.append("EventId", eventData.id.toString());
     formData.append("Comments", comments || "");
-
     formData.append("IsFinalSave", isFinal.toString());
 
-    if (instructorSignature) {
+    // 1. Validamos que la firma del instructor sea NUEVA (Base64)
+    if (instructorSignature && instructorSignature.startsWith("data:image")) {
       const file = dataURLtoFile(
         instructorSignature,
         "instructor_signature.png",
@@ -90,7 +90,11 @@ export const TrainingEventTable = ({
         record.employeeId.toString(),
       );
 
-      if (record.signature && record.signature.trim() !== "") {
+      if (
+        record.signature &&
+        record.signature.trim() !== "" &&
+        record.signature.startsWith("data:image")
+      ) {
         const empFile = dataURLtoFile(
           record.signature,
           `emp_${record.employeeId}_signature.png`,
