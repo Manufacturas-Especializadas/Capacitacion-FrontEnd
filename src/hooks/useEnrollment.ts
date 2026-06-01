@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useTrainingEventMutations } from "./useTrainingEventMutations";
 import type { Employee } from "../types/Types";
 import { trainingEventService } from "../api/services/TrainingEventService";
+import { toast } from "sonner";
 
 export interface EnrolledRow {
   id: string;
@@ -90,6 +91,17 @@ export const useEnrollment = (
   const saveAssignments = async () => {
     const validRows = rows.filter((r) => r.employee !== null);
     if (validRows.length === 0) return;
+
+    const employeeIds = validRows.map((r) => r.employee!.id);
+    const hasDuplicates = new Set(employeeIds).size !== employeeIds.length;
+
+    if (hasDuplicates) {
+      toast.error(
+        "No puedes asignar al mismo operador más de una vez en la sessión",
+      );
+
+      return;
+    }
 
     const payload = {
       eventId: Number(eventId),
