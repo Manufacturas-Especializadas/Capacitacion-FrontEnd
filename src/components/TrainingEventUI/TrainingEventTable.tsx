@@ -1,17 +1,20 @@
 import { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import { Printer } from "lucide-react";
 import { useAttendanceGrid } from "../../hooks/useAttendanceGrid";
 import { useTrainingEventMutations } from "../../hooks/useTrainingEventMutations";
 import { EmployeeRow } from "./EmployeeRow";
 import { SignatureModal } from "../SignatureModal/SignatureModal";
+import {
+  generateNoticePDF,
+  calculateTopicStats,
+  buildAttendanceFormData,
+} from "../../utils/eventUtils";
 import type {
   TrainingEventData,
   Employee,
   AttendanceRecord,
 } from "../../types/Types";
-import { useNavigate } from "react-router-dom";
-import { Printer } from "lucide-react"; // <-- NUEVO: Ícono de impresora
-import jsPDF from "jspdf"; // <-- NUEVO: Librería PDF
-import autoTable from "jspdf-autotable"; // <-- NUEVO: Librería para tablas en PDF
 
 interface TrainingEventProps {
   eventData: TrainingEventData;
@@ -19,23 +22,13 @@ interface TrainingEventProps {
   initialAttendance: AttendanceRecord[];
 }
 
-const dataURLtoFile = (dataurl: string, filename: string): File => {
-  const arr = dataurl.split(",");
-  const mime = arr[0].match(/:(.*?);/)?.[1];
-  const bstr = atob(arr[1]);
-  let n = bstr.length;
-  const u8arr = new Uint8Array(n);
-  while (n--) {
-    u8arr[n] = bstr.charCodeAt(n);
-  }
-  return new File([u8arr], filename, { type: mime });
-};
-
 export const TrainingEventTable = ({
   eventData,
   employees,
   initialAttendance,
 }: TrainingEventProps) => {
+  const navigate = useNavigate();
+  const { saveFinalAttendance, isSaving } = useTrainingEventMutations();
   const {
     records,
     toggleAttendance,
@@ -45,8 +38,6 @@ export const TrainingEventTable = ({
     setComments,
   } = useAttendanceGrid(initialAttendance);
 
-  const { saveFinalAttendance, isSaving } = useTrainingEventMutations();
-
   const [modalOpen, setModalOpen] = useState(false);
   const [currentSignerId, setCurrentSignerId] = useState<string | null>(null);
   const [currentSignerName, setCurrentSignerName] = useState("");
@@ -54,7 +45,22 @@ export const TrainingEventTable = ({
     null,
   );
 
-  const navigate = useNavigate();
+  const topicStats = useMemo(
+    () => calculateTopicStats(records, eventData.evaluationTopics),
+    [records, eventData.evaluationTopics],
+  );
+
+  const handleSaveAll = async (isFinal: boolean) => {
+    const formData = buildAttendanceFormData(
+      eventData,
+      records,
+      comments,
+      isFinal,
+      instructorSignature,
+    );
+    await saveFinalAttendance(formData as any, Number(eventData.id));
+    navigate("/");
+  };
 
   const openSignatureModal = (id: string, name: string) => {
     setCurrentSignerId(id);
@@ -71,162 +77,8 @@ export const TrainingEventTable = ({
     setModalOpen(false);
   };
 
-  const handleSaveAll = async (isFinal: boolean) => {
-    const formData = new FormData();
-
-    formData.append("EventId", eventData.id.toString());
-    formData.append("Comments", comments || "");
-    formData.append("IsFinalSave", isFinal.toString());
-
-    if (instructorSignature && instructorSignature.startsWith("data:image")) {
-      const file = dataURLtoFile(
-        instructorSignature,
-        "instructor_signature.png",
-      );
-      formData.append("InstructorSignature", file);
-    }
-
-    records.forEach((record, index) => {
-      formData.append(
-        `EmployeeRecords[${index}].EmployeeId`,
-        record.employeeId.toString(),
-      );
-
-      if (
-        record.signature &&
-        record.signature.trim() !== "" &&
-        record.signature.startsWith("data:image")
-      ) {
-        const empFile = dataURLtoFile(
-          record.signature,
-          `emp_${record.employeeId}_signature.png`,
-        );
-        formData.append(`EmployeeRecords[${index}].Signature`, empFile);
-      }
-
-      record.evaluations.forEach((ev, evIndex) => {
-        formData.append(
-          `EmployeeRecords[${index}].Evaluations[${evIndex}].Status`,
-          ev.status,
-        );
-
-        const isAbsent = ev.status === "ABSENT" || ev.status === "X";
-
-        if (!isAbsent && ev.grade !== null && ev.grade !== null) {
-          formData.append(
-            `EmployeeRecords[${index}].Evaluations[${evIndex}].Grade`,
-            ev.grade.toString(),
-          );
-        }
-      });
-    });
-
-    await saveFinalAttendance(formData as any, Number(eventData.id));
-    navigate("/");
-  };
-
-  const generateNoticePDF = () => {
-    const doc = new jsPDF();
-
-    doc.setFontSize(18);
-    doc.setTextColor(15, 23, 42);
-    doc.text("Aviso de Convocatoria a Capacitación", 14, 22);
-
-    doc.setFontSize(10);
-    doc.setTextColor(100, 116, 139);
-    doc.text("Manufacturas Especializadas, S.A. (MESA)", 14, 28);
-
-    doc.setFontSize(11);
-    doc.setTextColor(15, 23, 42);
-    doc.text(`Curso / Plática: ${eventData.courseName}`, 14, 40);
-    doc.text(`Instructor: ${eventData.instructor}`, 14, 46);
-    doc.text(`Fechas: ${eventData.dateFrom} al ${eventData.dateTo}`, 14, 52);
-
-    const tableColumn = [
-      "N°",
-      "N° Nómina",
-      "Nombre del Operador / Empleado",
-      "Firma de Enterado",
-    ];
-    const tableRows: any[] = [];
-
-    employees.forEach((emp, index) => {
-      const rowData = [index + 1, emp.employeeNumber, emp.name, ""];
-      tableRows.push(rowData);
-    });
-
-    autoTable(doc, {
-      head: [tableColumn],
-      body: tableRows,
-      startY: 60,
-      theme: "grid",
-      styles: { fontSize: 9, cellPadding: 3 },
-      headStyles: { fillColor: [37, 99, 235], textColor: [255, 255, 255] },
-      columnStyles: {
-        0: { cellWidth: 15, halign: "center" },
-        1: { cellWidth: 25, halign: "center" },
-        2: { cellWidth: 80 },
-        3: { cellWidth: 50 },
-      },
-    });
-
-    doc.save(`Aviso_${eventData.courseName.replace(/\s+/g, "_")}.pdf`);
-  };
-
-  const topicStats = useMemo(() => {
-    return eventData.evaluationTopics.map((_, topicIdx) => {
-      let possible = 0;
-      let actual = 0;
-      let sumGrades = 0;
-      let countGrades = 0;
-
-      records.forEach((record) => {
-        const evaluation = record.evaluations[topicIdx];
-
-        if (evaluation && evaluation.status) {
-          const status = evaluation.status.toUpperCase() as string;
-
-          if (status !== "EMPTY" && status !== "PENDING") {
-            possible++;
-            const isPresentOrLate = [
-              "PRESENT",
-              "LATE",
-              "TARDY",
-              "R",
-              "RETARDO",
-            ].includes(status);
-            if (isPresentOrLate) actual++;
-
-            const isAbsent = ["ABSENT", "X", "FALTA"].includes(status);
-            const grade = Number(evaluation.grade);
-
-            if (
-              !isAbsent &&
-              evaluation.grade !== null &&
-              evaluation.grade !== null &&
-              !isNaN(grade) &&
-              grade > 0
-            ) {
-              sumGrades += grade;
-              countGrades++;
-            }
-          }
-        }
-      });
-
-      return {
-        attendance: possible > 0 ? Math.round((actual / possible) * 100) : 0,
-        average: countGrades > 0 ? Math.round(sumGrades / countGrades) : null,
-      };
-    });
-  }, [records, eventData.evaluationTopics]);
-
   return (
-    <div
-      className="w-full max-w-375 mx-auto p-6 bg-white rounded-xl shadow-sm border 
-      border-slate-200"
-    >
-      {/* HEADER DE DATOS DEL CURSO CON BOTÓN DE IMPRESIÓN */}
+    <div className="w-full max-w-375 mx-auto p-6 bg-white rounded-xl shadow-sm border border-slate-200">
       <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-8">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 p-5 bg-slate-50 rounded-lg border border-slate-200 grow w-full">
           <div>
@@ -264,7 +116,7 @@ export const TrainingEventTable = ({
         </div>
 
         <button
-          onClick={generateNoticePDF}
+          onClick={() => generateNoticePDF(eventData, employees)}
           className="shrink-0 flex items-center justify-center gap-2 px-5 py-3 bg-white border-2 border-blue-600 text-blue-700 font-bold rounded-lg shadow-sm hover:bg-blue-50 transition-colors active:scale-95 cursor-pointer"
           title="Descargar lista para aviso a operadores"
         >
@@ -295,7 +147,6 @@ export const TrainingEventTable = ({
               >
                 Nombre del Empleado
               </th>
-
               <th
                 className="p-3 border-b border-r border-slate-300 w-28 uppercase text-center"
                 rowSpan={2}
@@ -321,7 +172,6 @@ export const TrainingEventTable = ({
                 Firma del Participante
               </th>
             </tr>
-
             <tr className="bg-slate-50 text-[10px] text-slate-500 uppercase tracking-wider">
               {eventData.evaluationTopics.map((_, idx) => (
                 <th
@@ -357,12 +207,11 @@ export const TrainingEventTable = ({
             {employees.length > 0 && (
               <tr className="bg-slate-100/80 border-t-2 border-slate-300">
                 <td
-                  colSpan={3}
+                  colSpan={4}
                   className="p-3 pr-4 border-r border-slate-300 text-right uppercase text-[10px] font-bold text-slate-700 tracking-wider"
                 >
                   RESULTADOS POR TEMA:
                 </td>
-
                 {topicStats.map((stat, idx) => (
                   <td
                     key={`stat-${idx}`}
@@ -370,23 +219,13 @@ export const TrainingEventTable = ({
                   >
                     <div className="flex justify-center items-center gap-1">
                       <span
-                        className={`px-1.5 py-1 rounded text-[10px] font-bold ${
-                          stat.attendance >= 80
-                            ? "bg-blue-100 text-blue-700"
-                            : "bg-rose-100 text-rose-700"
-                        }`}
+                        className={`px-1.5 py-1 rounded text-[10px] font-bold ${stat.attendance >= 80 ? "bg-blue-100 text-blue-700" : "bg-rose-100 text-rose-700"}`}
                         title="Asistencia del Tema"
                       >
                         {stat.attendance}%
                       </span>
                       <span
-                        className={`px-1.5 py-1 rounded text-[10px] font-bold ${
-                          stat.average !== null
-                            ? stat.average >= 80
-                              ? "bg-emerald-100 text-emerald-700"
-                              : "bg-orange-100 text-orange-700"
-                            : "text-slate-400 bg-slate-50"
-                        }`}
+                        className={`px-1.5 py-1 rounded text-[10px] font-bold ${stat.average !== null ? (stat.average >= 80 ? "bg-emerald-100 text-emerald-700" : "bg-orange-100 text-orange-700") : "text-slate-400 bg-slate-50"}`}
                         title="Promedio del Tema"
                       >
                         {stat.average !== null ? stat.average : "-"}
@@ -394,7 +233,6 @@ export const TrainingEventTable = ({
                     </div>
                   </td>
                 ))}
-
                 <td className="p-3 bg-transparent"></td>
               </tr>
             )}
