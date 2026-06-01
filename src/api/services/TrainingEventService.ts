@@ -4,10 +4,13 @@ import type {
   CreateTrainingEvent,
   SaveAttendance,
   TrainingEventDetail,
+  TrainingEvents,
 } from "../../types/Types";
 import { apiClient } from "../client";
 
 class TrainingEventService {
+  private getTrainingEventsEndpoint =
+    API_CONFIG.endpoint.trainingEvent.getTrainingEvents;
   private getDetailsEndpoint =
     API_CONFIG.endpoint.trainingEvent.trainingEventsDetails;
   private createEventEndpoint = API_CONFIG.endpoint.trainingEvent.createEvent;
@@ -15,6 +18,10 @@ class TrainingEventService {
     API_CONFIG.endpoint.trainingEvent.assingAttendees;
   private saveAttendanceEndpoint =
     API_CONFIG.endpoint.trainingEvent.saveAttendance;
+
+  async getTrainingEvents(): Promise<TrainingEvents[]> {
+    return apiClient.get<TrainingEvents[]>(this.getTrainingEventsEndpoint);
+  }
 
   async getDetails(id: number): Promise<TrainingEventDetail> {
     return apiClient.get<TrainingEventDetail>(
