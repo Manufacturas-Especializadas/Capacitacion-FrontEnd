@@ -29,7 +29,7 @@ export interface CreateEmployee {
 export interface TopicEvaluation {
   isEnrolled: boolean;
   status: AttendanceStatus;
-  grade: number | "";
+  grade: number | null;
 }
 
 export interface TrainingDay {
