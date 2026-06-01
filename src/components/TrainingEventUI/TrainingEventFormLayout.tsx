@@ -19,13 +19,14 @@ export const TrainingEventFormLayout = () => {
 
   useEffect(() => {
     fetchRooms();
-  }, []);
+  }, [fetchRooms]);
 
   const [formData, setFormData] = useState({
     courseName: "",
     instructor: "",
     room: "",
-    date: "",
+    startDate: "",
+    endDate: "",
     startTime: "",
     endTime: "",
     attendeeCount: "",
@@ -50,7 +51,7 @@ export const TrainingEventFormLayout = () => {
     if (topics.length < 5) {
       setTopics([...topics, ""]);
     } else {
-      toast.error("Solo se permite un maximo de 5 temas por sesión", {
+      toast.error("Solo se permite un máximo de 5 temas por sesión", {
         id: "max-topics-toast",
       });
     }
@@ -68,7 +69,11 @@ export const TrainingEventFormLayout = () => {
 
     if (validTopics.length > 5) {
       toast.error("No puedes enviar más de 5 temas");
+      return;
+    }
 
+    if (new Date(formData.endDate) < new Date(formData.startDate)) {
+      toast.error("La fecha de fin no puede ser anterior a la fecha de inicio");
       return;
     }
 
@@ -76,8 +81,8 @@ export const TrainingEventFormLayout = () => {
       courseName: formData.courseName,
       instructorName: formData.instructor,
       roomId: Number(formData.room),
-      dateFrom: `${formData.date}T${formData.startTime}:00`,
-      dateTo: `${formData.date}T${formData.endTime}:00`,
+      dateFrom: `${formData.startDate}T${formData.startTime}:00`,
+      dateTo: `${formData.endDate}T${formData.endTime}:00`,
       evaluationTopics: validTopics,
     };
 
@@ -134,7 +139,7 @@ export const TrainingEventFormLayout = () => {
               Datos de la Sesión
             </h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
               <div className="col-span-1 md:col-span-2">
                 <InputField
                   label="Curso / Plática"
@@ -166,28 +171,12 @@ export const TrainingEventFormLayout = () => {
                 />
               </div>
 
-              <div className="col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-x-4">
+              <div className="col-span-1">
                 <InputField
                   type="date"
-                  label="Fecha"
-                  name="date"
-                  value={formData.date}
-                  onChange={handleInputChange}
-                  required
-                />
-                <InputField
-                  type="time"
-                  label="Hora Inicio"
-                  name="startTime"
-                  value={formData.startTime}
-                  onChange={handleInputChange}
-                  required
-                />
-                <InputField
-                  type="time"
-                  label="Hora Fin"
-                  name="endTime"
-                  value={formData.endTime}
+                  label="Fecha de Inicio"
+                  name="startDate"
+                  value={formData.startDate}
                   onChange={handleInputChange}
                   required
                 />
@@ -195,14 +184,50 @@ export const TrainingEventFormLayout = () => {
 
               <div className="col-span-1">
                 <InputField
-                  type="number"
-                  label="Cantidad de Asistentes Esperados"
-                  name="attendeeCount"
-                  min="1"
-                  value={formData.attendeeCount}
+                  type="date"
+                  label="Fecha de Término"
+                  name="endDate"
+                  value={formData.endDate}
+                  onChange={handleInputChange}
+                  min={formData.startDate}
+                  required
+                />
+              </div>
+
+              <div className="col-span-1">
+                <InputField
+                  type="time"
+                  label="Hora de Inicio"
+                  name="startTime"
+                  value={formData.startTime}
                   onChange={handleInputChange}
                   required
                 />
+              </div>
+
+              <div className="col-span-1">
+                <InputField
+                  type="time"
+                  label="Hora de Término"
+                  name="endTime"
+                  value={formData.endTime}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+
+              <div className="col-span-1 md:col-span-2 pt-2">
+                <div className="md:w-1/2 md:pr-3">
+                  <InputField
+                    type="number"
+                    label="Cantidad de Asistentes Esperados"
+                    name="attendeeCount"
+                    min="1"
+                    value={formData.attendeeCount}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -258,7 +283,7 @@ export const TrainingEventFormLayout = () => {
               ))}
             </div>
 
-            {topics.length < 6 && (
+            {topics.length < 5 && (
               <button
                 type="button"
                 onClick={addTopic}
