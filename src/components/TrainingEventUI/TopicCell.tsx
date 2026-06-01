@@ -3,7 +3,7 @@ import type { Evaluation } from "../../types/Types";
 interface TopicCellProps {
   evaluation: Evaluation;
   onToggleStatus: () => void;
-  onChangeGrade: (val: number | "") => void;
+  onChangeGrade: (val: number | null) => void;
 }
 
 export const TopicCell = ({
@@ -44,7 +44,7 @@ export const TopicCell = ({
           max="100"
           value={isAbsent || isPendingOrEmpty ? "" : (evaluation.grade ?? "")}
           onChange={(e) => {
-            const val = e.target.value === "" ? "" : Number(e.target.value);
+            const val = e.target.value === "" ? null : Number(e.target.value);
             onChangeGrade(val);
           }}
           disabled={isAbsent || isPendingOrEmpty}
