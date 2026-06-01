@@ -7,14 +7,26 @@ import type {
   TrainingEventData,
   Employee,
   AttendanceRecord,
-  SaveAttendance,
 } from "../../types/Types";
+import { useNavigate } from "react-router-dom";
 
 interface TrainingEventProps {
   eventData: TrainingEventData;
   employees: Employee[];
   initialAttendance: AttendanceRecord[];
 }
+
+const dataURLtoFile = (dataurl: string, filename: string): File => {
+  const arr = dataurl.split(",");
+  const mime = arr[0].match(/:(.*?);/)?.[1];
+  const bstr = atob(arr[1]);
+  let n = bstr.length;
+  const u8arr = new Uint8Array(n);
+  while (n--) {
+    u8arr[n] = bstr.charCodeAt(n);
+  }
+  return new File([u8arr], filename, { type: mime });
+};
 
 export const TrainingEventTable = ({
   eventData,
@@ -39,6 +51,8 @@ export const TrainingEventTable = ({
     null,
   );
 
+  const navigate = useNavigate();
+
   const openSignatureModal = (id: string, name: string) => {
     setCurrentSignerId(id);
     setCurrentSignerName(name);
@@ -55,21 +69,50 @@ export const TrainingEventTable = ({
   };
 
   const handleSaveAll = async () => {
-    const payload: SaveAttendance = {
-      eventId: Number(eventData.id),
-      comments: comments,
-      instructorSignature: instructorSignature || "",
-      employeeRecords: records.map((record) => ({
-        employeeId: Number(record.employeeId),
-        signature: record.signature || " ",
-        evaluations: record.evaluations.map((ev) => ({
-          status: ev.status,
-          grade: ev.grade === "" ? null : Number(ev.grade),
-        })),
-      })),
-    };
+    const formData = new FormData();
 
-    await saveFinalAttendance(payload, Number(eventData.id));
+    formData.append("EventId", eventData.id.toString());
+    formData.append("Comments", comments || "");
+
+    if (instructorSignature) {
+      const file = dataURLtoFile(
+        instructorSignature,
+        "instructor_signature.png",
+      );
+      formData.append("InstructorSignature", file);
+    }
+
+    records.forEach((record, index) => {
+      formData.append(
+        `EmployeeRecords[${index}].EmployeeId`,
+        record.employeeId.toString(),
+      );
+
+      if (record.signature && record.signature.trim() !== "") {
+        const empFile = dataURLtoFile(
+          record.signature,
+          `emp_${record.employeeId}_signature.png`,
+        );
+        formData.append(`EmployeeRecords[${index}].Signature`, empFile);
+      }
+
+      record.evaluations.forEach((ev, evIndex) => {
+        formData.append(
+          `EmployeeRecords[${index}].Evaluations[${evIndex}].Status`,
+          ev.status,
+        );
+        if (ev.grade !== "" && ev.grade !== null) {
+          formData.append(
+            `EmployeeRecords[${index}].Evaluations[${evIndex}].Grade`,
+            ev.grade.toString(),
+          );
+        }
+      });
+    });
+
+    await saveFinalAttendance(formData as any, Number(eventData.id));
+
+    navigate("/");
   };
 
   return (
@@ -82,7 +125,7 @@ export const TrainingEventTable = ({
         rounded-lg border border-slate-200"
       >
         <div>
-          <p className="text-xs font-semibold text-slate-500 uppercase">
+          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
             Curso / Plática
           </p>
           <p className="text-sm font-medium text-slate-900">
@@ -90,7 +133,7 @@ export const TrainingEventTable = ({
           </p>
         </div>
         <div>
-          <p className="text-xs font-semibold text-slate-500 uppercase">
+          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
             Instructor
           </p>
           <p className="text-sm font-medium text-slate-900">
@@ -98,11 +141,13 @@ export const TrainingEventTable = ({
           </p>
         </div>
         <div>
-          <p className="text-xs font-semibold text-slate-500 uppercase">Área</p>
+          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+            Área
+          </p>
           <p className="text-sm font-medium text-slate-900">{eventData.area}</p>
         </div>
         <div>
-          <p className="text-xs font-semibold text-slate-500 uppercase">
+          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
             Fechas
           </p>
           <p className="text-sm font-medium text-slate-900">
