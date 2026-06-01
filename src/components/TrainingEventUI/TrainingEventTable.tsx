@@ -115,6 +115,39 @@ export const TrainingEventTable = ({
     navigate("/");
   };
 
+  // --- NUEVO: CÁLCULO DE RESULTADOS POR TEMA ---
+  const topicStats = eventData.evaluationTopics.map((_, topicIdx) => {
+    let possible = 0;
+    let actual = 0;
+    let sumGrades = 0;
+    let countGrades = 0;
+
+    records.forEach((record) => {
+      const evaluation = record.evaluations[topicIdx];
+      if (evaluation) {
+        possible++;
+        if (evaluation.status === "PRESENT") actual++;
+
+        const grade = Number(evaluation.grade);
+        if (
+          evaluation.grade !== null &&
+          evaluation.grade !== "" &&
+          !isNaN(grade) &&
+          grade > 0
+        ) {
+          sumGrades += grade;
+          countGrades++;
+        }
+      }
+    });
+
+    return {
+      attendance: possible > 0 ? Math.round((actual / possible) * 100) : 0,
+      average: countGrades > 0 ? Math.round(sumGrades / countGrades) : null,
+    };
+  });
+  // ----------------------------------------------
+
   return (
     <div
       className="w-full max-w-375 mx-auto p-6 bg-white rounded-xl shadow-sm border 
@@ -157,7 +190,7 @@ export const TrainingEventTable = ({
       </div>
 
       <div className="overflow-x-auto rounded-lg border border-slate-300">
-        <table className="w-full text-sm text-left table-fixed min-w-250">
+        <table className="w-full text-sm text-left table-auto min-w-250">
           <thead className="bg-slate-100 text-slate-700 text-xs font-semibold">
             <tr>
               <th
@@ -178,43 +211,31 @@ export const TrainingEventTable = ({
               >
                 Nombre del Empleado
               </th>
+
               {eventData.evaluationTopics.map((topic, idx) => (
                 <th
                   key={idx}
-                  className="p-2 border-b border-r last:border-r-0 border-slate-300 
-                  text-center truncate px-2"
+                  className="p-2 border-b border-r border-slate-300 text-center truncate px-2"
                   colSpan={1}
                   title={topic}
                 >
                   {topic || `Tema ${idx + 1}`}
                 </th>
               ))}
+
               <th
-                className="p-3 border-b border-r border-slate-300 w-24 uppercase text-center
-                text-[10px]"
-                rowSpan={2}
-              >
-                % Asistencia
-              </th>
-              <th
-                className="p-3 border-b border-r border-slate-300 w-24 uppercase text-center
-                text-[10px]"
-                rowSpan={2}
-              >
-                Promedio
-              </th>
-              <th
-                className="p-3 border-b border-slate-300 border-l w-32 uppercase text-center"
+                className="p-3 border-b border-slate-300 w-32 uppercase text-center"
                 rowSpan={2}
               >
                 Firma del Participante
               </th>
             </tr>
+
             <tr className="bg-slate-50 text-[10px] text-slate-500 uppercase tracking-wider">
               {eventData.evaluationTopics.map((_, idx) => (
                 <th
                   key={`sub-${idx}`}
-                  className="p-1 border-b border-r last:border-r-0 border-slate-300 text-center font-normal"
+                  className="p-1 border-b border-r border-slate-300 text-center font-normal"
                 >
                   <div className="flex justify-between px-2">
                     <span title="Asistencia">Asis.</span>
@@ -241,6 +262,55 @@ export const TrainingEventTable = ({
                 />
               );
             })}
+
+            {/* --- NUEVO: FOOTER POR TEMA --- */}
+            {employees.length > 0 && (
+              <tr className="bg-slate-100/80 border-t-2 border-slate-300">
+                <td
+                  colSpan={3}
+                  className="p-3 pr-4 border-r border-slate-300 text-right uppercase text-[10px] font-bold text-slate-700 tracking-wider"
+                >
+                  RESULTADOS POR TEMA:
+                </td>
+
+                {/* Renderizamos las métricas debajo de cada columna de tema correspondiente */}
+                {topicStats.map((stat, idx) => (
+                  <td
+                    key={`stat-${idx}`}
+                    className="p-2 border-r border-slate-300 text-center"
+                  >
+                    <div className="flex justify-center items-center gap-1">
+                      {/* Porcentaje de Asistencia */}
+                      <span
+                        className={`px-1.5 py-1 rounded text-[10px] font-bold ${
+                          stat.attendance >= 80
+                            ? "bg-blue-100 text-blue-700"
+                            : "bg-rose-100 text-rose-700"
+                        }`}
+                        title="Asistencia del Tema"
+                      >
+                        {stat.attendance}%
+                      </span>
+                      {/* Promedio de Calificación */}
+                      <span
+                        className={`px-1.5 py-1 rounded text-[10px] font-bold ${
+                          stat.average !== null
+                            ? stat.average >= 80
+                              ? "bg-emerald-100 text-emerald-700"
+                              : "bg-orange-100 text-orange-700"
+                            : "text-slate-400 bg-slate-50"
+                        }`}
+                        title="Promedio del Tema"
+                      >
+                        {stat.average !== null ? stat.average : "-"}
+                      </span>
+                    </div>
+                  </td>
+                ))}
+
+                <td className="p-3 bg-transparent"></td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
