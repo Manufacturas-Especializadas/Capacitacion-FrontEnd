@@ -125,27 +125,23 @@ export const TrainingEventTable = ({
     navigate("/");
   };
 
-  // --- NUEVA FUNCIÓN: GENERADOR DE AVISO EN PDF ---
   const generateNoticePDF = () => {
     const doc = new jsPDF();
 
-    // 1. Título y Encabezado
     doc.setFontSize(18);
-    doc.setTextColor(15, 23, 42); // slate-900
+    doc.setTextColor(15, 23, 42);
     doc.text("Aviso de Convocatoria a Capacitación", 14, 22);
 
     doc.setFontSize(10);
-    doc.setTextColor(100, 116, 139); // slate-500
+    doc.setTextColor(100, 116, 139);
     doc.text("Manufacturas Especializadas, S.A. (MESA)", 14, 28);
 
-    // 2. Información del Curso
     doc.setFontSize(11);
     doc.setTextColor(15, 23, 42);
     doc.text(`Curso / Plática: ${eventData.courseName}`, 14, 40);
     doc.text(`Instructor: ${eventData.instructor}`, 14, 46);
     doc.text(`Fechas: ${eventData.dateFrom} al ${eventData.dateTo}`, 14, 52);
 
-    // 3. Preparar los datos de la tabla
     const tableColumn = [
       "N°",
       "N° Nómina",
@@ -155,35 +151,27 @@ export const TrainingEventTable = ({
     const tableRows: any[] = [];
 
     employees.forEach((emp, index) => {
-      const rowData = [
-        index + 1,
-        emp.employeeNumber,
-        emp.name,
-        "", // Espacio en blanco para que el operador firme de enterado físicamente
-      ];
+      const rowData = [index + 1, emp.employeeNumber, emp.name, ""];
       tableRows.push(rowData);
     });
 
-    // 4. Dibujar la tabla
     autoTable(doc, {
       head: [tableColumn],
       body: tableRows,
       startY: 60,
       theme: "grid",
       styles: { fontSize: 9, cellPadding: 3 },
-      headStyles: { fillColor: [37, 99, 235], textColor: [255, 255, 255] }, // bg-blue-600
+      headStyles: { fillColor: [37, 99, 235], textColor: [255, 255, 255] },
       columnStyles: {
         0: { cellWidth: 15, halign: "center" },
         1: { cellWidth: 25, halign: "center" },
         2: { cellWidth: 80 },
-        3: { cellWidth: 50 }, // Columna ancha para la firma física
+        3: { cellWidth: 50 },
       },
     });
 
-    // 5. Descargar el archivo
     doc.save(`Aviso_${eventData.courseName.replace(/\s+/g, "_")}.pdf`);
   };
-  // ------------------------------------------------
 
   const topicStats = useMemo(() => {
     return eventData.evaluationTopics.map((_, topicIdx) => {
