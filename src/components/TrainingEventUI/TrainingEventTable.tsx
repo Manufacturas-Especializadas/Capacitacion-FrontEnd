@@ -190,6 +190,20 @@ export const TrainingEventTable = ({
                 </th>
               ))}
               <th
+                className="p-3 border-b border-r border-slate-300 w-24 uppercase text-center
+                text-[10px]"
+                rowSpan={2}
+              >
+                % Asistencia
+              </th>
+              <th
+                className="p-3 border-b border-r border-slate-300 w-24 uppercase text-center
+                text-[10px]"
+                rowSpan={2}
+              >
+                Promedio
+              </th>
+              <th
                 className="p-3 border-b border-slate-300 border-l w-32 uppercase text-center"
                 rowSpan={2}
               >
