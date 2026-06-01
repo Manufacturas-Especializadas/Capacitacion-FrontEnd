@@ -68,14 +68,12 @@ export const TrainingEventTable = ({
     setModalOpen(false);
   };
 
-  // --- MODIFICACIÓN 1: Recibimos la bandera 'isFinal' ---
   const handleSaveAll = async (isFinal: boolean) => {
     const formData = new FormData();
 
     formData.append("EventId", eventData.id.toString());
     formData.append("Comments", comments || "");
 
-    // Agregamos la bandera para el backend
     formData.append("IsFinalSave", isFinal.toString());
 
     if (instructorSignature) {
@@ -374,7 +372,6 @@ export const TrainingEventTable = ({
         </div>
       </div>
 
-      {/* --- MODIFICACIÓN 2: Doble botón con confirmación --- */}
       <div className="mt-8 flex justify-end gap-4">
         <button
           onClick={() => handleSaveAll(false)}
