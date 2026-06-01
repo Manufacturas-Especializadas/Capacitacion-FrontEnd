@@ -10,6 +10,7 @@ import { useTrainingEventMutations } from "../../hooks/useTrainingEventMutations
 import { useCatalogs } from "../../hooks/useCatalogs";
 import InputField from "../Inputs/InputField";
 import SelectField from "../Inputs/SelectField";
+import { toast } from "sonner";
 
 export const TrainingEventFormLayout = () => {
   const navigate = useNavigate();
@@ -46,8 +47,12 @@ export const TrainingEventFormLayout = () => {
   };
 
   const addTopic = () => {
-    if (topics.length < 6) {
+    if (topics.length < 5) {
       setTopics([...topics, ""]);
+    } else {
+      toast.error("Solo se permite un maximo de 5 temas por sesión", {
+        id: "max-topics-toast",
+      });
     }
   };
 
@@ -60,6 +65,12 @@ export const TrainingEventFormLayout = () => {
     e.preventDefault();
 
     const validTopics = topics.filter((t) => t.trim() !== "");
+
+    if (validTopics.length > 5) {
+      toast.error("No puedes enviar más de 5 temas");
+
+      return;
+    }
 
     const payload = {
       courseName: formData.courseName,
