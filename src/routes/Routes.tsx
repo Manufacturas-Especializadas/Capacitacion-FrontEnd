@@ -3,11 +3,12 @@ import { TrainingEvent } from "../pages/TrainingEvent/TrainingEvent";
 import { TrainingHistory } from "../pages/TrainingEvent/TrainingHistory";
 import { TrainingEventForm } from "../pages/TrainingEvent/TrainingEventForm";
 import { EnrollmentMatrix } from "../components/TrainingEventUI/EnrollmentMatrix";
+import { Home } from "../pages/Home/Home";
 
 export const MyRoutes = () => {
   return (
     <Routes>
-      <Route path="/" element={<TrainingHistory />} />
+      <Route path="/" element={<Home />} />
       <Route
         path="/historial-registro-de-asistencia"
         element={<TrainingHistory />}
