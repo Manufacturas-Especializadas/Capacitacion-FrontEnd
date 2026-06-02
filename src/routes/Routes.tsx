@@ -8,6 +8,10 @@ export const MyRoutes = () => {
   return (
     <Routes>
       <Route path="/" element={<TrainingHistory />} />
+      <Route
+        path="/historial-registro-de-asistencia"
+        element={<TrainingHistory />}
+      />
       <Route path="/registro-asistencia" element={<TrainingEventForm />} />
       <Route
         path="/registro-asistencia/usuarios"
