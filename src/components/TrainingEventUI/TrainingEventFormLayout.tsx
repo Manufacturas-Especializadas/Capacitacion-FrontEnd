@@ -77,7 +77,6 @@ export const TrainingEventFormLayout = () => {
   const handleSubmit = async (e: SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    // Validamos que los temas no estén a medias
     const validTopics = topics.filter((t) => t.name.trim() !== "");
 
     for (const topic of validTopics) {
