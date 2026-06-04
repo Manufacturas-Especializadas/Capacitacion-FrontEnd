@@ -4,7 +4,7 @@ import {
   type ChangeEvent,
   type SyntheticEvent,
 } from "react";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Plus, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTrainingEventMutations } from "../../hooks/useTrainingEventMutations";
 import { useCatalogs } from "../../hooks/useCatalogs";
@@ -163,20 +163,18 @@ export const TrainingEventFormLayout = () => {
               className="text-lg font-semibold text-slate-800 mb-6 border-b 
               border-slate-100 pb-2"
             >
-              Datos de la Sesión
+              Datos Generales de la Sesión
             </h2>
-
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
               <div className="col-span-1 md:col-span-2">
                 <InputField
-                  label="Curso / Plática"
+                  label="Nombre del Curso / Capacitación"
                   name="courseName"
                   value={formData.courseName}
                   onChange={handleInputChange}
                   required
                 />
               </div>
-
               <div className="col-span-1">
                 <InputField
                   label="Nombre del Instructor"
@@ -186,7 +184,6 @@ export const TrainingEventFormLayout = () => {
                   required
                 />
               </div>
-
               <div className="col-span-1">
                 <SelectField
                   label="Sala de Capacitación"
@@ -197,64 +194,16 @@ export const TrainingEventFormLayout = () => {
                   required
                 />
               </div>
-
               <div className="col-span-1">
                 <InputField
-                  type="date"
-                  label="Fecha de Inicio"
-                  name="startDate"
-                  value={formData.startDate}
+                  type="number"
+                  label="Cantidad de Asistentes Esperados"
+                  name="attendeeCount"
+                  min="1"
+                  value={formData.attendeeCount}
                   onChange={handleInputChange}
                   required
                 />
-              </div>
-
-              <div className="col-span-1">
-                <InputField
-                  type="date"
-                  label="Fecha de Término"
-                  name="endDate"
-                  value={formData.endDate}
-                  onChange={handleInputChange}
-                  min={formData.startDate}
-                  required
-                />
-              </div>
-
-              <div className="col-span-1">
-                <InputField
-                  type="time"
-                  label="Hora de Inicio"
-                  name="startTime"
-                  value={formData.startTime}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-
-              <div className="col-span-1">
-                <InputField
-                  type="time"
-                  label="Hora de Término"
-                  name="endTime"
-                  value={formData.endTime}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-
-              <div className="col-span-1 md:col-span-2 pt-2">
-                <div className="md:w-1/2 md:pr-3">
-                  <InputField
-                    type="number"
-                    label="Cantidad de Asistentes Esperados"
-                    name="attendeeCount"
-                    min="1"
-                    value={formData.attendeeCount}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </div>
               </div>
             </div>
           </div>
@@ -262,48 +211,81 @@ export const TrainingEventFormLayout = () => {
           <div>
             <div className="flex justify-between items-end mb-6 border-b border-slate-100 pb-2">
               <h2 className="text-lg font-semibold text-slate-800">
-                Temas a Impartir / Evaluar
+                Temas y Horarios
               </h2>
               <span
                 className="text-xs font-medium text-slate-500 bg-slate-100 px-2 
                 py-1 rounded"
               >
-                Máximo 5 columnas
+                Máximo 5 temas
               </span>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-4">
               {topics.map((topic, index) => (
-                <div key={index} className="flex items-start gap-3">
-                  <div className="grow">
-                    <InputField
-                      label={`Tema ${index + 1}`}
-                      value={topic}
-                      onChange={(e) => handleTopicChange(index, e.target.value)}
-                      required
-                    />
+                <div
+                  key={index}
+                  className="p-4 bg-slate-50 border border-slate-200 rounded-xl relative 
+                  group"
+                >
+                  <div className="grid grid-cols-12 gap-4">
+                    {/* Fila superior: Nombre del tema */}
+                    <div className="col-span-12">
+                      <InputField
+                        label={`Tema ${index + 1}`}
+                        value={topic.name}
+                        onChange={(e) =>
+                          handleTopicChange(index, "name", e.target.value)
+                        }
+                        required
+                      />
+                    </div>
+
+                    <div className="col-span-12 md:col-span-4">
+                      <InputField
+                        type="date"
+                        label="Fecha"
+                        value={topic.date}
+                        onChange={(e) =>
+                          handleTopicChange(index, "date", e.target.value)
+                        }
+                        required
+                      />
+                    </div>
+                    <div className="col-span-6 md:col-span-4">
+                      <InputField
+                        type="time"
+                        label="Hora Inicio"
+                        value={topic.startTime}
+                        onChange={(e) =>
+                          handleTopicChange(index, "startTime", e.target.value)
+                        }
+                        required
+                      />
+                    </div>
+                    <div className="col-span-6 md:col-span-4">
+                      <InputField
+                        type="time"
+                        label="Hora Fin"
+                        value={topic.endTime}
+                        onChange={(e) =>
+                          handleTopicChange(index, "endTime", e.target.value)
+                        }
+                        required
+                      />
+                    </div>
                   </div>
+
                   {topics.length > 1 && (
                     <button
                       type="button"
                       onClick={() => removeTopic(index)}
-                      className="p-3 mt-1 text-slate-400 hover:text-rose-500 
-                      hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+                      className="absolute -top-3 -right-3 bg-white p-2 border border-slate-200 
+                      text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-full 
+                      transition-all shadow-sm cursor-pointer"
                       title="Eliminar tema"
                     >
-                      <svg
-                        className="w-5 h-5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                        />
-                      </svg>
+                      <Trash2 size={16} />
                     </button>
                   )}
                 </div>
@@ -314,23 +296,9 @@ export const TrainingEventFormLayout = () => {
               <button
                 type="button"
                 onClick={addTopic}
-                className="mt-2 flex items-center gap-2 text-sm font-semibold text-blue-600 
-                hover:text-blue-800 transition-colors cursor-pointer"
+                className="mt-4 flex items-center justify-center w-full py-3 border-2 border-dashed border-slate-300 rounded-xl text-sm font-semibold text-slate-500 hover:border-blue-400 hover:text-blue-600 hover:bg-blue-50 transition-colors cursor-pointer"
               >
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 4v16m8-8H4"
-                  />
-                </svg>
-                Agregar otro tema
+                <Plus size={18} className="mr-2" /> Agregar otro tema y horario
               </button>
             )}
           </div>
@@ -340,20 +308,14 @@ export const TrainingEventFormLayout = () => {
           <button
             type="button"
             onClick={() => navigate(-1)}
-            className="px-6 py-3 bg-white border border-slate-300 text-slate-700 
-            font-semibold rounded-lg hover:bg-slate-50 transition-colors cursor-pointer"
+            className="px-6 py-3 bg-white border border-slate-300 text-slate-700 font-semibold rounded-lg hover:bg-slate-50 transition-colors cursor-pointer"
           >
             Cancelar
           </button>
           <button
             type="submit"
             disabled={isCreating}
-            className={`px-6 py-3 font-semibold rounded-lg shadow-sm transition-all 
-              flex items-center gap-2 ${
-                isCreating
-                  ? "bg-blue-400 text-white cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-700 text-white active:scale-95 cursor-pointer"
-              }`}
+            className={`px-6 py-3 font-semibold rounded-lg shadow-sm transition-all flex items-center gap-2 ${isCreating ? "bg-blue-400 text-white cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700 text-white active:scale-95 cursor-pointer"}`}
           >
             {isCreating ? "Generando..." : "Generar Tabla de Asistencia"}
           </button>
