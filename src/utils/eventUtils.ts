@@ -1,10 +1,4 @@
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
-import type {
-  TrainingEventData,
-  Employee,
-  AttendanceRecord,
-} from "../types/Types";
+import type { TrainingEventData, AttendanceRecord } from "../types/Types";
 
 export const dataURLtoFile = (dataurl: string, filename: string): File => {
   const arr = dataurl.split(",");
@@ -16,59 +10,6 @@ export const dataURLtoFile = (dataurl: string, filename: string): File => {
     u8arr[n] = bstr.charCodeAt(n);
   }
   return new File([u8arr], filename, { type: mime });
-};
-
-export const generateNoticePDF = (
-  eventData: TrainingEventData,
-  employees: Employee[],
-) => {
-  const doc = new jsPDF();
-
-  doc.setFontSize(18);
-  doc.setTextColor(15, 23, 42);
-  doc.text("Aviso de Convocatoria a Capacitación", 14, 22);
-
-  doc.setFontSize(10);
-  doc.setTextColor(100, 116, 139);
-  doc.text("Manufacturas Especializadas, S.A. (MESA)", 14, 28);
-
-  doc.setFontSize(11);
-  doc.setTextColor(15, 23, 42);
-  doc.text(`Curso / Plática: ${eventData.courseName}`, 14, 40);
-  doc.text(`Instructor: ${eventData.instructor}`, 14, 46);
-  doc.text(`Fechas: ${eventData.dateFrom} al ${eventData.dateTo}`, 14, 52);
-
-  const tableColumn = [
-    "N°",
-    "N° Nómina",
-    "Nombre del Operador",
-    "Línea",
-    "Firma de Enterado",
-  ];
-  const tableRows: any[] = [];
-
-  employees.forEach((emp, index) => {
-    const rowData = [index + 1, emp.employeeNumber, emp.name, emp.line, ""];
-    tableRows.push(rowData);
-  });
-
-  autoTable(doc, {
-    head: [tableColumn],
-    body: tableRows,
-    startY: 60,
-    theme: "grid",
-    styles: { fontSize: 9, cellPadding: 3 },
-    headStyles: { fillColor: [37, 99, 235], textColor: [255, 255, 255] },
-    columnStyles: {
-      0: { cellWidth: 10, halign: "center" },
-      1: { cellWidth: 20, halign: "center" },
-      2: { cellWidth: 65 },
-      3: { cellWidth: 35, halign: "center" },
-      4: { cellWidth: 50 },
-    },
-  });
-
-  doc.save(`Aviso_${eventData.courseName.replace(/\s+/g, "_")}.pdf`);
 };
 
 export const calculateTopicStats = (
