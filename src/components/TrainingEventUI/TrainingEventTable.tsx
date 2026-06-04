@@ -65,7 +65,7 @@ export const TrainingEventTable = ({
       instructorSignature,
     );
     await saveFinalAttendance(formData as any, Number(eventData.id));
-    navigate("/");
+    navigate("/historial-registro-de-asistencia");
   };
 
   const openSignatureModal = (id: string, name: string) => {
