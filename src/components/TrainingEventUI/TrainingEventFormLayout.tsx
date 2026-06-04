@@ -32,10 +32,6 @@ export const TrainingEventFormLayout = () => {
     courseName: "",
     instructor: "",
     room: "",
-    startDate: "",
-    endDate: "",
-    startTime: "",
-    endTime: "",
     attendeeCount: "",
   });
 
