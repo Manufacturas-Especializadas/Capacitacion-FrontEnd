@@ -12,6 +12,13 @@ import InputField from "../Inputs/InputField";
 import SelectField from "../Inputs/SelectField";
 import { toast } from "sonner";
 
+interface TopicEntry {
+  name: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+}
+
 export const TrainingEventFormLayout = () => {
   const navigate = useNavigate();
   const { createEvent, isCreating } = useTrainingEventMutations();
