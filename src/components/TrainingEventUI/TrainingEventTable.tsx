@@ -340,7 +340,7 @@ export const TrainingEventTable = ({
 
       <div className="mt-8 flex justify-end gap-4">
         <button
-          onClick={() => navigate("/")}
+          onClick={() => navigate("/historial-registro-de-asistencia")}
           className="px-6 py-3 font-semibold rounded-lg shadow-sm transition-all flex 
           hover:cursor-pointer bg-slate-100 border border-slate-300 hover:bg-slate-200 text-slate-700"
         >
