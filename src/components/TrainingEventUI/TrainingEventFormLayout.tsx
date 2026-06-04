@@ -35,7 +35,9 @@ export const TrainingEventFormLayout = () => {
     attendeeCount: "",
   });
 
-  const [topics, setTopics] = useState<string[]>([""]);
+  const [topics, setTopics] = useState<TopicEntry[]>([
+    { name: "", date: "", startTime: "", endTime: "" },
+  ]);
 
   const handleInputChange = (
     e: ChangeEvent<HTMLInputElement | HTMLSelectElement>,
