@@ -1,12 +1,11 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Printer, Calendar, Clock } from "lucide-react";
+import { Calendar, Clock } from "lucide-react";
 import { useAttendanceGrid } from "../../hooks/useAttendanceGrid";
 import { useTrainingEventMutations } from "../../hooks/useTrainingEventMutations";
 import { EmployeeRow } from "./EmployeeRow";
 import { SignatureModal } from "../SignatureModal/SignatureModal";
 import {
-  generateNoticePDF,
   calculateTopicStats,
   buildAttendanceFormData,
 } from "../../utils/eventUtils";
@@ -15,6 +14,7 @@ import type {
   Employee,
   AttendanceRecord,
 } from "../../types/Types";
+import { NoticeDocument } from "../NoticeDocument/NoticeDocument";
 
 interface TrainingEventProps {
   eventData: TrainingEventData;
@@ -121,15 +121,7 @@ export const TrainingEventTable = ({
           </div>
         </div>
 
-        <button
-          onClick={() => generateNoticePDF(eventData, employees)}
-          className="shrink-0 flex items-center justify-center gap-2 px-5 py-3 bg-white 
-          border-2 border-blue-600 text-blue-700 font-bold rounded-lg shadow-sm 
-          hover:bg-blue-50 transition-colors active:scale-95 cursor-pointer"
-        >
-          <Printer size={18} />
-          Imprimir Aviso
-        </button>
+        <NoticeDocument eventData={eventData} employees={employees} />
       </div>
 
       <div className="overflow-x-auto rounded-lg border border-slate-300">
