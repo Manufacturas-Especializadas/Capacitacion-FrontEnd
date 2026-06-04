@@ -46,18 +46,25 @@ export const TrainingEventFormLayout = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleTopicChange = (index: number, value: string) => {
+  const handleTopicChange = (
+    index: number,
+    field: keyof TopicEntry,
+    value: string,
+  ) => {
     const newTopics = [...topics];
-    newTopics[index] = value;
+    newTopics[index][field] = value;
     setTopics(newTopics);
   };
 
   const addTopic = () => {
     if (topics.length < 5) {
-      setTopics([...topics, ""]);
+      setTopics([
+        ...topics,
+        { name: "", date: "", startTime: "", endTime: "" },
+      ]);
     } else {
       toast.error("Solo se permite un máximo de 5 temas por sesión", {
-        id: "max-topics-toast",
+        id: "max-topics",
       });
     }
   };
@@ -70,24 +77,39 @@ export const TrainingEventFormLayout = () => {
   const handleSubmit = async (e: SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const validTopics = topics.filter((t) => t.trim() !== "");
+    // Validamos que los temas no estén a medias
+    const validTopics = topics.filter((t) => t.name.trim() !== "");
 
-    if (validTopics.length > 5) {
-      toast.error("No puedes enviar más de 5 temas");
+    for (const topic of validTopics) {
+      if (!topic.date || !topic.startTime || !topic.endTime) {
+        toast.error(`Faltan fechas u horas en el tema: ${topic.name}`);
+        return;
+      }
+      if (topic.endTime <= topic.startTime) {
+        toast.error(
+          `La hora de fin debe ser mayor a la de inicio en: ${topic.name}`,
+        );
+        return;
+      }
+    }
+
+    if (validTopics.length === 0) {
+      toast.error("Debes agregar al menos un tema");
       return;
     }
 
-    if (new Date(formData.endDate) < new Date(formData.startDate)) {
-      toast.error("La fecha de fin no puede ser anterior a la fecha de inicio");
-      return;
-    }
+    if (validTopics.length > 5) return;
+
+    const sortedDates = validTopics.map((t) => t.date).sort();
+    const globalDateFrom = sortedDates[0];
+    const globalDateTo = sortedDates[sortedDates.length - 1];
 
     const payload = {
       courseName: formData.courseName,
       instructorName: formData.instructor,
       roomId: Number(formData.room),
-      dateFrom: `${formData.startDate}T${formData.startTime}:00`,
-      dateTo: `${formData.endDate}T${formData.endTime}:00`,
+      dateFrom: `${globalDateFrom}T00:00:00`,
+      dateTo: `${globalDateTo}T23:59:59`,
       evaluationTopics: validTopics,
     };
 
