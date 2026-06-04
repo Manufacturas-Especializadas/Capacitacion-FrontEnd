@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Printer } from "lucide-react";
+import { Printer, Calendar, Clock } from "lucide-react";
 import { useAttendanceGrid } from "../../hooks/useAttendanceGrid";
 import { useTrainingEventMutations } from "../../hooks/useTrainingEventMutations";
 import { EmployeeRow } from "./EmployeeRow";
@@ -46,7 +46,13 @@ export const TrainingEventTable = ({
   );
 
   const topicStats = useMemo(
-    () => calculateTopicStats(records, eventData.evaluationTopics),
+    () =>
+      calculateTopicStats(
+        records,
+        eventData.evaluationTopics.map((t: any) =>
+          typeof t === "object" ? t.name || t.topicName : t,
+        ),
+      ),
     [records, eventData.evaluationTopics],
   );
 
@@ -107,7 +113,7 @@ export const TrainingEventTable = ({
           </div>
           <div>
             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-              Fechas
+              Periodo General
             </p>
             <p className="text-sm font-medium text-slate-900">
               {eventData.dateFrom} - {eventData.dateTo}
@@ -117,8 +123,9 @@ export const TrainingEventTable = ({
 
         <button
           onClick={() => generateNoticePDF(eventData, employees)}
-          className="shrink-0 flex items-center justify-center gap-2 px-5 py-3 bg-white border-2 border-blue-600 text-blue-700 font-bold rounded-lg shadow-sm hover:bg-blue-50 transition-colors active:scale-95 cursor-pointer"
-          title="Descargar lista para aviso a operadores"
+          className="shrink-0 flex items-center justify-center gap-2 px-5 py-3 bg-white 
+          border-2 border-blue-600 text-blue-700 font-bold rounded-lg shadow-sm 
+          hover:bg-blue-50 transition-colors active:scale-95 cursor-pointer"
         >
           <Printer size={18} />
           Imprimir Aviso
@@ -154,16 +161,53 @@ export const TrainingEventTable = ({
                 Línea
               </th>
 
-              {eventData.evaluationTopics.map((topic, idx) => (
-                <th
-                  key={idx}
-                  className="p-2 border-b border-r border-slate-300 text-center truncate px-2"
-                  colSpan={1}
-                  title={topic}
-                >
-                  {topic || `Tema ${idx + 1}`}
-                </th>
-              ))}
+              {eventData.evaluationTopics.map((topic: any, idx) => {
+                const name =
+                  typeof topic === "object"
+                    ? topic.name || topic.topicName
+                    : topic;
+                const date =
+                  typeof topic === "object"
+                    ? topic.date || topic.topicDate
+                    : "";
+                const startTime =
+                  typeof topic === "object" ? topic.startTime : "";
+                const endTime = typeof topic === "object" ? topic.endTime : "";
+
+                return (
+                  <th
+                    key={idx}
+                    className="p-3 border-b border-r border-slate-300 text-center px-4 
+                    min-w-40"
+                    colSpan={1}
+                  >
+                    <div className="flex flex-col items-center justify-center space-y-1.5">
+                      <span
+                        className="font-bold text-slate-900 text-xs tracking-tight 
+                        uppercase line-clamp-1"
+                        title={name}
+                      >
+                        {name || `Tema ${idx + 1}`}
+                      </span>
+
+                      {date && (
+                        <span className="inline-flex items-center gap-1 text-[10px] bg-blue-50 text-blue-700 border border-blue-100 px-2 py-0.5 rounded font-medium whitespace-nowrap">
+                          <Calendar size={11} className="text-blue-500" />
+                          {date}
+                        </span>
+                      )}
+
+                      {startTime && endTime && (
+                        <span className="inline-flex items-center gap-1 text-[9px] text-slate-500 bg-slate-50 border border-slate-200 px-1.5 py-0.5 rounded font-normal whitespace-nowrap">
+                          <Clock size={10} className="text-slate-400" />
+                          {startTime.substring(0, 5)} -{" "}
+                          {endTime.substring(0, 5)}
+                        </span>
+                      )}
+                    </div>
+                  </th>
+                );
+              })}
 
               <th
                 className="p-3 border-b border-slate-300 w-32 uppercase text-center"
@@ -208,7 +252,8 @@ export const TrainingEventTable = ({
               <tr className="bg-slate-100/80 border-t-2 border-slate-300">
                 <td
                   colSpan={4}
-                  className="p-3 pr-4 border-r border-slate-300 text-right uppercase text-[10px] font-bold text-slate-700 tracking-wider"
+                  className="p-3 pr-4 border-r border-slate-300 text-right uppercase 
+                  text-[10px] font-bold text-slate-700 tracking-wider"
                 >
                   RESULTADOS POR TEMA:
                 </td>
