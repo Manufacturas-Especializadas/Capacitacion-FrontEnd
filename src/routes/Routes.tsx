@@ -4,6 +4,7 @@ import { TrainingHistory } from "../pages/TrainingEvent/TrainingHistory";
 import { TrainingEventForm } from "../pages/TrainingEvent/TrainingEventForm";
 import { EnrollmentMatrix } from "../components/TrainingEventUI/EnrollmentMatrix";
 import { Home } from "../pages/Home/Home";
+import { WeldersChecklistForm } from "../pages/WeldersChecklist/WeldersChecklistForm";
 
 export const MyRoutes = () => {
   return (
@@ -21,6 +22,11 @@ export const MyRoutes = () => {
       <Route
         path="/registro-asistencia/ejecucion/:id"
         element={<TrainingEvent />}
+      />
+
+      <Route
+        path="/registro-de-checklist-soldadores"
+        element={<WeldersChecklistForm />}
       />
     </Routes>
   );
