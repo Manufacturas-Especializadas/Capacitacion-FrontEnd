@@ -6,7 +6,7 @@ import type {
   UnionEvaluationItem,
   WelderData,
 } from "../../types/Types";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import {
   INITIAL_PRACTICAL_SECTIONS,
   INITIAL_UNION_EVALUATION,
@@ -22,7 +22,7 @@ import { SignatureModal } from "../../components/SignatureModal/SignatureModal";
 import { EvidenceSection } from "../../components/WeldersChecklistUI/EvidenceSection/EvidenceSection";
 
 export const WeldersChecklistForm = () => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   const [welderData, setWelderData] = useState<WelderData>({
     name: "",
