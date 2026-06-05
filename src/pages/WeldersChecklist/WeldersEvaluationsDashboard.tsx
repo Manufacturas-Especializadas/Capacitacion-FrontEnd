@@ -48,7 +48,7 @@ export const WeldersEvaluationsDashboard = () => {
             />
           </div>
           <button
-            onClick={() => navigate("/nuevo")}
+            onClick={() => navigate("/registro-de-checklist-soldadores")}
             className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 
             rounded-xl font-bold flex items-center gap-2 shadow-lg transition-all 
             active:scale-95 hover:cursor-pointer"

@@ -143,7 +143,7 @@ export const WeldersChecklistForm = () => {
         <div className="flex items-center gap-4 mb-6">
           <button
             type="button"
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/historial-checklist-soldadores")}
             className="p-2 bg-white text-slate-500 hover:text-orange-600 hover:bg-orange-50 rounded-full transition-colors shadow-sm cursor-pointer"
           >
             <ArrowLeft size={24} />
