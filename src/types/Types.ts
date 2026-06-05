@@ -160,11 +160,6 @@ export interface WelderEvaluationsAll {
   evaluationDate: string;
   finalAverage: number;
   evidencePhotoUrl: string;
-  signatureColaboradorUrl: string;
-  signatureCoordinadorAreaUrl: string;
-  signatureCoordCapacitacionUrl: string;
-  signatureSupervisorUrl: string;
-  signatureEvaluadorUrl: string;
   masteryLevel: string;
 }
 
@@ -195,6 +190,12 @@ export interface WelderEvaluationsDetails {
   evaluationDate: string;
   finalAverage: number;
   masteryLevel: string;
+  evidencePhotoUrl: string;
+  signatureColaboradorUrl: string;
+  signatureCoordinadorAreaUrl: string;
+  signatureCoordCapacitacionUrl: string;
+  signatureSupervisorUrl: string;
+  signatureEvaluadorUrl: string;
   practicalAnswers: PracticalAnswer[];
   unionAnswers: UnionAnswer[];
 }
