@@ -35,8 +35,35 @@ export const useWeldersChecklistMutations = () => {
     }
   };
 
+  const updateEvaluation = async (
+    id: number,
+    payload: WelderEvaluations,
+  ): Promise<boolean> => {
+    setIsSaving(true);
+    const toastId = toast.loading("Actualizando evaluación...");
+
+    try {
+      await weldersChecklistService.update(id, payload);
+      toast.success(`Evaluación ${id} actualizada correctamente`, {
+        id: toastId,
+      });
+
+      return true;
+    } catch (error: any) {
+      console.error("Error al actualizar la evalaución: ", error);
+      const errorMessage =
+        error.response?.data?.message || "Ocurrió un error al actualizar";
+      toast.error(errorMessage, { id: toastId });
+
+      return false;
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return {
     saveEvaluation,
+    updateEvaluation,
     isSaving,
   };
 };
