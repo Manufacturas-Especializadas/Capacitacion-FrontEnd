@@ -153,6 +153,15 @@ export interface UnionEvaluationItem {
   score: number | null;
 }
 
+export interface WelderEvaluationsAll {
+  id: number;
+  employeeName: string;
+  employeeNumber: string;
+  evaluationDate: string;
+  finalAverage: number;
+  masteryLevel: string;
+}
+
 export interface WelderEvaluations {
   employeeNumber: string;
   evaluationDate: string;
