@@ -22,6 +22,7 @@ export const API_CONFIG = {
       all: "/api/WelderEvaluations/getAll",
       byId: "/api/WelderEvaluations/getById/",
       create: "/api/WelderEvaluations/create",
+      update: "/api/WelderEvaluations/update",
     },
     employees: {
       allEmployees: "/api/Employees/allEmployees",
