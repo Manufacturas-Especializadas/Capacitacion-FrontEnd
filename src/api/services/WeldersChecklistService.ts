@@ -11,6 +11,7 @@ class WeldersChecklistService {
   private getByIdEndpoint = API_CONFIG.endpoint.weldersChecklist.byId;
   private getAllEndpoint = API_CONFIG.endpoint.weldersChecklist.all;
   private createEndpoint = API_CONFIG.endpoint.weldersChecklist.create;
+  private updateEndpoint = API_CONFIG.endpoint.weldersChecklist.update;
   private deleteEndpoint = API_CONFIG.endpoint.weldersChecklist.delete;
 
   async getById(id: number): Promise<WelderEvaluationsDetails> {
@@ -105,6 +106,66 @@ class WeldersChecklistService {
     const responseData = response.data ? response.data : response;
 
     return responseData.id || responseData.Id;
+  }
+
+  async update(id: number, payload: WelderEvaluations): Promise<void> {
+    const formData = new FormData();
+
+    formData.append("Id", id.toString());
+
+    formData.append("EmployeeNumber", payload.employeeNumber);
+    formData.append("EvaluatorName", payload.evaluatorName);
+    formData.append("ExclusiveTestReference", payload.exclusiveTestReference);
+
+    if (payload.exclusiveTestResult) {
+      formData.append("ExclusiveTestResult", payload.exclusiveTestResult);
+    }
+
+    formData.append("PracticalGrade", payload.practicalGrade.toString());
+    formData.append("UnionGrade", payload.unionGrade.toString());
+    formData.append("FinalAverage", payload.finalAverage.toString());
+    formData.append("MasteryLevel", payload.masteryLevel);
+
+    const evidenceFile = dataURLtoFile(payload.evidencePhoto, "evidencia.png");
+    if (evidenceFile) formData.append("EvidencePhoto", evidenceFile);
+
+    const sigColaborador = dataURLtoFile(
+      payload.signatureColaborador,
+      "firma_colaborador.png",
+    );
+    if (sigColaborador) formData.append("SignatureColaborador", sigColaborador);
+
+    const sigCoordArea = dataURLtoFile(
+      payload.signatureCoordinadorArea,
+      "firma_coord_area.png",
+    );
+    if (sigCoordArea) formData.append("SignatureCoordinadorArea", sigCoordArea);
+
+    const sigCoordCap = dataURLtoFile(
+      payload.signatureCoordCapacitacion,
+      "firma_coord_cap.png",
+    );
+    if (sigCoordCap) formData.append("SignatureCoordCapacitacion", sigCoordCap);
+
+    const sigSupervisor = dataURLtoFile(
+      payload.signatureSupervisor,
+      "firma_supervisor.png",
+    );
+    if (sigSupervisor) formData.append("SignatureSupervisor", sigSupervisor);
+
+    const sigEvaluador = dataURLtoFile(
+      payload.signatureEvaluador,
+      "firma_evaluador.png",
+    );
+    if (sigEvaluador) formData.append("SignatureEvaluador", sigEvaluador);
+
+    const response = await apiClient.put<any>(this.updateEndpoint, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    return response.data || response;
   }
 
   async delete(id: number): Promise<void> {
