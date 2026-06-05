@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import type { ProductionLines, TrainingRooms } from "../types/Types";
 import { catalogsService } from "../api/services/CatalogsService";
 import { toast } from "sonner";
@@ -18,7 +18,7 @@ export const useCatalogs = () => {
     }
   };
 
-  const fetchLines = async () => {
+  const fetchLines = useCallback(async () => {
     try {
       const data = await catalogsService.getProductionLines();
       setLines(data);
@@ -26,7 +26,7 @@ export const useCatalogs = () => {
       console.error("Error al cargar las lineas", error);
       toast.error("Error al cargar las lineas");
     }
-  };
+  }, []);
 
   const fetchAll = async () => {
     setIsLoadingCatalogs(true);
