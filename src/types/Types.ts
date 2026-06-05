@@ -159,6 +159,12 @@ export interface WelderEvaluationsAll {
   employeeNumber: string;
   evaluationDate: string;
   finalAverage: number;
+  evidencePhotoUrl: string;
+  signatureColaboradorUrl: string;
+  signatureCoordinadorAreaUrl: string;
+  signatureCoordCapacitacionUrl: string;
+  signatureSupervisorUrl: string;
+  signatureEvaluadorUrl: string;
   masteryLevel: string;
 }
 
