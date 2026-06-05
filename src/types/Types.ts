@@ -152,3 +152,35 @@ export interface UnionEvaluationItem {
   answer: string;
   score: number | null;
 }
+
+export interface WelderEvaluations {
+  employeeNumber: string;
+  evaluationDate: string;
+  evaluatorName: string;
+  exclusiveTestReference: string;
+  exclusiveTestResult: string;
+  practicalGrade: number;
+  unionGrade: number;
+  finalAverage: number;
+  masteryLevel: string;
+  practicalAnswers: PracticalAnswer[];
+  unionAnswers: UnionAnswer[];
+  evidencePhoto: string;
+  signatureColaborador: string;
+  signatureCoordinadorArea: string;
+  signatureCoordCapacitacion: string;
+  signatureSupervisor: string;
+  signatureEvaluador: string;
+}
+
+export interface PracticalAnswer {
+  sectionTitle: string;
+  questionText: string;
+  score: number;
+}
+
+export interface UnionAnswer {
+  attributeName: string;
+  answerText: string;
+  score: number;
+}
