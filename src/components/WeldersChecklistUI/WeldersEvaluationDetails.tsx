@@ -99,7 +99,61 @@ export const WeldersEvaluationDetails = () => {
             ))}
           </div>
         </div>
+
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 mt-6">
+          <h2 className="text-lg font-bold text-slate-900 mb-6">
+            Evidencia y Firmas
+          </h2>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {data.evidencePhotoUrl && (
+              <div className="col-span-2">
+                <p className="text-xs font-bold text-slate-400 mb-2 uppercase">
+                  Evidencia Fotográfica
+                </p>
+                <img
+                  src={data.evidencePhotoUrl}
+                  className="rounded-xl w-full h-48 object-cover border"
+                  alt="Evidencia"
+                />
+              </div>
+            )}
+
+            <SignatureItem
+              label="Colaborador"
+              url={data.signatureColaboradorUrl}
+            />
+            <SignatureItem
+              label="Supervisor"
+              url={data.signatureSupervisorUrl}
+            />
+            <SignatureItem
+              label="Coord. Capacitación"
+              url={data.signatureCoordCapacitacionUrl}
+            />
+            <SignatureItem
+              label="Coord. Área"
+              url={data.signatureCoordinadorAreaUrl}
+            />
+            <SignatureItem label="Evaluador" url={data.signatureEvaluadorUrl} />
+          </div>
+        </div>
       </div>
     </div>
   );
 };
+
+const SignatureItem = ({ label, url }: { label: string; url?: string }) => (
+  <div className="flex flex-col items-center">
+    <p className="text-[10px] font-bold text-slate-400 mb-2 uppercase">
+      {label}
+    </p>
+    <div className="w-full h-24 bg-slate-50 rounded-xl border flex items-center justify-center overflow-hidden">
+      {url ? (
+        <img src={url} className="h-full object-contain" alt={label} />
+      ) : (
+        <span className="text-slate-300 text-xs italic">Sin firma</span>
+      )}
+    </div>
+  </div>
+);
