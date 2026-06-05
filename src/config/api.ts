@@ -20,6 +20,7 @@ export const API_CONFIG = {
     },
     weldersChecklist: {
       all: "/api/WelderEvaluations/getAll",
+      byId: "/api/WelderEvaluations/getById/",
       create: "/api/WelderEvaluations/create",
     },
     employees: {
