@@ -7,6 +7,7 @@ import { Home } from "../pages/Home/Home";
 import { WeldersChecklistForm } from "../pages/WeldersChecklist/WeldersChecklistForm";
 import { WeldersEvaluationsDashboard } from "../pages/WeldersChecklist/WeldersEvaluationsDashboard";
 import { WeldersEvaluationDetails } from "../components/WeldersChecklistUI/WeldersEvaluationDetails";
+import { WeldersEditEvaluation } from "../components/WeldersChecklistUI/WeldersEditEvaluation";
 
 export const MyRoutes = () => {
   return (
@@ -37,6 +38,8 @@ export const MyRoutes = () => {
         path="/registro-de-checklist-soldadores"
         element={<WeldersChecklistForm />}
       />
+
+      <Route path="/editar/:id" element={<WeldersEditEvaluation />} />
     </Routes>
   );
 };
