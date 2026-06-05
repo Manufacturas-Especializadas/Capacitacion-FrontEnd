@@ -19,6 +19,7 @@ export const API_CONFIG = {
       getTrainingEvents: "/api/TrainingEvents/trainingEvents",
     },
     weldersChecklist: {
+      all: "/api/WelderEvaluations/getAll",
       create: "/api/WelderEvaluations/create",
     },
     employees: {
