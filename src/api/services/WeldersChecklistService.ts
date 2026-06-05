@@ -1,6 +1,7 @@
 import { API_CONFIG } from "../../config/api";
 import type {
   WelderEvaluations,
+  WelderEvaluationsAll,
   WelderEvaluationsDetails,
 } from "../../types/Types";
 import { dataURLtoFile } from "../../utils/eventUtils";
@@ -8,12 +9,17 @@ import { apiClient } from "../client";
 
 class WeldersChecklistService {
   private getByIdEndpoint = API_CONFIG.endpoint.weldersChecklist.byId;
+  private getAllEndpoint = API_CONFIG.endpoint.weldersChecklist.all;
   private createEndpoint = API_CONFIG.endpoint.weldersChecklist.create;
 
   async getById(id: number): Promise<WelderEvaluationsDetails> {
     return apiClient.get<WelderEvaluationsDetails>(
       `${this.getByIdEndpoint}${id}`,
     );
+  }
+
+  async getAll(): Promise<WelderEvaluationsAll[]> {
+    return apiClient.get<WelderEvaluationsAll[]>(this.getAllEndpoint);
   }
 
   async create(payload: WelderEvaluations): Promise<void> {
