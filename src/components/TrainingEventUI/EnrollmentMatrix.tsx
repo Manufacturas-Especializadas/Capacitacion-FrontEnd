@@ -28,7 +28,7 @@ export const EnrollmentMatrix = () => {
 
   useEffect(() => {
     fetchLines();
-  }, []);
+  }, [fetchLines]);
 
   if (isLoadingEvent || isLoadingEmployees) {
     return (
@@ -74,16 +74,23 @@ export const EnrollmentMatrix = () => {
                 <th className="px-4 py-3 border-b border-r border-slate-200">
                   Línea
                 </th>
-                {topics.map((topic, idx) => (
-                  <th
-                    key={idx}
-                    className="px-2 py-2 border-b border-r border-slate-200 text-center w-24"
-                  >
-                    <span className="truncate w-full block" title={topic}>
-                      {topic}
-                    </span>
-                  </th>
-                ))}
+                {topics.map((topic: any, idx: number) => {
+                  const topicName =
+                    typeof topic === "object"
+                      ? topic.name || topic.topicName
+                      : topic;
+
+                  return (
+                    <th
+                      key={idx}
+                      className="px-2 py-2 border-b border-r border-slate-200 text-center w-24"
+                    >
+                      <span className="truncate w-full block" title={topicName}>
+                        {topicName}
+                      </span>
+                    </th>
+                  );
+                })}
                 <th className="px-4 py-3 border-b border-slate-200 text-center w-20">
                   Acciones
                 </th>

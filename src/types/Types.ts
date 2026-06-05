@@ -125,3 +125,30 @@ export interface TrainingEvents {
   status: string;
   attendeeCount: number;
 }
+
+export interface WelderData {
+  name: string;
+  employeeNumber: string;
+  date: string;
+  line: string;
+  evaluator: string;
+}
+
+export interface ChecklistQuestion {
+  id: string;
+  text: string;
+  score: number | null;
+}
+
+export interface PracticalSectionData {
+  id: string;
+  title: string;
+  questions: ChecklistQuestion[];
+}
+
+export interface UnionEvaluationItem {
+  id: string;
+  attribute: string;
+  answer: string;
+  score: number | null;
+}
