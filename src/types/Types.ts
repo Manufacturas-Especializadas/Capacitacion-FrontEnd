@@ -158,19 +158,19 @@ export interface WelderEvaluations {
   evaluationDate: string;
   evaluatorName: string;
   exclusiveTestReference: string;
-  exclusiveTestResult: string;
+  exclusiveTestResult: string | null;
   practicalGrade: number;
   unionGrade: number;
   finalAverage: number;
   masteryLevel: string;
   practicalAnswers: PracticalAnswer[];
   unionAnswers: UnionAnswer[];
-  evidencePhoto: string;
-  signatureColaborador: string;
-  signatureCoordinadorArea: string;
-  signatureCoordCapacitacion: string;
-  signatureSupervisor: string;
-  signatureEvaluador: string;
+  evidencePhoto: string | null;
+  signatureColaborador: string | null;
+  signatureCoordinadorArea: string | null;
+  signatureCoordCapacitacion: string | null;
+  signatureSupervisor: string | null;
+  signatureEvaluador: string | null;
 }
 
 export interface PracticalAnswer {
