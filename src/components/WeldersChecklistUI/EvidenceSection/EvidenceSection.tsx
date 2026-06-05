@@ -24,7 +24,7 @@ export const EvidenceSection = ({ photo, onChange }: Props) => {
       <div className="flex items-center gap-2 mb-6 border-b border-slate-100 pb-3">
         <Camera className="text-orange-500" size={24} />
         <h2 className="text-xl font-bold text-slate-800 uppercase">
-          Evidencia Fotográfica{" "}
+          Evidencia{" "}
           <span className="text-sm font-normal text-slate-400 capitalize">
             (Opcional)
           </span>
