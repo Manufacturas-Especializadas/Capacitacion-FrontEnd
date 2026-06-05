@@ -11,6 +11,7 @@ class WeldersChecklistService {
   private getByIdEndpoint = API_CONFIG.endpoint.weldersChecklist.byId;
   private getAllEndpoint = API_CONFIG.endpoint.weldersChecklist.all;
   private createEndpoint = API_CONFIG.endpoint.weldersChecklist.create;
+  private deleteEndpoint = API_CONFIG.endpoint.weldersChecklist.delete;
 
   async getById(id: number): Promise<WelderEvaluationsDetails> {
     return apiClient.get<WelderEvaluationsDetails>(
@@ -104,6 +105,10 @@ class WeldersChecklistService {
     const responseData = response.data ? response.data : response;
 
     return responseData.id || responseData.Id;
+  }
+
+  async delete(id: number): Promise<void> {
+    return apiClient.delete<void>(`${this.deleteEndpoint}${id}`);
   }
 }
 
