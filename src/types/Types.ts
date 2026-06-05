@@ -173,6 +173,17 @@ export interface WelderEvaluations {
   signatureEvaluador: string | null;
 }
 
+export interface WelderEvaluationsDetails {
+  id: number;
+  employeeNumber: string;
+  employeeName: string;
+  evaluationDate: string;
+  finalAverage: number;
+  masteryLevel: string;
+  practicalAnswers: PracticalAnswer[];
+  unionAnswers: UnionAnswer[];
+}
+
 export interface PracticalAnswer {
   sectionTitle: string;
   questionText: string;
