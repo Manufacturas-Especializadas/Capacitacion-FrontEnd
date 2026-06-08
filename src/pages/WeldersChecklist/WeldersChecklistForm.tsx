@@ -48,6 +48,17 @@ export const WeldersChecklistForm = () => {
   } = useWeldersChecklistForm(employees, lines);
 
   const { saveEvaluation, isSaving } = useWeldersChecklistMutations();
+  let practicalScore = 0;
+  let practicalCount = 0;
+
+  practicalSections.forEach((sec) =>
+    sec.questions.forEach((q) => {
+      if (q.score !== null) {
+        practicalScore += q.score;
+        practicalCount++;
+      }
+    }),
+  );
 
   const handleSubmit = async (e: SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -66,42 +77,39 @@ export const WeldersChecklistForm = () => {
       if (!newEmp) return;
     }
 
-    let practicalScore = 0;
-    let practicalCount = 0;
-    practicalSections.forEach((sec) =>
-      sec.questions.forEach((q) => {
-        if (q.score !== null) {
-          practicalScore += q.score;
-          practicalCount++;
-        }
-      }),
-    );
     const practicalGrade =
-      practicalCount > 0 ? (practicalScore / (practicalCount * 4)) * 100 : 0;
+      practicalCount > 0 ? (practicalScore * 100) / (practicalCount * 4) : 0;
 
     let unionScore = 0;
     let unionCount = 0;
     unionEvaluation.forEach((u) => {
-      if (u.score !== null) {
+      if (
+        u.score !== null &&
+        !u.attribute.toLowerCase().includes("clasificaci")
+      ) {
         unionScore += u.score;
         unionCount++;
       }
     });
-    const unionGrade = unionCount > 0 ? unionScore / unionCount : 0;
 
-    const finalAverage = (practicalGrade + unionGrade) / 2;
+    const unionGrade =
+      unionCount > 0 ? (unionScore * 100) / (unionCount * 4) : 0;
+
+    const totalPoints = practicalScore + unionScore;
+    const totalQuestions = practicalCount + unionCount;
+    const finalAverage = totalQuestions > 0 ? totalPoints / totalQuestions : 0;
 
     let masteryLevel = "No Apto";
-    if (finalAverage >= 95) masteryLevel = "Experto";
-    else if (finalAverage >= 80) masteryLevel = "Competente";
-    else if (finalAverage >= 70) masteryLevel = "Básico";
+    if (finalAverage >= 3.8) masteryLevel = "Experto";
+    else if (finalAverage >= 3.2) masteryLevel = "Competente";
+    else if (finalAverage >= 2.8) masteryLevel = "Básico";
 
     const payload: WelderEvaluations = {
       employeeNumber: welderData.employeeNumber,
       evaluationDate: welderData.date,
       evaluatorName: welderData.evaluator,
       exclusiveTestReference: exclusiveTest.reference,
-      exclusiveTestResult: exclusiveTest.result || null,
+      totalPoints: totalPoints,
       practicalGrade: Number(practicalGrade.toFixed(2)),
       unionGrade: Number(unionGrade.toFixed(2)),
       finalAverage: Number(finalAverage.toFixed(2)),
@@ -173,6 +181,8 @@ export const WeldersChecklistForm = () => {
           />
           <UnionEvaluationSection
             items={unionEvaluation}
+            previousSectionScore={practicalScore}
+            previousSectionQuestionsCount={practicalCount}
             onUpdateAnswer={handleUpdateUnionAnswer}
             onUpdateScore={handleUpdateUnionScore}
           />
