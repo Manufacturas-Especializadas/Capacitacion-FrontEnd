@@ -7,13 +7,16 @@ import {
   SlidersHorizontal,
   ArrowRight,
   Eye,
+  Trash2,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTrainingEvents } from "../../hooks/useTrainingEvents";
+import { useTrainingEventMutations } from "../../hooks/useTrainingEventMutations";
 
 export const TrainingHistoryDashboard = () => {
   const navigate = useNavigate();
-  const { events, isLoading, error } = useTrainingEvents();
+  const { events, isLoading, error, refetch } = useTrainingEvents();
+  const { deleteEvent, isDeleting } = useTrainingEventMutations();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
 
@@ -42,6 +45,19 @@ export const TrainingHistoryDashboard = () => {
 
     return matchesSearch && matchesStatus;
   });
+
+  const handleDelete = async (id: number) => {
+    if (
+      window.confirm(
+        "¿Estás seguro de que deseas eliminar este evento? Esta acción borrará a todos los participantes asignados y no se puede deshacer.",
+      )
+    ) {
+      const success = await deleteEvent(id);
+      if (success) {
+        refetch();
+      }
+    }
+  };
 
   if (isLoading) {
     return (
@@ -214,33 +230,45 @@ export const TrainingHistoryDashboard = () => {
                         {event.status}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-center">
-                      {event.status?.toUpperCase() === "COMPLETADO" ? (
+                    <td className="px-6 py-4">
+                      <div className="flex items-center justify-center gap-2">
+                        {event.status?.toUpperCase() === "COMPLETADO" ? (
+                          <button
+                            onClick={() =>
+                              navigate(
+                                `/registro-asistencia/ejecucion/${event.id}`,
+                              )
+                            }
+                            className="p-1.5 text-slate-500 hover:text-blue-600 rounded-lg hover:bg-slate-100 transition-all cursor-pointer"
+                            title="Ver Detalles"
+                          >
+                            <Eye size={18} />
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() =>
+                              navigate(
+                                `/registro-asistencia/ejecucion/${event.id}`,
+                              )
+                            }
+                            className="p-1.5 text-blue-600 hover:text-blue-800 rounded-lg 
+                            hover:bg-blue-50 transition-all cursor-pointer"
+                            title="Continuar Registro"
+                          >
+                            <ArrowRight size={18} />
+                          </button>
+                        )}
+
                         <button
-                          onClick={() =>
-                            navigate(
-                              `/registro-asistencia/ejecucion/${event.id}`,
-                            )
-                          }
-                          className="p-1.5 text-slate-500 hover:text-blue-600 rounded-lg 
-                          hover:bg-slate-100 transition-all cursor-pointer"
-                          title="Ver Detalles"
+                          onClick={() => handleDelete(event.id)}
+                          disabled={isDeleting}
+                          className="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 
+                          rounded-lg transition-all cursor-pointer disabled:opacity-50"
+                          title="Eliminar Evento"
                         >
-                          <Eye size={18} />
+                          <Trash2 size={18} />
                         </button>
-                      ) : (
-                        <button
-                          onClick={() =>
-                            navigate(
-                              `/registro-asistencia/ejecucion/${event.id}`,
-                            )
-                          }
-                          className="p-1.5 text-blue-600 hover:text-blue-800 rounded-lg hover:bg-blue-50 transition-all cursor-pointer"
-                          title="Continuar Registro"
-                        >
-                          <ArrowRight size={18} />
-                        </button>
-                      )}
+                      </div>
                     </td>
                   </tr>
                 ))}

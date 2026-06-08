@@ -11,6 +11,7 @@ export const useTrainingEventMutations = () => {
   const [isCreating, setIsCreating] = useState(false);
   const [isAssing, setIsAssigning] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const createEvent = async (data: CreateTrainingEvent) => {
     setIsCreating(true);
@@ -60,6 +61,21 @@ export const useTrainingEventMutations = () => {
     });
   };
 
+  const deleteEvent = async (id: number) => {
+    setIsDeleting(true);
+    try {
+      await trainingEventService.delete(id);
+      toast.success("Evento eliminado correctamente");
+      return true;
+    } catch (error) {
+      console.error("Error deleting event:", error);
+      toast.error("Ocurrió un error al eliminar el evento.");
+      return false;
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   return {
     createEvent,
     assignAttendees,
@@ -67,5 +83,7 @@ export const useTrainingEventMutations = () => {
     isCreating,
     isAssing,
     isSaving,
+    deleteEvent,
+    isDeleting,
   };
 };

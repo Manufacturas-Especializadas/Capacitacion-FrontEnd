@@ -13,6 +13,7 @@ export const API_CONFIG = {
     },
     trainingEvent: {
       createEvent: "/api/TrainingEvents/create-event",
+      delete: "/api/TrainingEvents/delete/",
       assingAttendees: "/api/TrainingEvents/assign-attendees",
       saveAttendance: "/api/TrainingEvents/save-attendance/",
       trainingEventsDetails: "/api/TrainingEvents/details/",

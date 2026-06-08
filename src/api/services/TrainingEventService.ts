@@ -14,6 +14,7 @@ class TrainingEventService {
   private getDetailsEndpoint =
     API_CONFIG.endpoint.trainingEvent.trainingEventsDetails;
   private createEventEndpoint = API_CONFIG.endpoint.trainingEvent.createEvent;
+  private deleteEventEndpoint = API_CONFIG.endpoint.trainingEvent.delete;
   private assignAttendeesEndpoint =
     API_CONFIG.endpoint.trainingEvent.assingAttendees;
   private saveAttendanceEndpoint =
@@ -35,6 +36,10 @@ class TrainingEventService {
       data,
     );
     return response.eventId;
+  }
+
+  async delete(id: number): Promise<void> {
+    return apiClient.delete(`${this.deleteEventEndpoint}${id}`);
   }
 
   async assignAttendees(data: AssignAttendees): Promise<void> {
