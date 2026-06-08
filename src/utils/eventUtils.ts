@@ -88,7 +88,9 @@ export const buildAttendanceFormData = (
 
   if (instructorSignature && instructorSignature.startsWith("data:image")) {
     const file = dataURLtoFile(instructorSignature, "instructor_signature.png");
-    formData.append("InstructorSignature", file);
+    if (file) {
+      formData.append("InstructorSignature", file);
+    }
   }
 
   records.forEach((record, index) => {
@@ -106,7 +108,9 @@ export const buildAttendanceFormData = (
         record.signature,
         `emp_${record.employeeId}_signature.png`,
       );
-      formData.append(`EmployeeRecords[${index}].Signature`, empFile);
+      if (empFile) {
+        formData.append(`EmployeeRecords[${index}].Signature`, empFile);
+      }
     }
 
     record.evaluations.forEach((ev, evIndex) => {
