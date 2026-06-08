@@ -32,9 +32,7 @@ class WeldersChecklistService {
     formData.append("EvaluatorName", payload.evaluatorName);
 
     formData.append("ExclusiveTestReference", payload.exclusiveTestReference);
-    if (payload.exclusiveTestResult) {
-      formData.append("ExclusiveTestResult", payload.exclusiveTestResult);
-    }
+    formData.append("TotalPoints", payload.totalPoints.toString());
 
     formData.append("PracticalGrade", payload.practicalGrade.toString());
     formData.append("UnionGrade", payload.unionGrade.toString());
@@ -117,9 +115,7 @@ class WeldersChecklistService {
     formData.append("EvaluatorName", payload.evaluatorName);
     formData.append("ExclusiveTestReference", payload.exclusiveTestReference);
 
-    if (payload.exclusiveTestResult) {
-      formData.append("ExclusiveTestResult", payload.exclusiveTestResult);
-    }
+    formData.append("TotalPoints", payload.totalPoints.toString());
 
     formData.append("PracticalGrade", payload.practicalGrade.toString());
     formData.append("UnionGrade", payload.unionGrade.toString());

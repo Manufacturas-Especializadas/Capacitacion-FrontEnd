@@ -168,7 +168,7 @@ export interface WelderEvaluations {
   evaluationDate: string;
   evaluatorName: string;
   exclusiveTestReference: string;
-  exclusiveTestResult: string | null;
+  totalPoints: number;
   practicalGrade: number;
   unionGrade: number;
   finalAverage: number;
