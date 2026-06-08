@@ -1,192 +1,189 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useWeldersChecklistMutations } from "../../hooks/useWeldersChecklistMutations";
-import { useEffect, useState, type ChangeEvent } from "react";
-import { weldersChecklistService } from "../../api/services/WeldersChecklistService";
-import { ArrowLeft, Save, FileCheck } from "lucide-react";
+import { type SyntheticEvent, useEffect } from "react";
+import { ArrowLeft } from "lucide-react";
+import { useCatalogs } from "../../hooks/useCatalogs";
+import { useWeldersEditForm } from "../../hooks/useWeldersEditForm";
+import { WelderDataSection } from "../../components/WeldersChecklistUI/WelderDataSection";
+import { PracticalEvaluationSection } from "../../components/WeldersChecklistUI/PracticalEvaluationSection/PracticalEvaluationSection";
+import { UnionEvaluationSection } from "../../components/WeldersChecklistUI/UnionEvaluationSection/UnionEvaluationSection";
+import { SignaturesSection } from "../../components/WeldersChecklistUI/SignaturesSection/SignaturesSection";
+import { SignatureModal } from "../../components/SignatureModal/SignatureModal";
 
 export const WeldersEditEvaluation = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { updateEvaluation, isSaving } = useWeldersChecklistMutations();
+  const { lines, fetchLines } = useCatalogs();
 
-  const [formData, setFormData] = useState<any>(null);
+  const {
+    welderData,
+    setWelderData,
+    practicalSections,
+    unionEvaluation,
+    files,
+    signatures,
+    modalOpen,
+    setModalOpen,
+    currentSignerLabel,
+    practicalScore,
+    practicalCount,
+    updatePracticalScore,
+    updateQuestionText,
+    addQuestion,
+    removeQuestion,
+    handleUpdateUnionScore,
+    handleUpdateUnionAnswer,
+    handleOpenSignatureModal,
+    handleSaveSignature,
+  } = useWeldersEditForm(id);
 
   useEffect(() => {
-    if (id) {
-      weldersChecklistService.getById(Number(id)).then(setFormData);
-    }
-  }, [id]);
+    fetchLines();
+  }, [fetchLines]);
 
-  const handleFileChange = (
-    e: ChangeEvent<HTMLInputElement>,
-    field: string,
-  ) => {
-    if (e.target.files && e.target.files[0]) {
-      setFormData({ ...formData, [field]: e.target.files[0] });
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!formData) return;
 
-    const success = await updateEvaluation(Number(id), formData);
-    if (success) navigate("/evaluaciones");
+    const practicalGrade =
+      practicalCount > 0 ? (practicalScore * 100) / (practicalCount * 4) : 0;
+
+    let unionScore = 0;
+    let unionCount = 0;
+    unionEvaluation.forEach((u) => {
+      if (
+        u.score !== null &&
+        !u.attribute.toLowerCase().includes("clasificaci")
+      ) {
+        unionScore += u.score;
+        unionCount++;
+      }
+    });
+    const unionGrade =
+      unionCount > 0 ? (unionScore * 100) / (unionCount * 4) : 0;
+
+    const totalPoints = practicalScore + unionScore;
+    const totalQuestions = practicalCount + unionCount;
+    const finalAverage = totalQuestions > 0 ? totalPoints / totalQuestions : 0;
+
+    let masteryLevel = "No Apto";
+    if (finalAverage >= 3.8) masteryLevel = "Experto";
+    else if (finalAverage >= 3.2) masteryLevel = "Competente";
+    else if (finalAverage >= 2.8) masteryLevel = "Básico";
+
+    const payload = {
+      employeeNumber: welderData.employeeNumber,
+      evaluationDate: welderData.date,
+      evaluatorName: welderData.evaluator,
+      practicalGrade: Number(practicalGrade.toFixed(2)),
+      unionGrade: Number(unionGrade.toFixed(2)),
+      finalAverage: Number(finalAverage.toFixed(2)),
+      totalPoints,
+      masteryLevel,
+      practicalAnswers: practicalSections.flatMap((sec) =>
+        sec.questions
+          .filter((q: any) => q.score !== null)
+          .map((q: any) => ({
+            sectionTitle: sec.title,
+            questionText: q.text,
+            score: q.score,
+          })),
+      ),
+      unionAnswers: unionEvaluation
+        .filter(
+          (u) =>
+            u.score !== null ||
+            u.attribute.toLowerCase().includes("clasificaci"),
+        )
+        .map((u: any) => ({
+          attributeName: u.attribute,
+          answerText: u.answer || "",
+          score: u.score || 0,
+        })),
+      signatureColaborador: signatures["colaborador"] || null,
+      signatureCoordinadorArea: signatures["coordinadorArea"] || null,
+      signatureCoordCapacitacion: signatures["coordCapacitacion"] || null,
+      signatureSupervisor: signatures["supervisor"] || null,
+      signatureEvaluador: signatures["evaluador"] || null,
+      ...files,
+    };
+
+    const success = await updateEvaluation(Number(id), payload);
+    if (success) navigate("/");
   };
 
-  if (!formData) return <div className="p-8 text-center">Cargando...</div>;
+  if (!welderData) {
+    return (
+      <div className="p-8 text-center text-slate-500">
+        Cargando evaluación...
+      </div>
+    );
+  }
 
   return (
-    <div className="p-8 max-w-5xl mx-auto bg-slate-50 min-h-screen">
+    <div className="p-8 max-w-5xl mx-auto bg-slate-50 min-h-screen font-sans">
       <button
+        type="button"
         onClick={() => navigate(-1)}
         className="flex items-center gap-2 text-slate-500 mb-6 hover:text-slate-900 transition-colors"
       >
         <ArrowLeft size={20} /> Volver
       </button>
 
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200"
-      >
-        <h2 className="text-2xl font-black text-slate-900 mb-8 border-b pb-4">
-          Editar Evaluación #{id}
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <h2 className="text-2xl font-black text-slate-900 mb-8 pb-4 border-b border-slate-200">
+          Corregir Evaluación #{id}
         </h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <InputField
-            label="Nómina"
-            value={formData.employeeNumber}
-            onChange={(v: any) =>
-              setFormData({ ...formData, employeeNumber: v })
-            }
-          />
+        <WelderDataSection
+          data={welderData}
+          productionLines={lines}
+          onChange={(d) => setWelderData({ ...welderData, ...d })}
+        />
 
-          <InputField
-            label="Evaluador"
-            value={formData.evaluatorName}
-            onChange={(v: any) =>
-              setFormData({ ...formData, evaluatorName: v })
-            }
-          />
+        <PracticalEvaluationSection
+          sections={practicalSections}
+          onUpdateScore={updatePracticalScore}
+          onUpdateQuestionText={updateQuestionText}
+          onAddQuestion={addQuestion}
+          onRemoveQuestion={removeQuestion}
+        />
 
-          <InputField
-            label="Ref. Prueba Exclusiva"
-            value={formData.exclusiveTestReference}
-            onChange={(v: any) =>
-              setFormData({ ...formData, exclusiveTestReference: v })
-            }
-          />
+        <UnionEvaluationSection
+          items={unionEvaluation}
+          previousSectionScore={practicalScore}
+          previousSectionQuestionsCount={practicalCount}
+          onUpdateAnswer={handleUpdateUnionAnswer}
+          onUpdateScore={handleUpdateUnionScore}
+        />
 
-          <InputField
-            label="Resultado Prueba"
-            value={formData.exclusiveTestResult}
-            onChange={(v: any) =>
-              setFormData({ ...formData, exclusiveTestResult: v })
-            }
-          />
+        <SignaturesSection
+          signatures={signatures}
+          onOpenModal={handleOpenSignatureModal}
+        />
 
-          <InputField
-            label="Grado Práctico"
-            type="number"
-            value={formData.practicalGrade}
-            onChange={(v: any) =>
-              setFormData({ ...formData, practicalGrade: v })
-            }
-          />
-
-          <InputField
-            label="Grado Unión"
-            type="number"
-            value={formData.unionGrade}
-            onChange={(v: any) => setFormData({ ...formData, unionGrade: v })}
-          />
-
-          <InputField
-            label="Promedio Final"
-            type="number"
-            value={formData.finalAverage}
-            onChange={(v: any) => setFormData({ ...formData, finalAverage: v })}
-          />
-
-          <InputField
-            label="Nivel de Maestría"
-            value={formData.masteryLevel}
-            onChange={(v: any) => setFormData({ ...formData, masteryLevel: v })}
-          />
-        </div>
-
-        <div className="border-t border-slate-100 pt-8">
-          <h3 className="text-lg font-bold text-slate-900 mb-6">
-            Firmas y Evidencia
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {[
-              { key: "evidencePhoto", label: "Evidencia Fotográfica" },
-              { key: "signatureColaborador", label: "Firma Colaborador" },
-              { key: "signatureCoordinadorArea", label: "Firma Coord. Área" },
-              {
-                key: "signatureCoordCapacitacion",
-                label: "Firma Coord. Capacitación",
-              },
-              { key: "signatureSupervisor", label: "Firma Supervisor" },
-              { key: "signatureEvaluador", label: "Firma Evaluador" },
-            ].map((item) => (
-              <div
-                key={item.key}
-                className="p-4 border-2 border-dashed border-slate-200 rounded-2xl hover:border-orange-400 transition-colors"
-              >
-                <div className="flex justify-between items-center mb-2">
-                  <label className="text-xs font-bold text-slate-500 uppercase">
-                    {item.label}
-                  </label>
-                  {formData[`${item.key}Url`] && (
-                    <FileCheck size={16} className="text-green-500" />
-                  )}
-                </div>
-                <input
-                  type="file"
-                  className="text-sm w-full text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100"
-                  onChange={(e) => handleFileChange(e, item.key)}
-                />
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="mt-10 flex justify-end">
+        <div className="flex justify-end mt-8 pb-12">
           <button
+            type="submit"
             disabled={isSaving}
-            className="bg-orange-600 hover:bg-orange-700 text-white px-8 py-3 rounded-xl font-bold flex items-center gap-2 shadow-lg transition-all active:scale-95 disabled:opacity-50"
+            className={`px-8 py-4 font-bold rounded-xl shadow-lg transition-all active:scale-95 ${
+              isSaving
+                ? "bg-orange-400 text-white cursor-not-allowed"
+                : "bg-orange-600 hover:bg-orange-700 text-white cursor-pointer"
+            }`}
           >
-            {isSaving ? (
-              "Guardando..."
-            ) : (
-              <>
-                <Save size={20} /> Guardar Cambios
-              </>
-            )}
+            {isSaving ? "Guardando Correcciones..." : "Guardar Correcciones"}
           </button>
         </div>
       </form>
+
+      {/* Componente del Modal para atrapar la firma dibujada */}
+      <SignatureModal
+        isOpen={modalOpen}
+        title={currentSignerLabel}
+        onClose={() => setModalOpen(false)}
+        onSave={handleSaveSignature}
+      />
     </div>
   );
 };
-
-const InputField = ({ label, value, onChange, type = "text" }: any) => (
-  <div>
-    <label className="block text-sm font-bold text-slate-700 mb-2">
-      {label}
-    </label>
-    <input
-      type={type}
-      className="w-full p-3 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-orange-500"
-      value={value || ""}
-      onChange={(e) =>
-        onChange(
-          type === "number" ? parseFloat(e.target.value) : e.target.value,
-        )
-      }
-    />
-  </div>
-);
