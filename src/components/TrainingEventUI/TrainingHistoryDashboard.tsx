@@ -8,6 +8,7 @@ import {
   ArrowRight,
   Eye,
   Trash2,
+  ArrowLeft,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTrainingEvents } from "../../hooks/useTrainingEvents";
@@ -103,6 +104,15 @@ export const TrainingHistoryDashboard = () => {
           <p className="text-slate-500 text-sm md:text-base mt-0.5">
             Historial, métricas y gestión de entrenamientos de personal.
           </p>
+
+          <button
+            type="button"
+            onClick={() => navigate("/")}
+            className="p-2 bg-white text-slate-500 hover:text-blue-600 
+            hover:bg-blue-50 rounded-full transition-colors shadow-sm cursor-pointer"
+          >
+            <ArrowLeft size={24} />
+          </button>
         </div>
 
         <button
