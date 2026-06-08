@@ -141,7 +141,7 @@ export const WeldersChecklistForm = () => {
     const success = await saveEvaluation(payload);
 
     if (success) {
-      navigate("/");
+      navigate("/historial-checklist-soldadores");
     }
   };
 

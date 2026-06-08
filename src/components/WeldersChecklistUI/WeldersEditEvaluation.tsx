@@ -109,7 +109,7 @@ export const WeldersEditEvaluation = () => {
     };
 
     const success = await updateEvaluation(Number(id), payload);
-    if (success) navigate("/");
+    if (success) navigate("/historial-checklist-soldadores");
   };
 
   if (!welderData) {

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { weldersChecklistService } from "../../api/services/WeldersChecklistService";
-import { Plus, Search } from "lucide-react";
+import { ArrowLeft, Plus, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { WeldersEvaluationCard } from "../../components/WeldersChecklistUI/WeldersEvaluationCard";
 
@@ -32,6 +32,15 @@ export const WeldersEvaluationsDashboard = () => {
           <p className="text-slate-500">
             Gestiona y consulta las evaluaciones de soldadura
           </p>
+          <button
+            type="button"
+            onClick={() => navigate("/")}
+            className="p-2 bg-white text-slate-500 hover:text-blue-600 
+            hover:bg-blue-50 rounded-full transition-colors shadow-sm 
+            cursor-pointer mt-2"
+          >
+            <ArrowLeft size={24} />
+          </button>
         </div>
 
         <div className="flex gap-4 w-full md:w-auto">
