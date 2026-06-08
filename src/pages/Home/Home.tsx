@@ -80,7 +80,7 @@ export const Home = () => {
           </div>
 
           <div
-            onClick={() => navigate("/soldadores/checklist")}
+            onClick={() => navigate("/historial-checklist-soldadores")}
             className="group relative bg-white rounded-3xl p-8 border border-slate-200 
             shadow-sm hover:shadow-xl hover:border-orange-200 transition-all duration-300 
             cursor-pointer overflow-hidden flex flex-col h-full"

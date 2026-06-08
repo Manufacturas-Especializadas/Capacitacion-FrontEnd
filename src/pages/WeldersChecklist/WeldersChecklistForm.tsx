@@ -1,164 +1,148 @@
 import { ArrowLeft } from "lucide-react";
+import { useWeldersChecklistForm } from "../../hooks/useWeldersChecklistForm";
 import { WelderDataSection } from "../../components/WeldersChecklistUI/WelderDataSection";
-import { useState, type ChangeEvent } from "react";
-import type {
-  PracticalSectionData,
-  UnionEvaluationItem,
-  WelderData,
-} from "../../types/Types";
-// import { useNavigate } from "react-router-dom";
-import {
-  INITIAL_PRACTICAL_SECTIONS,
-  INITIAL_UNION_EVALUATION,
-} from "../../data/ChecklistQuestions";
 import { PracticalEvaluationSection } from "../../components/WeldersChecklistUI/PracticalEvaluationSection/PracticalEvaluationSection";
 import { UnionEvaluationSection } from "../../components/WeldersChecklistUI/UnionEvaluationSection/UnionEvaluationSection";
-import {
-  ExclusiveTestSection,
-  type ExclusiveTestData,
-} from "../../components/WeldersChecklistUI/ExclusiveTestSection/ExclusiveTestSection";
+import { ExclusiveTestSection } from "../../components/WeldersChecklistUI/ExclusiveTestSection/ExclusiveTestSection";
+import { EvidenceSection } from "../../components/WeldersChecklistUI/EvidenceSection/EvidenceSection";
 import { SignaturesSection } from "../../components/WeldersChecklistUI/SignaturesSection/SignaturesSection";
 import { SignatureModal } from "../../components/SignatureModal/SignatureModal";
-import { EvidenceSection } from "../../components/WeldersChecklistUI/EvidenceSection/EvidenceSection";
+import { useWeldersChecklistMutations } from "../../hooks/useWeldersChecklistMutations";
+import { useEffect, type SyntheticEvent } from "react";
+import type { WelderEvaluations } from "../../types/Types";
+import { useNavigate } from "react-router-dom";
+import { useCatalogs } from "../../hooks/useCatalogs";
+import { useEmployees } from "../../hooks/useEmployees";
 
 export const WeldersChecklistForm = () => {
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
 
-  const [welderData, setWelderData] = useState<WelderData>({
-    name: "",
-    employeeNumber: "",
-    date: new Date().toISOString().split("T")[0],
-    line: "",
-    evaluator: "",
-  });
+  const { lines, fetchLines } = useCatalogs();
+  const { employees, createNewEmployee, isLoadingEmployees } = useEmployees();
 
-  const [practicalSections, setPracticalSections] = useState<
-    PracticalSectionData[]
-  >(INITIAL_PRACTICAL_SECTIONS);
+  useEffect(() => {
+    fetchLines();
+  }, [fetchLines]);
 
-  const [unionEvaluation, setUnionEvaluation] = useState<UnionEvaluationItem[]>(
-    INITIAL_UNION_EVALUATION,
+  const {
+    welderData,
+    practicalSections,
+    unionEvaluation,
+    exclusiveTest,
+    evidencePhoto,
+    signatures,
+    modalOpen,
+    currentSignerLabel,
+    setEvidencePhoto,
+    setModalOpen,
+    handleWelderDataChange,
+    updatePracticalScore,
+    updateQuestionText,
+    addQuestion,
+    removeQuestion,
+    handleUpdateUnionAnswer,
+    handleUpdateUnionScore,
+    handleExclusiveTestChange,
+    handleOpenSignatureModal,
+    handleSaveSignature,
+  } = useWeldersChecklistForm(employees, lines);
+
+  const { saveEvaluation, isSaving } = useWeldersChecklistMutations();
+  let practicalScore = 0;
+  let practicalCount = 0;
+
+  practicalSections.forEach((sec) =>
+    sec.questions.forEach((q) => {
+      if (q.score !== null) {
+        practicalScore += q.score;
+        practicalCount++;
+      }
+    }),
   );
 
-  const [exclusiveTest, setExclusiveTest] = useState<ExclusiveTestData>({
-    reference: "Sin requerimiento",
-    result: "",
-  });
+  const handleSubmit = async (e: SyntheticEvent<HTMLFormElement>) => {
+    e.preventDefault();
 
-  const [evidencePhoto, setEvidencePhoto] = useState<string | null>(null);
-  const [signatures, setSignatures] = useState<Record<string, string>>({});
-  const [modalOpen, setModalOpen] = useState(false);
-  const [currentSignerId, setCurrentSignerId] = useState("");
-  const [currentSignerLabel, setCurrentSignerLabel] = useState("");
-
-  const handleOpenSignatureModal = (id: string, label: string) => {
-    setCurrentSignerId(id);
-    setCurrentSignerLabel(label);
-    setModalOpen(true);
-  };
-
-  const handleSaveSignature = (signatureDataUrl: string) => {
-    setSignatures((prev) => ({
-      ...prev,
-      [currentSignerId]: signatureDataUrl,
-    }));
-    setModalOpen(false);
-  };
-
-  const handleWelderDataChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>,
-  ) => {
-    setWelderData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-  };
-
-  const updatePracticalScore = (
-    sectionId: string,
-    questionId: string,
-    score: number,
-  ) => {
-    setPracticalSections((prev) =>
-      prev.map((sec) => {
-        if (sec.id === sectionId) {
-          return {
-            ...sec,
-            questions: sec.questions.map((q) =>
-              q.id === questionId ? { ...q, score } : q,
-            ),
-          };
-        }
-        return sec;
-      }),
+    const existingEmployee = employees.find(
+      (emp) => emp.employeeNumber === welderData.employeeNumber,
     );
-  };
 
-  const updateQuestionText = (
-    sectionId: string,
-    questionId: string,
-    text: string,
-  ) => {
-    setPracticalSections((prev) =>
-      prev.map((sec) => {
-        if (sec.id === sectionId) {
-          return {
-            ...sec,
-            questions: sec.questions.map((q) =>
-              q.id === questionId ? { ...q, text } : q,
-            ),
-          };
-        }
-        return sec;
-      }),
-    );
-  };
+    if (!existingEmployee) {
+      const newEmp = await createNewEmployee({
+        employeeNumber: welderData.employeeNumber,
+        name: welderData.name,
+        productionLineId: Number(welderData.line),
+      });
 
-  const addQuestion = (sectionId: string) => {
-    setPracticalSections((prev) =>
-      prev.map((sec) => {
-        if (sec.id === sectionId) {
-          return {
-            ...sec,
-            questions: [
-              ...sec.questions,
-              { id: `q_new_${Date.now()}`, text: "", score: null },
-            ],
-          };
-        }
-        return sec;
-      }),
-    );
-  };
+      if (!newEmp) return;
+    }
 
-  const removeQuestion = (sectionId: string, questionId: string) => {
-    setPracticalSections((prev) =>
-      prev.map((sec) => {
-        if (sec.id === sectionId) {
-          return {
-            ...sec,
-            questions: sec.questions.filter((q) => q.id !== questionId),
-          };
-        }
-        return sec;
-      }),
-    );
-  };
+    const practicalGrade =
+      practicalCount > 0 ? (practicalScore * 100) / (practicalCount * 4) : 0;
 
-  const handleUpdateUnionAnswer = (id: string, answer: string) => {
-    setUnionEvaluation((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, answer } : item)),
-    );
-  };
+    let unionScore = 0;
+    let unionCount = 0;
+    unionEvaluation.forEach((u) => {
+      if (
+        u.score !== null &&
+        !u.attribute.toLowerCase().includes("clasificaci")
+      ) {
+        unionScore += u.score;
+        unionCount++;
+      }
+    });
 
-  const handleUpdateUnionScore = (id: string, score: number | null) => {
-    setUnionEvaluation((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, score } : item)),
-    );
-  };
+    const unionGrade =
+      unionCount > 0 ? (unionScore * 100) / (unionCount * 4) : 0;
 
-  const handleExclusiveTestChange = (
-    field: keyof ExclusiveTestData,
-    value: string,
-  ) => {
-    setExclusiveTest((prev) => ({ ...prev, [field]: value }));
+    const totalPoints = practicalScore + unionScore;
+    const totalQuestions = practicalCount + unionCount;
+    const finalAverage = totalQuestions > 0 ? totalPoints / totalQuestions : 0;
+
+    let masteryLevel = "No Apto";
+    if (finalAverage >= 3.8) masteryLevel = "Experto";
+    else if (finalAverage >= 3.2) masteryLevel = "Competente";
+    else if (finalAverage >= 2.8) masteryLevel = "Básico";
+
+    const payload: WelderEvaluations = {
+      employeeNumber: welderData.employeeNumber,
+      evaluationDate: welderData.date,
+      evaluatorName: welderData.evaluator,
+      exclusiveTestReference: exclusiveTest.reference,
+      totalPoints: totalPoints,
+      practicalGrade: Number(practicalGrade.toFixed(2)),
+      unionGrade: Number(unionGrade.toFixed(2)),
+      finalAverage: Number(finalAverage.toFixed(2)),
+      masteryLevel,
+      practicalAnswers: practicalSections.flatMap((sec) =>
+        sec.questions
+          .filter((q) => q.score !== null)
+          .map((q) => ({
+            sectionTitle: sec.title,
+            questionText: q.text,
+            score: q.score!,
+          })),
+      ),
+      unionAnswers: unionEvaluation
+        .filter((u) => u.score !== null)
+        .map((u) => ({
+          attributeName: u.attribute,
+          answerText: u.answer || "",
+          score: u.score!,
+        })),
+      evidencePhoto: evidencePhoto || null,
+      signatureColaborador: signatures["colaborador"] || null,
+      signatureCoordinadorArea: signatures["coordinadorArea"] || null,
+      signatureCoordCapacitacion: signatures["coordCapacitacion"] || null,
+      signatureSupervisor: signatures["supervisor"] || null,
+      signatureEvaluador: signatures["evaluador"] || null,
+    };
+
+    const success = await saveEvaluation(payload);
+
+    if (success) {
+      navigate("/");
+    }
   };
 
   return (
@@ -167,8 +151,8 @@ export const WeldersChecklistForm = () => {
         <div className="flex items-center gap-4 mb-6">
           <button
             type="button"
-            className="p-2 bg-white text-slate-500 hover:text-orange-600
-            hover:bg-orange-50 rounded-full transition-colors shadow-sm cursor-pointer"
+            onClick={() => navigate("/historial-checklist-soldadores")}
+            className="p-2 bg-white text-slate-500 hover:text-orange-600 hover:bg-orange-50 rounded-full transition-colors shadow-sm cursor-pointer"
           >
             <ArrowLeft size={24} />
           </button>
@@ -182,12 +166,12 @@ export const WeldersChecklistForm = () => {
           </div>
         </div>
 
-        <form className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <WelderDataSection
             data={welderData}
+            productionLines={lines}
             onChange={handleWelderDataChange}
           />
-
           <PracticalEvaluationSection
             sections={practicalSections}
             onUpdateScore={updatePracticalScore}
@@ -195,20 +179,18 @@ export const WeldersChecklistForm = () => {
             onAddQuestion={addQuestion}
             onRemoveQuestion={removeQuestion}
           />
-
           <UnionEvaluationSection
             items={unionEvaluation}
+            previousSectionScore={practicalScore}
+            previousSectionQuestionsCount={practicalCount}
             onUpdateAnswer={handleUpdateUnionAnswer}
             onUpdateScore={handleUpdateUnionScore}
           />
-
           <ExclusiveTestSection
             data={exclusiveTest}
             onChange={handleExclusiveTestChange}
           />
-
           <EvidenceSection photo={evidencePhoto} onChange={setEvidencePhoto} />
-
           <SignaturesSection
             signatures={signatures}
             onOpenModal={handleOpenSignatureModal}
@@ -217,10 +199,16 @@ export const WeldersChecklistForm = () => {
           <div className="flex justify-end mt-8 pb-12">
             <button
               type="submit"
-              className="px-8 py-4 bg-orange-600 hover:bg-orange-700 text-white
-              font-bold rounded-xl shadow-lg transition-all active:scale-95 cursor-pointer"
+              disabled={isSaving || isLoadingEmployees}
+              className={`px-8 py-4 font-bold rounded-xl shadow-lg transition-all active:scale-95 ${
+                isSaving || isLoadingEmployees
+                  ? "bg-orange-400 text-white cursor-not-allowed"
+                  : "bg-orange-600 hover:bg-orange-700 text-white cursor-pointer"
+              }`}
             >
-              Guardar
+              {isSaving
+                ? "Guardando y Subiendo Archivos..."
+                : "Guardar Evaluación"}
             </button>
           </div>
         </form>

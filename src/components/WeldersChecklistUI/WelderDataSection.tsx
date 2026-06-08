@@ -1,14 +1,28 @@
 import type { ChangeEvent } from "react";
-import type { WelderData } from "../../types/Types";
+import type { ProductionLines, WelderData } from "../../types/Types";
 import { User } from "lucide-react";
 import InputField from "../Inputs/InputField";
+import SelectField from "../Inputs/SelectField";
 
 interface Props {
   data: WelderData;
+  productionLines: ProductionLines[];
   onChange: (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
 }
 
-export const WelderDataSection = ({ data, onChange }: Props) => {
+export const WelderDataSection = ({
+  data,
+  onChange,
+  productionLines,
+}: Props) => {
+  const lineOptions = [
+    { value: "", label: "Selecciona una línea..." },
+    ...productionLines.map((line: any) => ({
+      value: line.id ? line.id.toString() : line.lineName,
+      label: line.lineName || line.name || `Línea ${line.id}`,
+    })),
+  ];
+
   return (
     <div
       className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200
@@ -25,6 +39,7 @@ export const WelderDataSection = ({ data, onChange }: Props) => {
         <div className="lg:col-span-2">
           <InputField
             label="Nombre del Soldador"
+            name="name"
             value={data.name}
             onChange={onChange}
           />
@@ -33,18 +48,27 @@ export const WelderDataSection = ({ data, onChange }: Props) => {
         <div className="col-span-1">
           <InputField
             label="N° Nómina"
+            name="employeeNumber"
             value={data.employeeNumber}
             onChange={onChange}
           />
         </div>
 
         <div className="col-span-1">
-          <InputField label="Línea" value={data.line} onChange={onChange} />
+          <SelectField
+            label="Línea"
+            name="line"
+            value={data.line}
+            onChange={onChange}
+            options={lineOptions}
+            required
+          />
         </div>
 
         <div className="col-span-1 md:col-span-2">
           <InputField
             label="Nombre del Evalaudor"
+            name="evaluator"
             value={data.evaluator}
             onChange={onChange}
           />

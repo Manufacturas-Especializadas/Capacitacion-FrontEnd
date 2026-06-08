@@ -33,8 +33,9 @@ export const PracticalEvaluationSection = ({
   });
 
   const maxPossibleScore = totalQuestions * 4;
+
   const grade =
-    maxPossibleScore > 0 ? (obtainedScore / maxPossibleScore) * 100 : 0;
+    maxPossibleScore > 0 ? (obtainedScore * 100) / maxPossibleScore : 0;
   return (
     <div
       className="bg-white p-4 md:p-8 rounded-2xl shadow-sm border border-slate-200 
@@ -154,11 +155,14 @@ export const PracticalEvaluationSection = ({
           <p className="text-xs font-bold text-slate-600 uppercase tracking-widest mb-1">
             Puntaje Obtenido:
           </p>
-          <p className="text-2xl font-black text-slate-800">
+          {/* <p className="text-2xl font-black text-slate-800">
             {obtainedScore}{" "}
             <span className="text-sm font-medium text-slate-500">
               / {maxPossibleScore}
             </span>
+          </p> */}
+          <p className="text-2xl font-black text-slate-800">
+            {maxPossibleScore}
           </p>
         </div>
 

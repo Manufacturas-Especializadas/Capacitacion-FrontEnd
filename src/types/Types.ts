@@ -152,3 +152,65 @@ export interface UnionEvaluationItem {
   answer: string;
   score: number | null;
 }
+
+export interface WelderEvaluationsAll {
+  id: number;
+  employeeName: string;
+  employeeNumber: string;
+  evaluationDate: string;
+  finalAverage: number;
+  evidencePhotoUrl: string;
+  masteryLevel: string;
+}
+
+export interface WelderEvaluations {
+  employeeNumber: string;
+  evaluationDate: string;
+  evaluatorName: string;
+  exclusiveTestReference: string;
+  totalPoints: number;
+  practicalGrade: number;
+  unionGrade: number;
+  finalAverage: number;
+  masteryLevel: string;
+  practicalAnswers: PracticalAnswer[];
+  unionAnswers: UnionAnswer[];
+  evidencePhoto: string | null;
+  signatureColaborador: string | null;
+  signatureCoordinadorArea: string | null;
+  signatureCoordCapacitacion: string | null;
+  signatureSupervisor: string | null;
+  signatureEvaluador: string | null;
+}
+
+export interface WelderEvaluationsDetails {
+  id: number;
+  employeeNumber: string;
+  employeeName: string;
+  evaluatorName: string;
+  evaluationDate: string;
+  lineName: string;
+  lineId: number;
+  finalAverage: number;
+  masteryLevel: string;
+  evidencePhotoUrl: string;
+  signatureColaboradorUrl: string;
+  signatureCoordinadorAreaUrl: string;
+  signatureCoordCapacitacionUrl: string;
+  signatureSupervisorUrl: string;
+  signatureEvaluadorUrl: string;
+  practicalAnswers: PracticalAnswer[];
+  unionAnswers: UnionAnswer[];
+}
+
+export interface PracticalAnswer {
+  sectionTitle: string;
+  questionText: string;
+  score: number;
+}
+
+export interface UnionAnswer {
+  attributeName: string;
+  answerText: string;
+  score: number;
+}
