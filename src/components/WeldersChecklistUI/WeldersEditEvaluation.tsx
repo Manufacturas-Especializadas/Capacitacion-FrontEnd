@@ -2,7 +2,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useWeldersChecklistMutations } from "../../hooks/useWeldersChecklistMutations";
 import { useEffect, useState, type ChangeEvent } from "react";
 import { weldersChecklistService } from "../../api/services/WeldersChecklistService";
-import { ArrowLeft, Upload, Save } from "lucide-react";
+import { ArrowLeft, Save, FileCheck } from "lucide-react";
 
 export const WeldersEditEvaluation = () => {
   const { id } = useParams<{ id: string }>();
@@ -37,11 +37,10 @@ export const WeldersEditEvaluation = () => {
   if (!formData) return <div className="p-8 text-center">Cargando...</div>;
 
   return (
-    <div className="p-8 max-w-4xl mx-auto bg-slate-50 min-h-screen">
+    <div className="p-8 max-w-5xl mx-auto bg-slate-50 min-h-screen">
       <button
         onClick={() => navigate(-1)}
-        className="flex items-center gap-2 text-slate-500 mb-6 hover:text-slate-900 
-        transition-colors hover:cursor-pointer"
+        className="flex items-center gap-2 text-slate-500 mb-6 hover:text-slate-900 transition-colors"
       >
         <ArrowLeft size={20} /> Volver
       </button>
@@ -50,90 +49,115 @@ export const WeldersEditEvaluation = () => {
         onSubmit={handleSubmit}
         className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200"
       >
-        <h2 className="text-2xl font-black text-slate-900 mb-6">
+        <h2 className="text-2xl font-black text-slate-900 mb-8 border-b pb-4">
           Editar Evaluación #{id}
         </h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <div>
-            <label className="block text-sm font-bold text-slate-700 mb-2">
-              Evaluador
-            </label>
-            <input
-              className="w-full p-3 border border-slate-200 rounded-xl outline-none 
-              focus:ring-2 focus:ring-orange-500"
-              value={formData.evaluatorName}
-              onChange={(e) =>
-                setFormData({ ...formData, evaluatorName: e.target.value })
-              }
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-bold text-slate-700 mb-2">
-              Promedio Final
-            </label>
-            <input
-              type="number"
-              className="w-full p-3 border border-slate-200 rounded-xl outline-none 
-              focus:ring-2 focus:ring-orange-500"
-              value={formData.finalAverage}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  finalAverage: parseFloat(e.target.value),
-                })
-              }
-            />
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <InputField
+            label="Nómina"
+            value={formData.employeeNumber}
+            onChange={(v: any) =>
+              setFormData({ ...formData, employeeNumber: v })
+            }
+          />
+
+          <InputField
+            label="Evaluador"
+            value={formData.evaluatorName}
+            onChange={(v: any) =>
+              setFormData({ ...formData, evaluatorName: v })
+            }
+          />
+
+          <InputField
+            label="Ref. Prueba Exclusiva"
+            value={formData.exclusiveTestReference}
+            onChange={(v: any) =>
+              setFormData({ ...formData, exclusiveTestReference: v })
+            }
+          />
+
+          <InputField
+            label="Resultado Prueba"
+            value={formData.exclusiveTestResult}
+            onChange={(v: any) =>
+              setFormData({ ...formData, exclusiveTestResult: v })
+            }
+          />
+
+          <InputField
+            label="Grado Práctico"
+            type="number"
+            value={formData.practicalGrade}
+            onChange={(v: any) =>
+              setFormData({ ...formData, practicalGrade: v })
+            }
+          />
+
+          <InputField
+            label="Grado Unión"
+            type="number"
+            value={formData.unionGrade}
+            onChange={(v: any) => setFormData({ ...formData, unionGrade: v })}
+          />
+
+          <InputField
+            label="Promedio Final"
+            type="number"
+            value={formData.finalAverage}
+            onChange={(v: any) => setFormData({ ...formData, finalAverage: v })}
+          />
+
+          <InputField
+            label="Nivel de Maestría"
+            value={formData.masteryLevel}
+            onChange={(v: any) => setFormData({ ...formData, masteryLevel: v })}
+          />
         </div>
 
         <div className="border-t border-slate-100 pt-8">
-          <h3 className="text-lg font-bold text-slate-900 mb-4">
+          <h3 className="text-lg font-bold text-slate-900 mb-6">
             Firmas y Evidencia
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {[
-              "EvidencePhoto",
-              "SignatureColaborador",
-              "SignatureSupervisor",
-            ].map((field) => (
+              { key: "evidencePhoto", label: "Evidencia Fotográfica" },
+              { key: "signatureColaborador", label: "Firma Colaborador" },
+              { key: "signatureCoordinadorArea", label: "Firma Coord. Área" },
+              {
+                key: "signatureCoordCapacitacion",
+                label: "Firma Coord. Capacitación",
+              },
+              { key: "signatureSupervisor", label: "Firma Supervisor" },
+              { key: "signatureEvaluador", label: "Firma Evaluador" },
+            ].map((item) => (
               <div
-                key={field}
-                className="p-4 border-2 border-dashed border-slate-200 rounded-2xl 
-                text-center hover:border-orange-400 transition-colors"
+                key={item.key}
+                className="p-4 border-2 border-dashed border-slate-200 rounded-2xl hover:border-orange-400 transition-colors"
               >
-                <Upload className="mx-auto text-slate-400 mb-2" size={24} />
-                <label className="block text-xs font-bold text-slate-500 mb-2 uppercase">
-                  {field}
-                </label>
+                <div className="flex justify-between items-center mb-2">
+                  <label className="text-xs font-bold text-slate-500 uppercase">
+                    {item.label}
+                  </label>
+                  {formData[`${item.key}Url`] && (
+                    <FileCheck size={16} className="text-green-500" />
+                  )}
+                </div>
                 <input
                   type="file"
-                  className="hidden"
-                  id={field}
-                  onChange={(e) =>
-                    handleFileChange(
-                      e,
-                      field.charAt(0).toLowerCase() + field.slice(1),
-                    )
-                  }
+                  className="text-sm w-full text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100"
+                  onChange={(e) => handleFileChange(e, item.key)}
                 />
-                <label
-                  htmlFor={field}
-                  className="cursor-pointer text-orange-600 font-bold text-sm"
-                >
-                  Cambiar archivo
-                </label>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="mt-8 flex justify-end">
+        <div className="mt-10 flex justify-end">
           <button
             disabled={isSaving}
-            className="bg-orange-600 hover:bg-orange-700 text-white px-8 py-3 
-            rounded-xl font-bold shadow-lg shadow-orange-500/20 transition-all 
-            active:scale-95 disabled:opacity-50 flex items-center gap-2 hover:cursor-pointer"
+            className="bg-orange-600 hover:bg-orange-700 text-white px-8 py-3 rounded-xl font-bold flex items-center gap-2 shadow-lg transition-all active:scale-95 disabled:opacity-50"
           >
             {isSaving ? (
               "Guardando..."
@@ -148,3 +172,21 @@ export const WeldersEditEvaluation = () => {
     </div>
   );
 };
+
+const InputField = ({ label, value, onChange, type = "text" }: any) => (
+  <div>
+    <label className="block text-sm font-bold text-slate-700 mb-2">
+      {label}
+    </label>
+    <input
+      type={type}
+      className="w-full p-3 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-orange-500"
+      value={value || ""}
+      onChange={(e) =>
+        onChange(
+          type === "number" ? parseFloat(e.target.value) : e.target.value,
+        )
+      }
+    />
+  </div>
+);
