@@ -189,6 +189,8 @@ export interface WelderEvaluationsDetails {
   employeeName: string;
   evaluatorName: string;
   evaluationDate: string;
+  lineName: string;
+  lineId: number;
   finalAverage: number;
   masteryLevel: string;
   evidencePhotoUrl: string;
