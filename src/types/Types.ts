@@ -187,6 +187,7 @@ export interface WelderEvaluationsDetails {
   id: number;
   employeeNumber: string;
   employeeName: string;
+  evaluatorName: string;
   evaluationDate: string;
   finalAverage: number;
   masteryLevel: string;
