@@ -67,7 +67,7 @@ export const WelderDataSection = ({
 
         <div className="col-span-1 md:col-span-2">
           <InputField
-            label="Nombre del Evalaudor"
+            label="Nombre del Evaluador"
             name="evaluator"
             value={data.evaluator}
             onChange={onChange}
