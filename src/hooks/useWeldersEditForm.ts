@@ -6,11 +6,9 @@ export const useWeldersEditForm = (evaluationId: string | undefined) => {
   const [practicalSections, setPracticalSections] = useState<any[]>([]);
   const [unionEvaluation, setUnionEvaluation] = useState<any[]>([]);
 
-  // Archivos
   const [files, setFiles] = useState<any>({});
   const [existingUrls, setExistingUrls] = useState<any>({});
 
-  // Firmas
   const [signatures, setSignatures] = useState<Record<string, string>>({});
   const [modalOpen, setModalOpen] = useState(false);
   const [currentSignerLabel, setCurrentSignerLabel] = useState("");
@@ -30,7 +28,7 @@ export const useWeldersEditForm = (evaluationId: string | undefined) => {
       name: data.employeeName,
       date: data.evaluationDate.split("T")[0],
       evaluator: data.evaluatorName,
-      line: "",
+      line: data.lineId,
     });
 
     setExistingUrls({
@@ -40,6 +38,14 @@ export const useWeldersEditForm = (evaluationId: string | undefined) => {
       signatureCoordCapacitacionUrl: data.signatureCoordCapacitacionUrl,
       signatureSupervisorUrl: data.signatureSupervisorUrl,
       signatureEvaluadorUrl: data.signatureEvaluadorUrl,
+    });
+
+    setSignatures({
+      colaborador: data.signatureColaboradorUrl || "",
+      coordinadorArea: data.signatureCoordinadorAreaUrl || "",
+      coordCapacitacion: data.signatureCoordCapacitacionUrl || "",
+      supervisor: data.signatureSupervisorUrl || "",
+      evaluador: data.signatureEvaluadorUrl || "",
     });
 
     const groupedPractical = data.practicalAnswers.reduce(
