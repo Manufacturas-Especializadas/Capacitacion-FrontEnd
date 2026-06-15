@@ -91,7 +91,12 @@ export const SignaturesSection = ({
         </div>
       </div>
 
-      <div className="flex flex-col md:flex-row justify-between items-center pt-6 border-t border-slate-200 text-[10px] text-slate-400 font-medium uppercase tracking-wider gap-2">
+      <div
+        className="flex flex-col md:flex-row justify-between items-center pt-6 border-t 
+        border-slate-200 text-[10px] text-slate-400 font-medium uppercase tracking-wider 
+        gap-2"
+      >
+        <span>Fecha de elaboración: 05-01-2026 Rev.08</span>
         <span>Manufacturas Especializadas</span>
         <span>FO-RH-10</span>
       </div>
