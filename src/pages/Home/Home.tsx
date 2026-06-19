@@ -1,5 +1,12 @@
-import { ArrowRight, Flame, LayoutDashboard, Users } from "lucide-react";
+import {
+  Flame,
+  LayoutDashboard,
+  Users,
+  FileBarChart,
+  UsersRound,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { ModuleCard } from "../../components/ModuleCard/ModuleCard";
 
 export const Home = () => {
   const navigate = useNavigate();
@@ -32,101 +39,37 @@ export const Home = () => {
 
       <div className="max-w-5xl mx-auto px-6 pb-16">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-          <div
+          <ModuleCard
+            title="Control de Asistencias"
+            description="Crea listas de asistencia, gestiona firmas digitales de operadores y calcula métricas de aprobación para cursos de capacitación."
+            icon={<Users size={28} strokeWidth={2} />}
+            colorTheme="blue"
             onClick={() => navigate("/historial-registro-de-asistencia")}
-            className="group relative bg-white rounded-3xl p-8 border border-slate-200 
-            shadow-sm hover:shadow-xl hover:border-blue-200 transition-all duration-300 
-            cursor-pointer overflow-hidden flex flex-col h-full"
-          >
-            <div
-              className="absolute top-0 right-0 -mt-16 -mr-16 w-48 h-48 bg-blue-50 
-            rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity 
-            duration-500 pointer-events-none"
-            />
+          />
 
-            <div className="relative z-10">
-              <div
-                className="w-14 h-14 bg-blue-100 text-blue-600 rounded-2xl flex 
-                items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-3 
-                transition-transform duration-300"
-              >
-                <Users size={28} strokeWidth={2} />
-              </div>
-
-              <h2
-                className="text-2xl font-bold text-slate-900 mb-3 
-                group-hover:text-blue-700 transition-colors"
-              >
-                Control de Asistencias
-              </h2>
-
-              <p className="text-slate-500 leading-relaxed mb-8 grow">
-                Crea listas de asistencia, gestiona firmas digitales de
-                operadores y calcula métricas de aprobación para cursos de
-                capacitación.
-              </p>
-
-              <div className="flex items-center text-sm font-bold text-blue-600 mt-auto">
-                <span className="group-hover:mr-2 transition-all">
-                  Ingresar al módulo
-                </span>
-                <ArrowRight
-                  size={16}
-                  className="opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 
-                  transition-all duration-300"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div
+          <ModuleCard
+            title="Checklist de Soldadores"
+            description="Realiza evaluaciones técnicas en piso, verifica el equipo de protección y califica las habilidades prácticas del personal de soldadura."
+            icon={<Flame size={28} strokeWidth={2} />}
+            colorTheme="orange"
             onClick={() => navigate("/historial-checklist-soldadores")}
-            className="group relative bg-white rounded-3xl p-8 border border-slate-200 
-            shadow-sm hover:shadow-xl hover:border-orange-200 transition-all duration-300 
-            cursor-pointer overflow-hidden flex flex-col h-full"
-          >
-            <div
-              className="absolute top-0 right-0 -mt-16 -mr-16 w-48 h-48 bg-orange-50 
-            rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity 
-            duration-500 pointer-events-none"
-            />
+          />
 
-            <div className="relative z-10">
-              <div
-                className="w-14 h-14 bg-orange-100 text-orange-600 rounded-2xl 
-                flex items-center justify-center mb-6 group-hover:scale-110 
-                group-hover:-rotate-3 transition-transform duration-300"
-              >
-                <Flame size={28} strokeWidth={2} />
-              </div>
+          <ModuleCard
+            title="Reporte de Entrenamiento"
+            description="Visualiza estadísticas, genera reportes de cumplimiento y exporta datos consolidados sobre el avance de la capacitación en planta."
+            icon={<FileBarChart size={28} strokeWidth={2} />}
+            colorTheme="green"
+            onClick={() => navigate("/reporte-entrenamiento")}
+          />
 
-              <div className="flex items-center gap-3 mb-3">
-                <h2
-                  className="text-2xl font-bold text-slate-900 
-                  group-hover:text-orange-700 transition-colors"
-                >
-                  Checklist de Soldadores
-                </h2>
-              </div>
-
-              <p className="text-slate-500 leading-relaxed mb-8 grow">
-                Realiza evaluaciones técnicas en piso, verifica el equipo de
-                protección y califica las habilidades prácticas del personal de
-                soldadura.
-              </p>
-
-              <div className="flex items-center text-sm font-bold text-orange-600 mt-auto">
-                <span className="group-hover:mr-2 transition-all">
-                  Ingresar al módulo
-                </span>
-                <ArrowRight
-                  size={16}
-                  className="opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 
-                  transition-all duration-300"
-                />
-              </div>
-            </div>
-          </div>
+          <ModuleCard
+            title="Gestión de Empleados"
+            description="Administra el catálogo de personal, actualiza departamentos, líneas de producción y mantén el censo operativo al día."
+            icon={<UsersRound size={28} strokeWidth={2} />}
+            colorTheme="purple"
+            onClick={() => navigate("/gestion-empleados")}
+          />
         </div>
       </div>
     </div>
