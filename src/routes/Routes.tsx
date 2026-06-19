@@ -8,6 +8,7 @@ import { WeldersEvaluationsDashboard } from "../pages/WeldersChecklist/WeldersEv
 import { WeldersChecklistForm } from "../pages/WeldersChecklist/WeldersChecklistForm";
 import { WeldersEvaluationDetails } from "../components/WeldersChecklistUI/WeldersEvaluationDetails";
 import { WeldersEditEvaluation } from "../components/WeldersChecklistUI/WeldersEditEvaluation";
+import { Employees } from "../pages/Employees/Employees";
 
 export const MyRoutes = () => {
   return (
@@ -39,6 +40,8 @@ export const MyRoutes = () => {
 
       <Route path="/ver/:id" element={<WeldersEvaluationDetails />} />
       <Route path="/editar/:id" element={<WeldersEditEvaluation />} />
+
+      <Route path="/gestion-empleados" element={<Employees />} />
     </Routes>
   );
 };
