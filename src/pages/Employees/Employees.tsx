@@ -73,6 +73,16 @@ export const Employees = () => {
     });
   };
 
+  const handleDeleteClick = async (id: number) => {
+    if (
+      window.confirm(
+        "¿Estás seguro de que deseas eliminar este empleado? Esta acción puede afectar historiales existentes.",
+      )
+    ) {
+      await deleteEmployee(id);
+    }
+  };
+
   const handleSubmit = async (e: SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
 
