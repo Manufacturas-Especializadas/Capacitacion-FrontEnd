@@ -26,6 +26,9 @@ export const API_CONFIG = {
       update: "/api/WelderEvaluations/update",
       delete: "/api/WelderEvaluations/delete/",
     },
+    trainingReports: {
+      create: "/api/TrainingReports/create",
+    },
     employees: {
       allEmployees: "/api/Employees/allEmployees",
       getEmployeeById: "/api/Employees/getById/",
