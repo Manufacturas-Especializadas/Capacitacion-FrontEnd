@@ -84,19 +84,20 @@ export const Employees = () => {
       return toast.error("Completa todos los campos");
     }
 
-    try {
-      const result = await createNewEmployee({
-        name: formData.name,
-        employeeNumber: formData.employeeNumber,
-        productionLineId: formData.productionLineId,
-      });
+    const payload = {
+      name: formData.name,
+      employeeNumber: formData.employeeNumber,
+      productionLineId: formData.productionLineId,
+    };
 
+    if (isEditOpen && selectedId) {
+      const success = await updateEmployee(payload, selectedId);
+      if (success) handleCloseModal();
+    } else {
+      const result = await createNewEmployee(payload);
       if (result) handleCloseModal();
-    } catch (error) {
-      console.error("Error al registrar empleado:", error);
     }
   };
-
   const columns: Column<Employee>[] = [
     {
       header: "Nombre del empleado",
