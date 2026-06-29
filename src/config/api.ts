@@ -29,6 +29,7 @@ export const API_CONFIG = {
     employees: {
       allEmployees: "/api/Employees/allEmployees",
       createEmployee: "/api/Employees/createEmployee",
+      updateEmployee: "/api/Employees/updateEmployee/",
     },
   },
 };
