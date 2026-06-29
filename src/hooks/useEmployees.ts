@@ -25,6 +25,15 @@ export const useEmployees = () => {
     fetchEmployees();
   }, []);
 
+  const fetchEmployeeById = async (id: number) => {
+    try {
+      await employeeService.getEmployeeById(id);
+    } catch (err: any) {
+      console.error("Error al obtener el empleado por Id: ", err);
+      toast.error("Error al obtener la informacion del empleado seleccionado");
+    }
+  };
+
   const createNewEmployee = async (
     data: CreateEmployee,
   ): Promise<Employee | null> => {
@@ -60,6 +69,7 @@ export const useEmployees = () => {
   return {
     employees,
     isLoadingEmployees,
+    fetchEmployeeById,
     createNewEmployee,
     updateEmployee,
   };
