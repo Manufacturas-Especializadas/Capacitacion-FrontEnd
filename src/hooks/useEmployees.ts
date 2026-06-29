@@ -58,7 +58,7 @@ export const useEmployees = () => {
   ): Promise<boolean> => {
     try {
       await employeeService.updateEmployee(data, id);
-      await fetchEmployees(); // Recarga la lista para sincronizar nombres de líneas
+      await fetchEmployees();
       toast.success("Empleado actualizado correctamente");
       return true;
     } catch (err: any) {
