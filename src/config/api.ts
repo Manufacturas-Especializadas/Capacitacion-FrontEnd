@@ -31,7 +31,7 @@ export const API_CONFIG = {
       getEmployeeById: "/api/Employees/getById/",
       createEmployee: "/api/Employees/createEmployee",
       updateEmployee: "/api/Employees/updateEmployee/",
-      deleteEmployee: "/api/Employees/getById/",
+      deleteEmployee: "api/Employees/deleteEmployee/",
     },
   },
 };
