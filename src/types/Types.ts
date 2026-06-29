@@ -214,3 +214,12 @@ export interface UnionAnswer {
   answerText: string;
   score: number;
 }
+
+export interface TrainingReportSummary {
+  id: number;
+  trainingType: "EMPAQUE" | "SOLDADURA" | "FABRICACION";
+  leaderName: string;
+  weekNumber: number;
+  attendeesCount: number;
+  createdAt: string;
+}
