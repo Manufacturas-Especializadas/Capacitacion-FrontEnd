@@ -68,12 +68,16 @@ export const useEmployees = () => {
     }
   };
 
-  const deleteEmployee = async (id: number) => {
+  const deleteEmployee = async (id: number): Promise<boolean> => {
     try {
       await employeeService.deleteEmployee(id);
+      setEmployees((prev) => prev.filter((emp) => Number(emp.id) !== id));
+      toast.success("Empleado eliminado correctamente");
+      return true;
     } catch (err: any) {
       console.error("Error al eliminar el empleado: ", err);
       toast.error("Error al intentar eliminar el empleado");
+      return false;
     }
   };
 
