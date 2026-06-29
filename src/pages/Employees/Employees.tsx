@@ -30,6 +30,7 @@ export const Employees = () => {
   const [filteredEmployee, setFilteredEmployee] = useState("");
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [selectedId, setSelectedId] = useState<number | null>(null);
 
   const navigate = useNavigate();
 
@@ -57,6 +58,19 @@ export const Employees = () => {
     setIsCreateOpen(false);
     setIsEditOpen(false);
     setFormData(INITIAL_FORM_DATA);
+  };
+
+  const handleOpenEdit = (employee: Employee) => {
+    setSelectedId(Number(employee.id));
+    setIsEditOpen(true);
+
+    const matchingLine = lines.find((l) => l.name === employee.line);
+
+    setFormData({
+      name: employee.name,
+      employeeNumber: employee.employeeNumber,
+      productionLineId: matchingLine ? matchingLine.id : 0,
+    });
   };
 
   const handleSubmit = async (e: SyntheticEvent<HTMLFormElement>) => {
