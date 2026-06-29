@@ -42,9 +42,25 @@ export const useEmployees = () => {
     }
   };
 
+  const updateEmployee = async (data: CreateEmployee, id: number) => {
+    try {
+      await employeeService.updateEmployee(data, id);
+
+      toast.success("Empleado actualizado");
+
+      return;
+    } catch (err: any) {
+      console.error("Error al actualizar el empleado");
+      toast.error("Hubo un error al actualizar el empleado");
+
+      return null;
+    }
+  };
+
   return {
     employees,
     isLoadingEmployees,
     createNewEmployee,
+    updateEmployee,
   };
 };
