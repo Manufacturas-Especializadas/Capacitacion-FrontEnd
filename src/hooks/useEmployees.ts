@@ -25,15 +25,16 @@ export const useEmployees = () => {
     fetchEmployees();
   }, []);
 
-  const fetchEmployeeById = async (id: number) => {
+  const fetchEmployeeById = async (id: number): Promise<Employee | null> => {
     try {
-      await employeeService.getEmployeeById(id);
+      const data = await employeeService.getEmployeeById(id);
+      return data;
     } catch (err: any) {
       console.error("Error al obtener el empleado por Id: ", err);
-      toast.error("Error al obtener la informacion del empleado seleccionado");
+      toast.error("Error al obtener la información del empleado seleccionado");
+      return null;
     }
   };
-
   const createNewEmployee = async (
     data: CreateEmployee,
   ): Promise<Employee | null> => {
