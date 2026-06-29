@@ -9,6 +9,7 @@ import { WeldersChecklistForm } from "../pages/WeldersChecklist/WeldersChecklist
 import { WeldersEvaluationDetails } from "../components/WeldersChecklistUI/WeldersEvaluationDetails";
 import { WeldersEditEvaluation } from "../components/WeldersChecklistUI/WeldersEditEvaluation";
 import { Employees } from "../pages/Employees/Employees";
+import { TrainingReports } from "../pages/TrainingReports/TrainingReports";
 
 export const MyRoutes = () => {
   return (
@@ -40,6 +41,8 @@ export const MyRoutes = () => {
 
       <Route path="/ver/:id" element={<WeldersEvaluationDetails />} />
       <Route path="/editar/:id" element={<WeldersEditEvaluation />} />
+
+      <Route path="/reportes-entrenamientos" element={<TrainingReports />} />
 
       <Route path="/gestion-empleados" element={<Employees />} />
     </Routes>
