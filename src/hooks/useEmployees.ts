@@ -52,18 +52,19 @@ export const useEmployees = () => {
     }
   };
 
-  const updateEmployee = async (data: CreateEmployee, id: number) => {
+  const updateEmployee = async (
+    data: CreateEmployee,
+    id: number,
+  ): Promise<boolean> => {
     try {
       await employeeService.updateEmployee(data, id);
-
-      toast.success("Empleado actualizado");
-
-      return;
+      await fetchEmployees(); // Recarga la lista para sincronizar nombres de líneas
+      toast.success("Empleado actualizado correctamente");
+      return true;
     } catch (err: any) {
-      console.error("Error al actualizar el empleado");
+      console.error("Error al actualizar el empleado", err);
       toast.error("Hubo un error al actualizar el empleado");
-
-      return null;
+      return false;
     }
   };
 
