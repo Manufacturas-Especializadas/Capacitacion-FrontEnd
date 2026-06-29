@@ -60,7 +60,7 @@ export const Home = () => {
             description="Visualiza estadísticas, genera reportes de cumplimiento y exporta datos consolidados sobre el avance de la capacitación en planta."
             icon={<FileBarChart size={28} strokeWidth={2} />}
             colorTheme="green"
-            onClick={() => navigate("/reporte-entrenamiento")}
+            onClick={() => navigate("/reportes-entrenamientos")}
           />
 
           <ModuleCard
