@@ -66,11 +66,21 @@ export const useEmployees = () => {
     }
   };
 
+  const deleteEmployee = async (id: number) => {
+    try {
+      await employeeService.deleteEmployee(id);
+    } catch (err: any) {
+      console.error("Error al eliminar el empleado: ", err);
+      toast.error("Error al intentar eliminar el empleado");
+    }
+  };
+
   return {
     employees,
     isLoadingEmployees,
     fetchEmployeeById,
     createNewEmployee,
     updateEmployee,
+    deleteEmployee,
   };
 };
