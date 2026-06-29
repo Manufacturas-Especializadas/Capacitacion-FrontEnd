@@ -25,6 +25,16 @@ export const useEmployees = () => {
     fetchEmployees();
   }, []);
 
+  const fetchEmployeeById = async (id: number): Promise<Employee | null> => {
+    try {
+      const data = await employeeService.getEmployeeById(id);
+      return data;
+    } catch (err: any) {
+      console.error("Error al obtener el empleado por Id: ", err);
+      toast.error("Error al obtener la información del empleado seleccionado");
+      return null;
+    }
+  };
   const createNewEmployee = async (
     data: CreateEmployee,
   ): Promise<Employee | null> => {
@@ -42,9 +52,41 @@ export const useEmployees = () => {
     }
   };
 
+  const updateEmployee = async (
+    data: CreateEmployee,
+    id: number,
+  ): Promise<boolean> => {
+    try {
+      await employeeService.updateEmployee(data, id);
+      await fetchEmployees();
+      toast.success("Empleado actualizado correctamente");
+      return true;
+    } catch (err: any) {
+      console.error("Error al actualizar el empleado", err);
+      toast.error("Hubo un error al actualizar el empleado");
+      return false;
+    }
+  };
+
+  const deleteEmployee = async (id: number): Promise<boolean> => {
+    try {
+      await employeeService.deleteEmployee(id);
+      setEmployees((prev) => prev.filter((emp) => Number(emp.id) !== id));
+      toast.success("Empleado eliminado correctamente");
+      return true;
+    } catch (err: any) {
+      console.error("Error al eliminar el empleado: ", err);
+      toast.error("Error al intentar eliminar el empleado");
+      return false;
+    }
+  };
+
   return {
     employees,
     isLoadingEmployees,
+    fetchEmployeeById,
     createNewEmployee,
+    updateEmployee,
+    deleteEmployee,
   };
 };
