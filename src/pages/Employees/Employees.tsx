@@ -128,6 +128,7 @@ export const Employees = () => {
       accessor: (row) => (
         <div className="flex items-center justify-center gap-2">
           <button
+            onClick={() => handleOpenEdit(row)}
             className="p-1.5 text-slate-400 hover:text-sky-600 hover:bg-sky-50
             rounded-lg transition-colors cursor-pointer"
           >
@@ -135,6 +136,7 @@ export const Employees = () => {
           </button>
 
           <button
+            onClick={() => handleDeleteClick(Number(row.id))}
             className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 
             rounded-lg transition-colors cursor-pointer"
           >
