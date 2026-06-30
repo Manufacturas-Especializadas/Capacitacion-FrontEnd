@@ -223,3 +223,43 @@ export interface TrainingReportSummary {
   attendeesCount: number;
   createdAt: string;
 }
+
+export interface CreateWeldingUnionType {
+  listNumber: number;
+  unionName: string;
+}
+
+export interface CreateTrainingReportAttendee {
+  employeeId: number;
+  lineId: number;
+  dayMonday: boolean;
+  dayTuesday: boolean;
+  dayWednesday: boolean;
+  dayThursday: boolean;
+  dayFriday: boolean;
+  daySaturday: boolean;
+  daySunday: boolean;
+  customerClient?: string;
+  unionClassification?: string;
+  weldingPercentage?: string;
+  diameter?: string;
+  shift?: string;
+  machinery?: string;
+  ast?: string;
+  topicIds: number[];
+  traineeSignature?: string | File;
+  supervisorSignature?: string | File;
+}
+
+export interface CreateTrainingReportPayload {
+  trainingType: string;
+  leaderName: string;
+  leaderPayroll: string;
+  weekNumber?: number;
+  observations?: string;
+  unionTypes?: CreateWeldingUnionType[];
+  attendees: CreateTrainingReportAttendee[];
+  instructorSignature?: string | File;
+  coordinatorSignature?: string | File;
+  securitySignature?: string | File;
+}
