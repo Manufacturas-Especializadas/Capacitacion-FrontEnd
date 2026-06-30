@@ -3,6 +3,7 @@ import InputField from "../../../../components/Inputs/InputField";
 import { Modal } from "../../../../components/Modal/Modal";
 import { useTrainingTopics } from "../../../../hooks/useTrainingTopics";
 import type { CreateTrainingTopics } from "../../../../types/Types";
+import { toast } from "sonner";
 
 interface TrainingTopicsFormProps {
   isOpen: boolean;
@@ -16,6 +17,8 @@ const initialFormState: CreateTrainingTopics = {
   topicCode: "",
   topicName: "",
 };
+
+const TRAINING_TYPES = ["SOLDADURA", "EMPAQUE", "FABRICACIÓN"];
 
 export const TrainingTopicsForm = ({
   isOpen,
@@ -41,6 +44,12 @@ export const TrainingTopicsForm = ({
 
   const handleSubmit = async (e: SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (!formData.trainingType) {
+      toast.error("Selecciona un tipo de entrenamiento");
+      return;
+    }
+
     let success = false;
 
     if (topicToEdit) {
@@ -69,13 +78,29 @@ export const TrainingTopicsForm = ({
       }
     >
       <form className="space-y-6 text-left" onSubmit={handleSubmit}>
-        <InputField
-          label="Tipo de Entrenamiento (Ej. EMPAQUE, SOLDADURA, FABRICACIÓN)"
-          value={formData.trainingType}
-          onChange={(e: any) =>
-            setFormData({ ...formData, trainingType: e.target.value })
-          }
-        />
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-semibold text-slate-700">
+            Tipo de Entrenamiento
+          </label>
+          <div className="flex gap-2 p-1 bg-slate-100 rounded-lg">
+            {TRAINING_TYPES.map((type) => (
+              <button
+                key={type}
+                type="button"
+                onClick={() => setFormData({ ...formData, trainingType: type })}
+                className={`flex-1 py-2 text-xs font-semibold rounded-md transition-all 
+                    duration-200 hover:cursor-pointer 
+                  ${
+                    formData.trainingType === type
+                      ? "bg-white text-blue-600 shadow-sm border border-slate-200"
+                      : "text-slate-500 hover:text-slate-700 hover:bg-slate-200"
+                  }`}
+              >
+                {type}
+              </button>
+            ))}
+          </div>
+        </div>
         <InputField
           label="Código del Tema"
           value={formData.topicCode}
