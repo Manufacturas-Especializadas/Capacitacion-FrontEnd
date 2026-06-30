@@ -33,15 +33,37 @@ export const TrainingReportsHeader = ({
           </p>
         </div>
 
-        <button
-          onClick={() => navigate("/reporte-entrenamiento/nuevo")}
-          className="w-full md:w-auto flex items-center justify-center gap-2 px-5 py-3 
-          bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-xl 
-          shadow-sm transition-all active:scale-95 cursor-pointer"
-        >
-          <Plus size={18} />
-          Nuevo Reporte
-        </button>
+        <div className="flex justify-between gap-3">
+          <button
+            onClick={() => navigate("/reporte-entrenamiento/nuevo")}
+            className="w-full md:w-auto flex items-center justify-center gap-2 px-5 py-3 
+            bg-orange-600 hover:bg-orange-700 text-white text-sm font-bold rounded-xl 
+            shadow-sm transition-all active:scale-95 cursor-pointer"
+          >
+            <Plus size={18} />
+            Union de soldadura
+          </button>
+          <button
+            onClick={() =>
+              navigate("/reportes-entrenamientos/temas-entrenamientos")
+            }
+            className="w-full md:w-auto flex items-center justify-center gap-2 px-5 py-3 
+            bg-gray-600 hover:bg-gray-700 text-white text-sm font-bold rounded-xl 
+            shadow-sm transition-all active:scale-95 cursor-pointer"
+          >
+            <Plus size={18} />
+            Temas de entrenamientos
+          </button>
+          <button
+            onClick={() => navigate("/reporte-entrenamiento/nuevo")}
+            className="w-full md:w-auto flex items-center justify-center gap-2 px-5 py-3 
+            bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-xl 
+            shadow-sm transition-all active:scale-95 cursor-pointer"
+          >
+            <Plus size={18} />
+            Nuevo Reporte
+          </button>
+        </div>
       </div>
 
       <div
