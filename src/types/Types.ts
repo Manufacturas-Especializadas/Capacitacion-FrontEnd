@@ -224,6 +224,13 @@ export interface TrainingReportSummary {
   createdAt: string;
 }
 
+export interface TrainingTopicsAll {
+  id: number;
+  trainingType: string;
+  topicCode: string;
+  topicName: string;
+}
+
 export interface CreateTrainingTopics {
   trainingType: string;
   topicCode: string;
