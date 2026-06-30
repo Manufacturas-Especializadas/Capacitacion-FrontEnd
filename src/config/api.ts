@@ -29,6 +29,13 @@ export const API_CONFIG = {
     trainingReports: {
       create: "/api/TrainingReports/create",
     },
+    trainingTopics: {
+      all: "/api/TrainingTopics/all",
+      byType: "/api/TrainingTopics/byType/",
+      create: "/api/TrainingTopics/create",
+      update: "/api/TrainingTopics/update/",
+      delete: "/api/TrainingTopics/delete/",
+    },
     employees: {
       allEmployees: "/api/Employees/allEmployees",
       getEmployeeById: "/api/Employees/getById/",
