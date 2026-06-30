@@ -224,6 +224,12 @@ export interface TrainingReportSummary {
   createdAt: string;
 }
 
+export interface CreateTrainingTopics {
+  trainingType: string;
+  topicCode: string;
+  topicName: string;
+}
+
 export interface CreateWeldingUnionType {
   listNumber: number;
   unionName: string;
