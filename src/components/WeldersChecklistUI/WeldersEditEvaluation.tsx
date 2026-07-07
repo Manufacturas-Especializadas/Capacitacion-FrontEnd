@@ -125,7 +125,8 @@ export const WeldersEditEvaluation = () => {
       <button
         type="button"
         onClick={() => navigate(-1)}
-        className="flex items-center gap-2 text-slate-500 mb-6 hover:text-slate-900 transition-colors"
+        className="flex items-center gap-2 text-slate-500 mb-6 hover:text-slate-900 
+        transition-colors hover:cursor-pointer"
       >
         <ArrowLeft size={20} /> Volver
       </button>
