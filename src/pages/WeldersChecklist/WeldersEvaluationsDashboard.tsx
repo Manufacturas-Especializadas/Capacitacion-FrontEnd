@@ -60,7 +60,7 @@ export const WeldersEvaluationsDashboard = () => {
             />
             <input
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Buscar..."
+              placeholder="Buscar por nombre o nómina..."
               className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 
               rounded-xl focus:ring-2 focus:ring-orange-500 outline-none shadow-sm"
             />
