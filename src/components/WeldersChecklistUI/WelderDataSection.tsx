@@ -144,7 +144,6 @@ export const WelderDataSection = ({
                       {level.description}
                     </td>
                     <td className="px-4 py-4 w-20 text-center align-middle">
-                      {/* Indicador circular para la calificación */}
                       <span
                         className="inline-flex items-center justify-center w-8 h-8 rounded-full 
                         bg-slate-100 text-slate-500 font-black text-sm group-hover:bg-blue-100 
