@@ -19,9 +19,18 @@ export const WeldersEvaluationsDashboard = () => {
     setEvals(data);
   };
 
-  const filtered = evals.filter((e) =>
-    e.employeeName.toLowerCase().includes(search.toLowerCase()),
-  );
+  const filtered = evals.filter((e) => {
+    const searchTerm = search.toLowerCase();
+
+    const matchName = e.employeeName?.toLowerCase().includes(searchTerm);
+
+    const matchNumber = String(e.employeeNumber || "")
+      .toLowerCase()
+      .includes(searchTerm);
+
+    return matchName || matchNumber;
+  });
+
   return (
     <div className="p-8 max-w-8xl mx-auto min-h-screen bg-slate-50">
       <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
