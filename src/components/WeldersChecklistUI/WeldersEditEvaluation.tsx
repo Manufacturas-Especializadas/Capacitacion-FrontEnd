@@ -177,7 +177,6 @@ export const WeldersEditEvaluation = () => {
         </div>
       </form>
 
-      {/* Componente del Modal para atrapar la firma dibujada */}
       <SignatureModal
         isOpen={modalOpen}
         title={currentSignerLabel}
