@@ -4,6 +4,7 @@ import {
   Users,
   FileBarChart,
   UsersRound,
+  UserPlus,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { ModuleCard } from "../../components/ModuleCard/ModuleCard";
@@ -90,6 +91,14 @@ export const Home = () => {
             icon={<UsersRound size={28} strokeWidth={2} />}
             colorTheme="purple"
             onClick={() => navigate("/gestion-empleados")}
+          />
+
+          <ModuleCard
+            title="Programa de Tutoreo"
+            description="Seguimiento al personal nuevo. Asigna tutores, registra avances y evalúa el desarrollo durante el periodo de integración."
+            icon={<UserPlus size={28} strokeWidth={2} />}
+            colorTheme="teal"
+            onClick={() => navigate("/programa-tutoreo")}
           />
         </div>
       </div>
