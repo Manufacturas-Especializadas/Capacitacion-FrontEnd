@@ -19,9 +19,18 @@ export const WeldersEvaluationsDashboard = () => {
     setEvals(data);
   };
 
-  const filtered = evals.filter((e) =>
-    e.employeeName.toLowerCase().includes(search.toLowerCase()),
-  );
+  const filtered = evals.filter((e) => {
+    const searchTerm = search.toLowerCase();
+
+    const matchName = e.employeeName?.toLowerCase().includes(searchTerm);
+
+    const matchNumber = String(e.employeeNumber || "")
+      .toLowerCase()
+      .includes(searchTerm);
+
+    return matchName || matchNumber;
+  });
+
   return (
     <div className="p-8 max-w-8xl mx-auto min-h-screen bg-slate-50">
       <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
@@ -51,7 +60,7 @@ export const WeldersEvaluationsDashboard = () => {
             />
             <input
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Buscar..."
+              placeholder="Buscar por nombre o nómina..."
               className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 
               rounded-xl focus:ring-2 focus:ring-orange-500 outline-none shadow-sm"
             />
