@@ -276,3 +276,14 @@ export interface CreateTrainingReportPayload {
   coordinatorSignature?: string | File;
   securitySignature?: string | File;
 }
+
+export interface TutoringProgramModel {
+  id: number;
+  collaboratorName: string;
+  payrollNumber: number;
+  area: string;
+  tutor: string;
+  week: string;
+  adaptation: number;
+  createdDate: string;
+}
