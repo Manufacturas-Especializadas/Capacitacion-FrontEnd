@@ -44,5 +44,8 @@ export const API_CONFIG = {
       updateEmployee: "/api/Employees/updateEmployee/",
       deleteEmployee: "api/Employees/deleteEmployee/",
     },
+    tutoringProgram: {
+      getFormQuestion: "/api/TutoringPrograms/Form",
+    },
   },
 };
