@@ -58,6 +58,11 @@ export interface TrainingRooms {
   name: string;
 }
 
+export interface FollowUpWeeks {
+  id: number;
+  name: string;
+}
+
 export interface ProductionLines {
   id: number;
   name: string;
@@ -290,6 +295,15 @@ export interface TutoringProgramModel {
   tutor: string;
   week: string;
   adaptation: number;
+  createdDate: string;
+}
+
+export interface TutoringProgramListDto {
+  id: number;
+  collaboratorName: string;
+  payrollNumber: number;
+  area: string;
+  weekId: number;
   createdDate: string;
 }
 
