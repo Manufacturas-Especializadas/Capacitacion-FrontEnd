@@ -292,3 +292,29 @@ export interface TutoringProgramModel {
   adaptation: number;
   createdDate: string;
 }
+
+export interface Form {
+  id: number;
+  sectionName: string;
+  displayOrder: number;
+  questions: Question[];
+}
+
+export interface Question {
+  id: number;
+  questionText: string;
+  questionTypeId: number;
+  questionTypeName: string;
+  displayOrder: number;
+  isRequired: boolean;
+  maxRating?: number;
+  parentQuestionId?: number;
+  showWhenOptionId?: number;
+  options: Option[];
+}
+
+export interface Option {
+  optionId: number;
+  optionText: string;
+  displayOrder: number;
+}
