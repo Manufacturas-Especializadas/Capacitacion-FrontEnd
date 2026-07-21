@@ -1,5 +1,10 @@
 import { useCallback, useState } from "react";
-import type { ProductionLines, TrainingRooms, Tutors } from "../types/Types";
+import type {
+  FollowUpWeeks,
+  ProductionLines,
+  TrainingRooms,
+  Tutors,
+} from "../types/Types";
 import { catalogsService } from "../api/services/CatalogsService";
 import { toast } from "sonner";
 
@@ -7,6 +12,7 @@ export const useCatalogs = () => {
   const [rooms, setRooms] = useState<TrainingRooms[]>([]);
   const [lines, setLines] = useState<ProductionLines[]>([]);
   const [tutors, setTutors] = useState<Tutors[]>([]);
+  const [weeks, setWeeks] = useState<FollowUpWeeks[]>([]);
   const [isLoadingCatalogs, setIsLoadingCatalogs] = useState(false);
 
   const fetchRooms = async () => {
@@ -39,9 +45,24 @@ export const useCatalogs = () => {
     }
   }, []);
 
+  const fetchFollowUpWeeks = useCallback(async () => {
+    try {
+      const data = await catalogsService.getWeeks();
+      setWeeks(data);
+    } catch (error) {
+      console.error("Error al cargar las semanas");
+      toast.error("Error al cargar las semanas");
+    }
+  }, []);
+
   const fetchAll = async () => {
     setIsLoadingCatalogs(true);
-    await Promise.all([fetchRooms(), fetchLines(), fetchTutors()]);
+    await Promise.all([
+      fetchRooms(),
+      fetchLines(),
+      fetchTutors(),
+      fetchFollowUpWeeks(),
+    ]);
     setIsLoadingCatalogs(false);
   };
 
@@ -52,6 +73,8 @@ export const useCatalogs = () => {
     fetchLines,
     tutors,
     fetchTutors,
+    fetchFollowUpWeeks,
+    weeks,
     fetchAll,
     isLoadingCatalogs,
   };
