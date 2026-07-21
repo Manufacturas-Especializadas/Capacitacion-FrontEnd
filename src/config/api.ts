@@ -10,6 +10,7 @@ export const API_CONFIG = {
     catalgos: {
       rooms: "/api/Catalogs/rooms",
       lines: "/api/Catalogs/lines",
+      tutors: "/api/Catalogs/tutors",
     },
     trainingEvent: {
       createEvent: "/api/TrainingEvents/create-event",
