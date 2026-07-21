@@ -1,11 +1,12 @@
 import { useCallback, useState } from "react";
-import type { ProductionLines, TrainingRooms } from "../types/Types";
+import type { ProductionLines, TrainingRooms, Tutors } from "../types/Types";
 import { catalogsService } from "../api/services/CatalogsService";
 import { toast } from "sonner";
 
 export const useCatalogs = () => {
   const [rooms, setRooms] = useState<TrainingRooms[]>([]);
   const [lines, setLines] = useState<ProductionLines[]>([]);
+  const [tutors, setTutors] = useState<Tutors[]>([]);
   const [isLoadingCatalogs, setIsLoadingCatalogs] = useState(false);
 
   const fetchRooms = async () => {
@@ -28,9 +29,19 @@ export const useCatalogs = () => {
     }
   }, []);
 
+  const fetchTutors = useCallback(async () => {
+    try {
+      const data = await catalogsService.getTutors();
+      setTutors(data);
+    } catch (error) {
+      console.error("Error al cargar los tutores");
+      toast.error("Error al cargar los tutores");
+    }
+  }, []);
+
   const fetchAll = async () => {
     setIsLoadingCatalogs(true);
-    await Promise.all([fetchRooms(), fetchLines()]);
+    await Promise.all([fetchRooms(), fetchLines(), fetchTutors()]);
     setIsLoadingCatalogs(false);
   };
 
@@ -39,6 +50,8 @@ export const useCatalogs = () => {
     lines,
     fetchRooms,
     fetchLines,
+    tutors,
+    fetchTutors,
     fetchAll,
     isLoadingCatalogs,
   };
