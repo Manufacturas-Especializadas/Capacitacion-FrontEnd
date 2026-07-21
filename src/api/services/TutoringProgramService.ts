@@ -2,7 +2,7 @@ import { API_CONFIG } from "../../config/api";
 import type { Form } from "../../types/Types";
 import { apiClient } from "../client";
 
-class TutoringProgram {
+class TutoringProgramService {
   private getFormQuestionsEndpoint =
     API_CONFIG.endpoint.tutoringProgram.getFormQuestion;
 
@@ -11,4 +11,4 @@ class TutoringProgram {
   }
 }
 
-export const tutoringProgram = new TutoringProgram();
+export const tutoringProgramService = new TutoringProgramService();
