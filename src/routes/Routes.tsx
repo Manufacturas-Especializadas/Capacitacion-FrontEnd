@@ -13,6 +13,7 @@ import { TrainingReports } from "../pages/TrainingReports/TrainingReports";
 import { TrainingTopics } from "../pages/TrainingReports/TrainingTopics/TrainingTopics";
 import { TrainingReportsForm } from "../pages/TrainingReports/Form/TrainingReportsForm";
 import { TutoringProgram } from "../pages/TutoringProgram/TutoringProgram";
+import { CreateTutoringProgram } from "../pages/TutoringProgram/CreateTutoringProgram";
 
 export const MyRoutes = () => {
   return (
@@ -58,6 +59,10 @@ export const MyRoutes = () => {
       <Route path="/gestion-empleados" element={<Employees />} />
 
       <Route path="/programa-tutoreo" element={<TutoringProgram />} />
+      <Route
+        path="/programa-tutoreo/formulario"
+        element={<CreateTutoringProgram />}
+      />
     </Routes>
   );
 };
