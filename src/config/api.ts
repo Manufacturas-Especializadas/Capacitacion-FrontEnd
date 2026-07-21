@@ -11,6 +11,7 @@ export const API_CONFIG = {
       rooms: "/api/Catalogs/rooms",
       lines: "/api/Catalogs/lines",
       tutors: "/api/Catalogs/tutors",
+      weeks: "/api/Catalogs/weeks",
     },
     trainingEvent: {
       createEvent: "/api/TrainingEvents/create-event",
