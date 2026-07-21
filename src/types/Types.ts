@@ -277,6 +277,11 @@ export interface CreateTrainingReportPayload {
   securitySignature?: string | File;
 }
 
+export interface Tutors {
+  id: number;
+  name: string;
+}
+
 export interface TutoringProgramModel {
   id: number;
   collaboratorName: string;
