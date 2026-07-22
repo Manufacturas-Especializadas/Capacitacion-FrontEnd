@@ -334,6 +334,17 @@ export interface Option {
   displayOrder: number;
 }
 
+export interface TutoringProgramList {
+  createdDate: string;
+  id: number;
+  tutorId: number;
+  collaboratorName: string;
+  payrollNumber: number;
+  area: string;
+  weekId: number;
+  answers: Answer[];
+}
+
 export interface TutoringProgramPayload {
   tutorId: number;
   collaboratorName: string;
