@@ -68,6 +68,11 @@ export const MyRoutes = () => {
         path="/programa-tutoreo/formulario"
         element={<CreateTutoringProgram />}
       />
+
+      <Route
+        path="/programa-tutoreo/editar/:id"
+        element={<CreateTutoringProgram />}
+      />
     </Routes>
   );
 };
