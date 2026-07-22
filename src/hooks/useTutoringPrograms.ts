@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import type { Form } from "../types/Types";
+import type { Form, TutoringProgramPayload } from "../types/Types";
 import { tutoringProgramService } from "../api/services/TutoringProgramService";
 import { toast } from "sonner";
 
@@ -22,6 +22,27 @@ export const useTutoringPrograms = () => {
     }
   }, []);
 
+  const createProgram = async (payload: TutoringProgramPayload) => {
+    setIsSubmitting(true);
+    try {
+      await tutoringProgramService.create(payload);
+      toast.success("Registro exitoso", {
+        description: "El programa de tutoreo se ha guardado correctament",
+      });
+
+      return true;
+    } catch (error) {
+      console.error("Error al guardar el programa: ", error);
+      toast.error("Error al guardar", {
+        description: "Ocurrio un problema al enviar los datos.",
+      });
+
+      return false;
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   useEffect(() => {
     fetchQuestions();
   }, [fetchQuestions]);
@@ -29,5 +50,7 @@ export const useTutoringPrograms = () => {
   return {
     data,
     loading,
+    isSubmitting,
+    createProgram,
   };
 };
