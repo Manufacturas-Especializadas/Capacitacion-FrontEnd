@@ -333,3 +333,19 @@ export interface Option {
   optionText: string;
   displayOrder: number;
 }
+
+export interface TutoringProgramPayload {
+  tutorId: number;
+  collaboratorName: string;
+  payrollNumber: number;
+  area: string;
+  weekId: number;
+  answers: Answer[];
+}
+
+export interface Answer {
+  questionId: number;
+  optionId?: number | null;
+  ratingValue?: number | null;
+  textValue?: string | null;
+}
