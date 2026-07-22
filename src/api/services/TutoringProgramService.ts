@@ -11,6 +11,7 @@ class TutoringProgramService {
     API_CONFIG.endpoint.tutoringProgram.getFormQuestion;
   private getByIdEndpoint = API_CONFIG.endpoint.tutoringProgram.getById;
   private createEndpoint = API_CONFIG.endpoint.tutoringProgram.create;
+  private updateEndpoint = API_CONFIG.endpoint.tutoringProgram.update;
 
   async getFormQuestion(): Promise<Form[]> {
     return apiClient.get<Form[]>(this.getFormQuestionsEndpoint);
@@ -22,6 +23,10 @@ class TutoringProgramService {
 
   async create(data: TutoringProgramPayload): Promise<any> {
     return apiClient.post<any>(this.createEndpoint, data);
+  }
+
+  async update(data: TutoringProgramPayload, id: number): Promise<any> {
+    return apiClient.put<any>(`${this.updateEndpoint}${id}`, data);
   }
 }
 
