@@ -26,7 +26,7 @@ const getWeekNumber = (d: Date): number => {
 export const TrainingReportsForm = () => {
   const navigate = useNavigate();
   const { topics, fetchTopics } = useTrainingTopics();
-  const { employees, isLoadingEmployees } = useEmployees();
+  const { employees } = useEmployees();
   const { createReport, isSubmitting } = useTrainingReports();
   const { lines, fetchLines } = useCatalogs();
   const [step, setStep] = useState<1 | 2>(1);
