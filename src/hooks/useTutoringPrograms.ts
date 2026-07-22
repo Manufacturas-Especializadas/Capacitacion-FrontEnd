@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import type {
   Form,
   TutoringProgramList,
+  TutoringProgramListDto,
   TutoringProgramPayload,
 } from "../types/Types";
 import { tutoringProgramService } from "../api/services/TutoringProgramService";
@@ -9,6 +10,7 @@ import { toast } from "sonner";
 
 export const useTutoringPrograms = () => {
   const [data, setData] = useState<Form[]>([]);
+  const [programs, setPrograms] = useState<TutoringProgramListDto[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [isFetchingProgram, setIsFetchingProgram] = useState<boolean>(false);
@@ -21,6 +23,20 @@ export const useTutoringPrograms = () => {
     } catch (err: any) {
       toast.error("Error de conexión", {
         description: "No se pudieron sincronizar las preguntas",
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const fetchPrograms = useCallback(async () => {
+    setLoading(true);
+    try {
+      const response = await tutoringProgramService.getAll();
+      setPrograms(response);
+    } catch (err) {
+      toast.error("Error de conexión", {
+        description: "No se pudieron sincronizar los programas",
       });
     } finally {
       setLoading(false);
@@ -106,13 +122,16 @@ export const useTutoringPrograms = () => {
 
   useEffect(() => {
     fetchQuestions();
-  }, [fetchQuestions]);
+    fetchPrograms();
+  }, [fetchQuestions, fetchPrograms]);
 
   return {
     data,
     loading,
     isSubmitting,
     isFetchingProgram,
+    programs,
+    fetchPrograms,
     getProgramById,
     createProgram,
     updateProgram,
