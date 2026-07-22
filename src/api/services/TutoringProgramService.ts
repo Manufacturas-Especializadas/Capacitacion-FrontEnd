@@ -12,6 +12,7 @@ class TutoringProgramService {
   private getByIdEndpoint = API_CONFIG.endpoint.tutoringProgram.getById;
   private createEndpoint = API_CONFIG.endpoint.tutoringProgram.create;
   private updateEndpoint = API_CONFIG.endpoint.tutoringProgram.update;
+  private deleteEndpoint = API_CONFIG.endpoint.tutoringProgram.delete;
 
   async getFormQuestion(): Promise<Form[]> {
     return apiClient.get<Form[]>(this.getFormQuestionsEndpoint);
@@ -27,6 +28,10 @@ class TutoringProgramService {
 
   async update(data: TutoringProgramPayload, id: number): Promise<any> {
     return apiClient.put<any>(`${this.updateEndpoint}${id}`, data);
+  }
+
+  async delete(id: number): Promise<any> {
+    return apiClient.delete<any>(`${this.deleteEndpoint}${id}`);
   }
 }
 
