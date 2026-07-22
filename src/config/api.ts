@@ -50,6 +50,7 @@ export const API_CONFIG = {
       getById: "/api/TutoringPrograms/",
       create: "/api/TutoringPrograms/create",
       update: "/api/TutoringPrograms/update/",
+      delete: "/api/TutoringPrograms/delete/",
     },
   },
 };
