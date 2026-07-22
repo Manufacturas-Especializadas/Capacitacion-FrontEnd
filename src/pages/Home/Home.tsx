@@ -4,6 +4,7 @@ import {
   Users,
   FileBarChart,
   UsersRound,
+  UserPlus,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { ModuleCard } from "../../components/ModuleCard/ModuleCard";
@@ -13,31 +14,52 @@ export const Home = () => {
 
   return (
     <div
-      className="min-h-screen bg-slate-50 font-sans selection:bg-blue-100 
+      className="min-h-screen bg-slate-50/50 font-sans selection:bg-blue-100 
       selection:text-blue-900"
     >
       <div
-        className="bg-white border-b border-slate-200 px-6 py-12 md:py-16 mb-8 
-        text-center"
+        className="bg-white border-b border-slate-200/60 pt-12 pb-24 px-6 
+        md:pt-20 md:pb-32 text-center relative overflow-hidden"
       >
-        <div className="max-w-3xl mx-auto">
+        <div
+          className="absolute inset-0 
+          bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-slate-100/50 
+          via-white to-white pointer-events-none"
+        />
+
+        <div className="relative z-10 max-w-3xl mx-auto flex flex-col items-center">
           <div
-            className="inline-flex items-center justify-center p-3 bg-blue-50 
-            rounded-2xl mb-4 text-blue-600"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-100 
+            text-slate-600 text-sm font-semibold mb-6 shadow-sm border border-slate-200/50"
           >
-            <LayoutDashboard size={32} strokeWidth={1.5} />
+            <LayoutDashboard size={16} className="text-blue-500" />
+            <span>Plataforma Operativa</span>
           </div>
-          <h1 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight mb-4">
-            Portal de Capacitación MESA
+
+          <h1
+            className="text-4xl md:text-5xl font-extrabold tracking-tight mb-5 
+            text-slate-900"
+          >
+            Portal de Capacitación{" "}
+            <span
+              className="text-transparent bg-clip-text bg-linear-to-r from-blue-600 
+              to-blue-400"
+            >
+              MESA
+            </span>
           </h1>
-          <p className="text-base md:text-lg text-slate-500 font-medium">
+
+          <p
+            className="text-base md:text-lg text-slate-500 font-medium max-w-2xl 
+            leading-relaxed"
+          >
             Selecciona el módulo al que deseas ingresar para gestionar las
             asistencias o realizar evaluaciones operativas en piso.
           </p>
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto px-6 pb-16">
+      <div className="max-w-5xl mx-auto px-6 relative z-20 -mt-12 md:-mt-16 pb-20">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
           <ModuleCard
             title="Control de Asistencias"
@@ -69,6 +91,14 @@ export const Home = () => {
             icon={<UsersRound size={28} strokeWidth={2} />}
             colorTheme="purple"
             onClick={() => navigate("/gestion-empleados")}
+          />
+
+          <ModuleCard
+            title="Programa de Tutoreo"
+            description="Seguimiento al personal nuevo. Asigna tutores, registra avances y evalúa el desarrollo durante el periodo de integración."
+            icon={<UserPlus size={28} strokeWidth={2} />}
+            colorTheme="teal"
+            onClick={() => navigate("/programa-tutoreo")}
           />
         </div>
       </div>

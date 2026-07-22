@@ -58,6 +58,11 @@ export interface TrainingRooms {
   name: string;
 }
 
+export interface FollowUpWeeks {
+  id: number;
+  name: string;
+}
+
 export interface ProductionLines {
   id: number;
   name: string;
@@ -275,4 +280,83 @@ export interface CreateTrainingReportPayload {
   instructorSignature?: string | File;
   coordinatorSignature?: string | File;
   securitySignature?: string | File;
+}
+
+export interface Tutors {
+  id: number;
+  name: string;
+}
+
+export interface TutoringProgramModel {
+  id: number;
+  collaboratorName: string;
+  payrollNumber: number;
+  area: string;
+  tutor: string;
+  week: string;
+  adaptation: number;
+  createdDate: string;
+}
+
+export interface TutoringProgramListDto {
+  id: number;
+  tutorId: number;
+  collaboratorName: string;
+  payrollNumber: number;
+  area: string;
+  weekId: number;
+  createdDate: string;
+}
+
+export interface Form {
+  id: number;
+  sectionName: string;
+  displayOrder: number;
+  questions: Question[];
+}
+
+export interface Question {
+  id: number;
+  questionText: string;
+  questionTypeId: number;
+  questionTypeName: string;
+  displayOrder: number;
+  isRequired: boolean;
+  maxRating?: number;
+  parentQuestionId?: number;
+  showWhenOptionId?: number;
+  options: Option[];
+}
+
+export interface Option {
+  optionId: number;
+  optionText: string;
+  displayOrder: number;
+}
+
+export interface TutoringProgramList {
+  createdDate: string;
+  id: number;
+  tutorId: number;
+  collaboratorName: string;
+  payrollNumber: number;
+  area: string;
+  weekId: number;
+  answers: Answer[];
+}
+
+export interface TutoringProgramPayload {
+  tutorId: number;
+  collaboratorName: string;
+  payrollNumber: number;
+  area: string;
+  weekId: number;
+  answers: Answer[];
+}
+
+export interface Answer {
+  questionId: number;
+  optionId?: number | null;
+  ratingValue?: number | null;
+  textValue?: string | null;
 }

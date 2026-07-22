@@ -10,6 +10,8 @@ export const API_CONFIG = {
     catalgos: {
       rooms: "/api/Catalogs/rooms",
       lines: "/api/Catalogs/lines",
+      tutors: "/api/Catalogs/tutors",
+      weeks: "/api/Catalogs/weeks",
     },
     trainingEvent: {
       createEvent: "/api/TrainingEvents/create-event",
@@ -42,6 +44,14 @@ export const API_CONFIG = {
       createEmployee: "/api/Employees/createEmployee",
       updateEmployee: "/api/Employees/updateEmployee/",
       deleteEmployee: "api/Employees/deleteEmployee/",
+    },
+    tutoringProgram: {
+      getFormQuestion: "/api/TutoringPrograms/Form",
+      getAll: "/api/TutoringPrograms/getAll",
+      getById: "/api/TutoringPrograms/",
+      create: "/api/TutoringPrograms/create",
+      update: "/api/TutoringPrograms/update/",
+      delete: "/api/TutoringPrograms/delete/",
     },
   },
 };
