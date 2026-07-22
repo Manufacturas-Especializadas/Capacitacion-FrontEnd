@@ -1,5 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
-import type { Form, TutoringProgramPayload } from "../types/Types";
+import type {
+  Form,
+  TutoringProgramList,
+  TutoringProgramPayload,
+} from "../types/Types";
 import { tutoringProgramService } from "../api/services/TutoringProgramService";
 import { toast } from "sonner";
 
@@ -22,6 +26,25 @@ export const useTutoringPrograms = () => {
       setLoading(false);
     }
   }, []);
+
+  const getProgramById = async (
+    id: number,
+  ): Promise<TutoringProgramList | null> => {
+    setIsFetchingProgram(true);
+    try {
+      const response = await tutoringProgramService.getById(id);
+
+      return response;
+    } catch (error) {
+      toast.error("Error al cargar", {
+        description: "No se puedo obtener el programa",
+      });
+
+      return null;
+    } finally {
+      setIsFetchingProgram(false);
+    }
+  };
 
   const createProgram = async (payload: TutoringProgramPayload) => {
     setIsSubmitting(true);
@@ -52,6 +75,8 @@ export const useTutoringPrograms = () => {
     data,
     loading,
     isSubmitting,
+    isFetchingProgram,
+    getProgramById,
     createProgram,
   };
 };
