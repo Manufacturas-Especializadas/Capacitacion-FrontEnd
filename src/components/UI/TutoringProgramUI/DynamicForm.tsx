@@ -155,13 +155,24 @@ export const DynamicForm = ({
       payrollNumber: Number(generalData.payrollNumber),
       area: generalData.area,
       weekId: Number(generalData.weekId),
-      answers: Object.entries(answers).map(([questionId, value]) => {
-        return {
-          questionId: Number(questionId),
-          optionId: typeof value === "number" ? value : null,
-          textValue: typeof value === "string" ? value : null,
-          ratingValue: typeof value === "number" && value <= 5 ? value : null,
-        };
+      answers: Object.entries(answers).flatMap(([questionId, value]) => {
+        if (Array.isArray(value)) {
+          return value.map((optId) => ({
+            questionId: Number(questionId),
+            optionId: Number(optId),
+            textValue: null,
+            ratingValue: null,
+          }));
+        }
+
+        return [
+          {
+            questionId: Number(questionId),
+            optionId: typeof value === "number" ? value : null,
+            textValue: typeof value === "string" ? value : null,
+            ratingValue: typeof value === "number" && value <= 5 ? value : null,
+          },
+        ];
       }),
     };
 
