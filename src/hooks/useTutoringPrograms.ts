@@ -87,6 +87,23 @@ export const useTutoringPrograms = () => {
     }
   };
 
+  const deleteProgram = async (id: number) => {
+    try {
+      await tutoringProgramService.delete(id);
+      toast.success("Registro eliminado", {
+        description: "El programa se ha borrado con éxito",
+      });
+
+      return true;
+    } catch (error) {
+      toast.error("Error al eliminar", {
+        description: "Ocurrio un problema al intentar borrar el registro",
+      });
+
+      return false;
+    }
+  };
+
   useEffect(() => {
     fetchQuestions();
   }, [fetchQuestions]);
@@ -99,5 +116,6 @@ export const useTutoringPrograms = () => {
     getProgramById,
     createProgram,
     updateProgram,
+    deleteProgram,
   };
 };
