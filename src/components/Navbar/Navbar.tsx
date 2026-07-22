@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import Logo from "../../assets/logomesa.png";
 
 export const Navbar = () => {
@@ -18,7 +19,9 @@ export const Navbar = () => {
             </div>
             <div className="hidden md:block h-6 w-px bg-slate-200" />{" "}
             <h1 className="text-lg font-semibold tracking-tight text-slate-800">
-              CAPACI<span className="text-blue-600">TACIÓN</span>
+              <Link to="/">
+                CAPACI<span className="text-blue-600">TACIÓN</span>
+              </Link>
             </h1>
           </div>
         </div>
