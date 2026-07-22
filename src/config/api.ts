@@ -47,6 +47,7 @@ export const API_CONFIG = {
     },
     tutoringProgram: {
       getFormQuestion: "/api/TutoringPrograms/Form",
+      getAll: "/api/TutoringPrograms/getAll",
       getById: "/api/TutoringPrograms/",
       create: "/api/TutoringPrograms/create",
       update: "/api/TutoringPrograms/update/",
