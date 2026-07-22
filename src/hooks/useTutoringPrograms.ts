@@ -67,6 +67,26 @@ export const useTutoringPrograms = () => {
     }
   };
 
+  const updateProgram = async (payload: TutoringProgramPayload, id: number) => {
+    setIsSubmitting(true);
+    try {
+      await tutoringProgramService.update(payload, id);
+      toast.success("Actualizacion exitosa", {
+        description: "Los cambios han sido guardados",
+      });
+
+      return true;
+    } catch (error) {
+      toast.error("Error al actualizar", {
+        description: "No se pudieron guardar los cambios",
+      });
+
+      return false;
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   useEffect(() => {
     fetchQuestions();
   }, [fetchQuestions]);
@@ -78,5 +98,6 @@ export const useTutoringPrograms = () => {
     isFetchingProgram,
     getProgramById,
     createProgram,
+    updateProgram,
   };
 };
