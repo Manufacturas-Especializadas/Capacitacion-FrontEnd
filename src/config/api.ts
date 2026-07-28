@@ -53,5 +53,8 @@ export const API_CONFIG = {
       update: "/api/TutoringPrograms/update/",
       delete: "/api/TutoringPrograms/delete/",
     },
+    users: {
+      create: "/api/Users/create",
+    },
   },
 };
