@@ -54,6 +54,7 @@ export const API_CONFIG = {
       delete: "/api/TutoringPrograms/delete/",
     },
     users: {
+      getRoles: "/api/Users/getRoles",
       create: "/api/Users/create",
     },
   },
