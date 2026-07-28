@@ -360,3 +360,9 @@ export interface Answer {
   ratingValue?: number | null;
   textValue?: string | null;
 }
+
+export interface Roles {
+  id: number;
+  roleName: string;
+  description: string;
+}
