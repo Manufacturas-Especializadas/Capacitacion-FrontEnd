@@ -1,9 +1,21 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { usersService } from "../api/services/UsersService";
 import { toast } from "sonner";
+import type { Roles } from "../types/Types";
 
 export const useUsers = () => {
+  const [roles, setRoles] = useState<Roles[]>([]);
   const [isCreating, setIsCreating] = useState<boolean>(false);
+
+  const getRoles = useCallback(async () => {
+    try {
+      const data = await usersService.getRoles();
+      setRoles(data);
+    } catch (error: any) {
+      console.error("Error al obtener los roles");
+      toast.error("No se pudieron obtener los roles");
+    }
+  }, []);
 
   const createUser = useCallback(
     async (payrollNumber: string, password: string, roleId: number) => {
@@ -34,7 +46,13 @@ export const useUsers = () => {
     [],
   );
 
+  useEffect(() => {
+    getRoles();
+  }, []);
+
   return {
+    getRoles,
+    roles,
     isCreating,
     createUser,
   };
