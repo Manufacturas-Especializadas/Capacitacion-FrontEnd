@@ -15,11 +15,14 @@ import { TrainingReportsForm } from "../pages/TrainingReports/Form/TrainingRepor
 import { TutoringProgram } from "../pages/TutoringProgram/TutoringProgram";
 import { CreateTutoringProgram } from "../pages/TutoringProgram/CreateTutoringProgram";
 import { ProgramDetails } from "../components/UI/TutoringProgramUI/ProgramDetails";
+import { Register } from "../pages/Auth/Register";
 
 export const MyRoutes = () => {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
+
+      <Route path="/registro" element={<Register />} />
 
       <Route
         path="/historial-registro-de-asistencia"
