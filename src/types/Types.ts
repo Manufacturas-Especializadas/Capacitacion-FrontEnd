@@ -366,3 +366,9 @@ export interface Roles {
   roleName: string;
   description: string;
 }
+
+export interface User {
+  payrollNumber: string;
+  role: string;
+  token: string;
+}
