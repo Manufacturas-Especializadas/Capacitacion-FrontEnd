@@ -7,6 +7,9 @@ if (!API_BASE_URL) {
 export const API_CONFIG = {
   baseUrl: API_BASE_URL,
   endpoint: {
+    auth: {
+      login: "/api/Auth/login",
+    },
     catalgos: {
       rooms: "/api/Catalogs/rooms",
       lines: "/api/Catalogs/lines",
