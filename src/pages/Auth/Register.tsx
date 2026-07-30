@@ -145,7 +145,7 @@ export const Register = () => {
           </button>
           <button
             type="button"
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/usuarios")}
             className="w-full mt-6 flex items-center justify-center gap-2 bg-gray-600 
             hover:bg-gray-500 text-white px-8 py-3 rounded-xl font-semibold transition-colors 
             shadow-sm hover:cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
