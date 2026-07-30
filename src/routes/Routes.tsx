@@ -18,6 +18,7 @@ import { ProgramDetails } from "../components/UI/TutoringProgramUI/ProgramDetail
 import { Register } from "../pages/Auth/Register";
 import { ProtectedRoute } from "../components/Auth/ProtectedRoute";
 import { Login } from "../pages/Auth/Login";
+import { GetUsers } from "../pages/Users/Users";
 
 export const MyRoutes = () => {
   return (
@@ -81,6 +82,7 @@ export const MyRoutes = () => {
 
       <Route element={<ProtectedRoute allowedRoles={["Administrador"]} />}>
         <Route path="/registro" element={<Register />} />
+        <Route path="/usuarios" element={<GetUsers />} />
       </Route>
     </Routes>
   );
