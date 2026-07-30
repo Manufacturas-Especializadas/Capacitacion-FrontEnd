@@ -372,3 +372,11 @@ export interface User {
   role: string;
   token: string;
 }
+
+export interface Users {
+  id: number;
+  payrollNumber: string;
+  roleName: string;
+  isActive: boolean;
+  createdAt: string;
+}
