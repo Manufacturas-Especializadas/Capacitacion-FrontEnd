@@ -1,10 +1,16 @@
 import { useState, type SyntheticEvent } from "react";
 import { UserPlus, Hash, Lock, ShieldCheck, Loader2 } from "lucide-react";
 import { useUsers } from "../../hooks/useUsers";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import type { Users } from "../../types/Types";
 
 export const Register = () => {
   const { roles, isCreating, createUser, updateUser, isUpdating } = useUsers();
+
+  const location = useLocation();
+  const userToEdit = location.state?.userToEdit as Users | undefined;
+  const isEditMode = !!userToEdit;
+
   const [payrollNumber, setPayrollNumber] = useState("");
   const [password, setPassword] = useState("");
   const [roleId, setRoleId] = useState<number>(0);
