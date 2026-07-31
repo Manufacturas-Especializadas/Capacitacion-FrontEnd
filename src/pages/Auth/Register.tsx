@@ -14,6 +14,9 @@ export const Register = () => {
   const [payrollNumber, setPayrollNumber] = useState("");
   const [password, setPassword] = useState("");
   const [roleId, setRoleId] = useState<number>(0);
+  const [isActive, setIsActive] = useState<boolean>(
+    userToEdit?.isActive ?? true,
+  );
 
   const navigate = useNavigate();
 
