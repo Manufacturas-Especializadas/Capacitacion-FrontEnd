@@ -60,6 +60,7 @@ export const API_CONFIG = {
       getRoles: "/api/Users/getRoles",
       getUsers: "/api/Users/getUsers",
       create: "/api/Users/create",
+      update: "/api/Users/update/",
     },
   },
 };
