@@ -1,4 +1,4 @@
-import { useState, type SyntheticEvent } from "react";
+import { useEffect, useState, type SyntheticEvent } from "react";
 import { UserPlus, Hash, Lock, ShieldCheck, Loader2 } from "lucide-react";
 import { useUsers } from "../../hooks/useUsers";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -19,6 +19,15 @@ export const Register = () => {
   );
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isEditMode && roles.length > 0) {
+      const currentRole = roles.find((r) => r.roleName == userToEdit.roleName);
+      if (currentRole) {
+        setRoleId(currentRole.id);
+      }
+    }
+  }, [isEditMode, roles, userToEdit]);
 
   const handleSubmit = async (e: SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
