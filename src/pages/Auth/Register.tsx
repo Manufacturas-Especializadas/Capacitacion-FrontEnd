@@ -4,7 +4,7 @@ import { useUsers } from "../../hooks/useUsers";
 import { useNavigate } from "react-router-dom";
 
 export const Register = () => {
-  const { roles, isCreating, createUser } = useUsers();
+  const { roles, isCreating, createUser, updateUser, isUpdating } = useUsers();
   const [payrollNumber, setPayrollNumber] = useState("");
   const [password, setPassword] = useState("");
   const [roleId, setRoleId] = useState<number>(0);
