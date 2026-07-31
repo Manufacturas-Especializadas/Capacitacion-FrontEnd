@@ -32,14 +32,29 @@ export const Register = () => {
   const handleSubmit = async (e: SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!payrollNumber || !password || roleId === 0) return;
+    if (isEditMode) {
+      if (!payrollNumber || roleId === 0) return;
 
-    const success = await createUser(payrollNumber, password, roleId);
+      const success = await updateUser(
+        userToEdit.id,
+        payrollNumber,
+        roleId,
+        isActive,
+      );
 
-    if (success !== false) {
-      setPayrollNumber("");
-      setPassword("");
-      setRoleId(0);
+      if (success !== false) {
+        navigate(-1);
+      }
+    } else {
+      if (!payrollNumber || !password || roleId === 0) return;
+
+      const success = await createUser(payrollNumber, password, roleId);
+
+      if (success !== false) {
+        setPayrollNumber("");
+        setPassword("");
+        setRoleId(0);
+      }
     }
   };
 
