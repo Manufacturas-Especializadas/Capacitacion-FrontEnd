@@ -100,6 +100,14 @@ export const Home = () => {
             colorTheme="teal"
             onClick={() => navigate("/programa-tutoreo")}
           />
+
+          <ModuleCard
+            title="Control de Usuarios"
+            description="Gestión de accesos, creación de cuentas y asignación de roles del portal."
+            icon={<Users size={28} strokeWidth={2} />}
+            colorTheme="teal"
+            onClick={() => navigate("/usuarios")}
+          />
         </div>
       </div>
     </div>
