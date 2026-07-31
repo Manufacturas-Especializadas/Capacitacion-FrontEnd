@@ -30,10 +30,18 @@ export const Register = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (isEditMode && roles.length > 0) {
-      const currentRole = roles.find((r) => r.roleName == userToEdit.roleName);
-      if (currentRole) {
-        setRoleId(currentRole.id);
+    if (isEditMode && userToEdit) {
+      setPayrollNumber(userToEdit.payrollNumber);
+
+      setIsActive(userToEdit.isActive ?? true);
+
+      if (roles.length > 0) {
+        const currentRole = roles.find(
+          (r) => r.roleName === userToEdit.roleName,
+        );
+        if (currentRole) {
+          setRoleId(currentRole.id);
+        }
       }
     }
   }, [isEditMode, roles, userToEdit]);
