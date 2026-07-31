@@ -15,64 +15,75 @@ import { TrainingReportsForm } from "../pages/TrainingReports/Form/TrainingRepor
 import { TutoringProgram } from "../pages/TutoringProgram/TutoringProgram";
 import { CreateTutoringProgram } from "../pages/TutoringProgram/CreateTutoringProgram";
 import { ProgramDetails } from "../components/UI/TutoringProgramUI/ProgramDetails";
+import { Register } from "../pages/Auth/Register";
+import { ProtectedRoute } from "../components/Auth/ProtectedRoute";
+import { Login } from "../pages/Auth/Login";
+import { GetUsers } from "../pages/Users/Users";
 
 export const MyRoutes = () => {
   return (
     <Routes>
-      <Route path="/" element={<Home />} />
+      <Route path="/login" element={<Login />} />
 
-      <Route
-        path="/historial-registro-de-asistencia"
-        element={<TrainingHistory />}
-      />
-      <Route path="/registro-asistencia" element={<TrainingEventForm />} />
-      <Route
-        path="/registro-asistencia/usuarios"
-        element={<EnrollmentMatrix />}
-      />
-      <Route
-        path="/registro-asistencia/ejecucion/:id"
-        element={<TrainingEvent />}
-      />
+      <Route element={<ProtectedRoute />}>
+        <Route path="/" element={<Home />} />
 
-      <Route
-        path="/historial-checklist-soldadores"
-        element={<WeldersEvaluationsDashboard />}
-      />
-      <Route
-        path="/registro-de-checklist-soldadores"
-        element={<WeldersChecklistForm />}
-      />
+        <Route
+          path="/historial-registro-de-asistencia"
+          element={<TrainingHistory />}
+        />
+        <Route path="/registro-asistencia" element={<TrainingEventForm />} />
+        <Route
+          path="/registro-asistencia/usuarios"
+          element={<EnrollmentMatrix />}
+        />
+        <Route
+          path="/registro-asistencia/ejecucion/:id"
+          element={<TrainingEvent />}
+        />
 
-      <Route path="/ver/:id" element={<WeldersEvaluationDetails />} />
-      <Route path="/editar/:id" element={<WeldersEditEvaluation />} />
+        <Route
+          path="/historial-checklist-soldadores"
+          element={<WeldersEvaluationsDashboard />}
+        />
+        <Route
+          path="/registro-de-checklist-soldadores"
+          element={<WeldersChecklistForm />}
+        />
+        <Route path="/ver/:id" element={<WeldersEvaluationDetails />} />
+        <Route path="/editar/:id" element={<WeldersEditEvaluation />} />
 
-      <Route path="/reportes-entrenamientos" element={<TrainingReports />} />
-      <Route
-        path="/reportes-entrenaminetos/nuevo"
-        element={<TrainingReportsForm />}
-      />
-      <Route
-        path="/reportes-entrenamientos/temas-entrenamientos"
-        element={<TrainingTopics />}
-      />
+        <Route path="/reportes-entrenamientos" element={<TrainingReports />} />
+        <Route
+          path="/reportes-entrenaminetos/nuevo"
+          element={<TrainingReportsForm />}
+        />
+        <Route
+          path="/reportes-entrenamientos/temas-entrenamientos"
+          element={<TrainingTopics />}
+        />
 
-      <Route path="/gestion-empleados" element={<Employees />} />
+        <Route path="/gestion-empleados" element={<Employees />} />
 
-      <Route path="/programa-tutoreo" element={<TutoringProgram />} />
-      <Route
-        path="/programa-tutoreo/detalles/:id"
-        element={<ProgramDetails />}
-      />
-      <Route
-        path="/programa-tutoreo/formulario"
-        element={<CreateTutoringProgram />}
-      />
+        <Route path="/programa-tutoreo" element={<TutoringProgram />} />
+        <Route
+          path="/programa-tutoreo/detalles/:id"
+          element={<ProgramDetails />}
+        />
+        <Route
+          path="/programa-tutoreo/formulario"
+          element={<CreateTutoringProgram />}
+        />
+        <Route
+          path="/programa-tutoreo/editar/:id"
+          element={<CreateTutoringProgram />}
+        />
+      </Route>
 
-      <Route
-        path="/programa-tutoreo/editar/:id"
-        element={<CreateTutoringProgram />}
-      />
+      <Route element={<ProtectedRoute allowedRoles={["Administrador"]} />}>
+        <Route path="/registro" element={<Register />} />
+        <Route path="/usuarios" element={<GetUsers />} />
+      </Route>
     </Routes>
   );
 };

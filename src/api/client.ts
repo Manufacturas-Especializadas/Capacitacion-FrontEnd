@@ -4,6 +4,7 @@ import axios, {
   type AxiosRequestConfig,
 } from "axios";
 import { API_CONFIG } from "../config/api";
+import { toast } from "sonner";
 
 class ApiClient {
   private client: AxiosInstance;
@@ -37,6 +38,21 @@ class ApiClient {
     this.client.interceptors.response.use(
       (response) => response,
       (error: AxiosError) => {
+        if (error.response && error.response.status === 401) {
+          localStorage.removeItem("token");
+          localStorage.removeItem("mesa_user_session");
+
+          toast.error("Sesión terminada", {
+            description: "Tu sesión ha expirado o tu acceso fue revocado.",
+          });
+
+          if (window.location.pathname !== "/login") {
+            setTimeout(() => {
+              window.location.href = "/login";
+            }, 1500);
+          }
+        }
+
         let errorMessage = `HTTP Error: ${error.response?.status || "Unknown"}`;
 
         if (error.response && error.response.data) {

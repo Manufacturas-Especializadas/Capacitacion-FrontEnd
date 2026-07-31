@@ -6,7 +6,7 @@ interface ModuleCardProps {
   description: string;
   icon: ReactNode;
   onClick: () => void;
-  colorTheme: "blue" | "orange" | "green" | "purple" | "teal";
+  colorTheme: "blue" | "orange" | "green" | "purple" | "teal" | "slate";
 }
 
 export const ModuleCard = ({
@@ -51,6 +51,13 @@ export const ModuleCard = ({
       iconWrap:
         "bg-teal-50 text-teal-600 group-hover:bg-teal-600 group-hover:text-white group-hover:shadow-teal-200",
       textHover: "group-hover:text-teal-700",
+    },
+    slate: {
+      borderHover: "hover:border-slate-300",
+      ring: "focus-visible:ring-slate-500",
+      iconWrap:
+        "bg-slate-100 text-slate-600 group-hover:bg-slate-700 group-hover:text-white group-hover:shadow-slate-200",
+      textHover: "group-hover:text-slate-700",
     },
   };
 

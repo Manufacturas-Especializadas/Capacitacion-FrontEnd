@@ -301,6 +301,7 @@ export interface TutoringProgramModel {
 export interface TutoringProgramListDto {
   id: number;
   tutorId: number;
+  tutorName: string;
   collaboratorName: string;
   payrollNumber: number;
   area: string;
@@ -359,4 +360,24 @@ export interface Answer {
   optionId?: number | null;
   ratingValue?: number | null;
   textValue?: string | null;
+}
+
+export interface Roles {
+  id: number;
+  roleName: string;
+  description: string;
+}
+
+export interface User {
+  payrollNumber: string;
+  role: string;
+  token: string;
+}
+
+export interface Users {
+  id: number;
+  payrollNumber: string;
+  roleName: string;
+  isActive: boolean;
+  createdAt: string;
 }
