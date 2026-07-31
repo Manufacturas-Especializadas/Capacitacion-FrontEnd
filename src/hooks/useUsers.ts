@@ -8,6 +8,7 @@ export const useUsers = () => {
   const [users, setUsers] = useState<Users[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [isCreating, setIsCreating] = useState<boolean>(false);
+  const [isUpdating, setIsUpdating] = useState<boolean>(false);
 
   const getRoles = useCallback(async () => {
     try {
@@ -61,6 +62,37 @@ export const useUsers = () => {
     [],
   );
 
+  const updateUser = useCallback(
+    async (
+      id: number,
+      payrollNumber: string,
+      roleId: number,
+      isActive: boolean,
+    ) => {
+      setIsUpdating(true);
+
+      try {
+        await usersService.update(id, payrollNumber, roleId, isActive);
+
+        toast.success("Usuario actualizado");
+      } catch (error: any) {
+        console.error("Error al registrar usuario: ", error);
+        const errorMessage =
+          error.response?.data?.message ||
+          "Ocurrio un error al intentar actualizar el usuario";
+
+        toast.error("Error de registro", {
+          description: errorMessage,
+        });
+
+        return false;
+      } finally {
+        setIsUpdating(false);
+      }
+    },
+    [],
+  );
+
   useEffect(() => {
     getRoles();
     getUsers();
@@ -74,5 +106,7 @@ export const useUsers = () => {
     loading,
     isCreating,
     createUser,
+    isUpdating,
+    updateUser,
   };
 };
