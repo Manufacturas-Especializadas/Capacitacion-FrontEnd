@@ -8,6 +8,7 @@ import {
   Eye,
 } from "lucide-react";
 import type { TutoringProgramListDto } from "../../../types/Types";
+import { useAuth } from "../../../context/AuthContext";
 
 interface ProgramCardProps {
   program: TutoringProgramListDto;
@@ -24,6 +25,10 @@ export const ProgramCard = ({
   onFollowUp,
   onDetails,
 }: ProgramCardProps) => {
+  const { user } = useAuth();
+
+  const isAdmin = user?.role === "Administrador";
+
   return (
     <div
       className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm hover:shadow-md 
@@ -79,22 +84,27 @@ export const ProgramCard = ({
         >
           <Eye size={18} />
         </button>
-        <button
-          onClick={() => onEdit(program.id)}
-          className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg 
-          transition-colors hover:cursor-pointer"
-          title="Editar"
-        >
-          <Edit2 size={18} />
-        </button>
-        <button
-          onClick={() => onDelete(program.id)}
-          className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg 
-          transition-colors hover:cursor-pointer"
-          title="Eliminar"
-        >
-          <Trash2 size={18} />
-        </button>
+        {isAdmin && (
+          <>
+            <button
+              onClick={() => onEdit(program.id)}
+              className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg 
+              transition-colors hover:cursor-pointer"
+              title="Editar"
+            >
+              <Edit2 size={18} />
+            </button>
+
+            <button
+              onClick={() => onDelete(program.id)}
+              className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg 
+              transition-colors hover:cursor-pointer"
+              title="Eliminar"
+            >
+              <Trash2 size={18} />
+            </button>
+          </>
+        )}
       </div>
     </div>
   );

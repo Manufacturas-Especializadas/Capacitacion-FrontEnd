@@ -301,6 +301,7 @@ export interface TutoringProgramModel {
 export interface TutoringProgramListDto {
   id: number;
   tutorId: number;
+  tutorName: string;
   collaboratorName: string;
   payrollNumber: number;
   area: string;
