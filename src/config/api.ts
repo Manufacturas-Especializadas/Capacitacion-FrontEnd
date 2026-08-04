@@ -7,6 +7,9 @@ if (!API_BASE_URL) {
 export const API_CONFIG = {
   baseUrl: API_BASE_URL,
   endpoint: {
+    auth: {
+      login: "/api/Auth/login",
+    },
     catalgos: {
       rooms: "/api/Catalogs/rooms",
       lines: "/api/Catalogs/lines",
@@ -54,6 +57,12 @@ export const API_CONFIG = {
       create: "/api/TutoringPrograms/create",
       update: "/api/TutoringPrograms/update/",
       delete: "/api/TutoringPrograms/delete/",
+    },
+    users: {
+      getRoles: "/api/Users/getRoles",
+      getUsers: "/api/Users/getUsers",
+      create: "/api/Users/create",
+      update: "/api/Users/update/",
     },
   },
 };
