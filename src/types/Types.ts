@@ -220,11 +220,12 @@ export interface UnionAnswer {
   score: number;
 }
 
+//"EMPAQUE" | "SOLDADURA" | "FABRICACION";
 export interface TrainingReportSummary {
   id: number;
-  trainingType: "EMPAQUE" | "SOLDADURA" | "FABRICACION";
+  trainingType: string;
   leaderName: string;
-  weekNumber: number;
+  weekNumber: number | null;
   attendeesCount: number;
   createdAt: string;
 }
@@ -359,4 +360,62 @@ export interface Answer {
   optionId?: number | null;
   ratingValue?: number | null;
   textValue?: string | null;
+}
+
+export interface TrainingReportDetails {
+  id: number;
+  trainingType: string;
+  leaderName: string;
+  leaderPayroll: string;
+  weekNumber: number | null;
+  observations: string | null;
+  instructorSignatureUrl: string | null;
+  coordinatorSignatureUrl: string | null;
+  securitySignatureUrl: string | null;
+  createdAt: string;
+  weldingUnionTypes: WeldingReportUnionTypeDetails[];
+  attendees: TrainingReportAttendeeDetails[];
+}
+
+export interface WeldingReportUnionTypeDetails {
+  id: number;
+  listNumber: number;
+  unionName: string;
+}
+
+export interface TrainingReportAttendeeDetails {
+  id: number;
+  employeeId: number;
+  employeeNumber: string;
+  employeeName: string;
+  lineId: number;
+  lineName: string;
+
+  dayMonday: boolean;
+  dayTuesday: boolean;
+  dayWednesday: boolean;
+  dayThursday: boolean;
+  dayFriday: boolean;
+  daySaturday: boolean;
+  daySunday: boolean;
+
+  customerClient: string | null;
+  unionClassification: string | null;
+  weldingPercentage: string | null;
+  diameter: string | null;
+  shift: string | null;
+  machinery: string | null;
+  ast: string | null;
+
+  traineeSignatureUrl: string | null;
+  supervisorSignatureUrl: string | null;
+
+  topics: TrainingReportTopicDetails[];
+}
+
+export interface TrainingReportTopicDetails {
+  id: number;
+  trainingType: string;
+  topicCode: string;
+  topicName: string;
 }

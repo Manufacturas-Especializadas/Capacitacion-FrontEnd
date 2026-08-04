@@ -1,10 +1,12 @@
 import { API_CONFIG } from "../../config/api";
-import type { CreateTrainingReportPayload } from "../../types/Types";
+import type { CreateTrainingReportPayload, TrainingReportDetails, TrainingReportSummary } from "../../types/Types";
 import { dataURLtoFile } from "../../utils/eventUtils";
 import { apiClient } from "../client";
 
 class TrainingReportsService {
   private createEndpoint = API_CONFIG.endpoint.trainingReports.create;
+  private readonly getByIdEndpoint = API_CONFIG.endpoint.trainingReports.getById;
+  private readonly getAllEndpoint = API_CONFIG.endpoint.trainingReports.getAll;
 
   async create(payload: CreateTrainingReportPayload): Promise<number> {
     const formData = new FormData();
@@ -119,6 +121,19 @@ class TrainingReportsService {
     const responseData = response.data ? response.data : response;
     return responseData.id || responseData.Id;
   }
+
+  async getById(id: number): Promise<TrainingReportDetails> {
+    return apiClient.get<TrainingReportDetails>(
+      `${this.getByIdEndpoint}${id}`,
+    );
+  }
+
+  async getAll(): Promise<TrainingReportSummary> {
+    return apiClient.get<TrainingReportSummary>(
+      this.getAllEndpoint,
+    );
+  }
+
 }
 
 export const trainingReportsService = new TrainingReportsService();

@@ -15,6 +15,7 @@ import { TrainingReportsForm } from "../pages/TrainingReports/Form/TrainingRepor
 import { TutoringProgram } from "../pages/TutoringProgram/TutoringProgram";
 import { CreateTutoringProgram } from "../pages/TutoringProgram/CreateTutoringProgram";
 import { ProgramDetails } from "../components/UI/TutoringProgramUI/ProgramDetails";
+import { TrainingReportDetails } from "../pages/TrainingReports/Details/TrainingReportDetails";
 
 export const MyRoutes = () => {
   return (
@@ -51,6 +52,10 @@ export const MyRoutes = () => {
       <Route
         path="/reportes-entrenaminetos/nuevo"
         element={<TrainingReportsForm />}
+      />
+      <Route
+        path="/reportes-entrenamientos/ver/:id"
+        element={<TrainingReportDetails />}
       />
       <Route
         path="/reportes-entrenamientos/temas-entrenamientos"
