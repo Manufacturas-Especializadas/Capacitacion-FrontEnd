@@ -15,6 +15,7 @@ import { TrainingReportsForm } from "../pages/TrainingReports/Form/TrainingRepor
 import { TutoringProgram } from "../pages/TutoringProgram/TutoringProgram";
 import { CreateTutoringProgram } from "../pages/TutoringProgram/CreateTutoringProgram";
 import { ProgramDetails } from "../components/UI/TutoringProgramUI/ProgramDetails";
+import { TrainingReportDetails } from "../pages/TrainingReports/Details/TrainingReportDetails";
 import { Register } from "../pages/Auth/Register";
 import { ProtectedRoute } from "../components/Auth/ProtectedRoute";
 import { Login } from "../pages/Auth/Login";
@@ -53,6 +54,19 @@ export const MyRoutes = () => {
         <Route path="/ver/:id" element={<WeldersEvaluationDetails />} />
         <Route path="/editar/:id" element={<WeldersEditEvaluation />} />
 
+      <Route path="/reportes-entrenamientos" element={<TrainingReports />} />
+      <Route
+        path="/reportes-entrenaminetos/nuevo"
+        element={<TrainingReportsForm />}
+      />
+      <Route
+        path="/reportes-entrenamientos/ver/:id"
+        element={<TrainingReportDetails />}
+      />
+      <Route
+        path="/reportes-entrenamientos/temas-entrenamientos"
+        element={<TrainingTopics />}
+      />
         <Route path="/reportes-entrenamientos" element={<TrainingReports />} />
         <Route
           path="/reportes-entrenaminetos/nuevo"

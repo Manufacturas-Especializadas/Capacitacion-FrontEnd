@@ -1,13 +1,25 @@
-import { useState } from "react";
-import { mockReports } from "../../data/mockTrainingReports";
+import { useEffect, useState } from "react";
 import { TrainingReportsHeader } from "../../components/UI/TrainingReportsUi/TrainingReportsHeader";
 import { TrainingReportsGrid } from "../../components/UI/TrainingReportsUi/TrainingReportsGrid";
-
+import { useNavigate } from "react-router-dom";
+import { useTrainingReports } from "../../hooks/useTrainingReports";
 export const TrainingReports = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
 
-  const filteredReports = mockReports.filter((report) => {
-    const term = searchTerm.toLowerCase();
+  const {
+    reports,
+    fetchReports,
+  } = useTrainingReports();
+
+  useEffect(() => {
+    void fetchReports();
+  }, [fetchReports]);
+
+
+  const filteredReports = reports.filter((report) => {
+    const term = searchTerm.trim().toLowerCase();
+
     return (
       report.leaderName.toLowerCase().includes(term) ||
       report.id.toString().includes(term) ||
@@ -17,7 +29,7 @@ export const TrainingReports = () => {
 
   const handleViewDetails = (id: number) => {
     console.log(`Ver detalles del reporte ${id}`);
-    // navigate(`/reporte-entrenamiento/ver/${id}`)
+    navigate(`/reportes-entrenamientos/ver/${id}`)
   };
 
   const handleEdit = (id: number) => {
