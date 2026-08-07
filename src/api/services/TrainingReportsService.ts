@@ -1,139 +1,444 @@
 import { API_CONFIG } from "../../config/api";
-import type { CreateTrainingReportPayload, TrainingReportDetails, TrainingReportSummary } from "../../types/Types";
+import type {
+  CreateTrainingReportPayload,
+  TrainingReportDetails,
+  TrainingReportSignatureValue,
+  TrainingReportSummary,
+  UpdateTrainingReportAttendee,
+  UpdateTrainingReportPayload,
+  UpdateTrainingReportResponse,
+  UpdateWeldingUnionType,
+} from "../../types/Types";
 import { dataURLtoFile } from "../../utils/eventUtils";
 import { apiClient } from "../client";
 
-class TrainingReportsService {
-  private createEndpoint = API_CONFIG.endpoint.trainingReports.create;
-  private readonly getByIdEndpoint = API_CONFIG.endpoint.trainingReports.getById;
-  private readonly getAllEndpoint = API_CONFIG.endpoint.trainingReports.getAll;
+interface DeleteTrainingReportResponse {
+  message: string;
+}
 
-  async create(payload: CreateTrainingReportPayload): Promise<number> {
+interface CreateTrainingReportResponse {
+  message: string;
+  id: number;
+}
+
+class TrainingReportsService {
+  private readonly createEndpoint =
+    API_CONFIG.endpoint.trainingReports.create;
+
+  private readonly getByIdEndpoint =
+    API_CONFIG.endpoint.trainingReports.getById;
+
+  private readonly getAllEndpoint =
+    API_CONFIG.endpoint.trainingReports.getAll;
+
+  private readonly updateEndpoint =
+    API_CONFIG.endpoint.trainingReports.update;
+
+  private readonly deleteEndpoint =
+    API_CONFIG.endpoint.trainingReports.delete;
+
+  private processFile(
+    fileData: TrainingReportSignatureValue | undefined,
+    fileName: string,
+  ): File | null {
+    if (!fileData) {
+      return null;
+    }
+
+    if (fileData instanceof File) {
+      return fileData;
+    }
+
+    /*
+     * Una firma creada en SignatureModal normalmente será
+     * un data URL. Esa sí debe convertirse en File.
+     */
+    if (fileData.startsWith("data:")) {
+      return dataURLtoFile(fileData, fileName);
+    }
+
+    /*
+     * Si es una URL HTTP de Azure Blob, representa una firma
+     * ya existente. No debe enviarse nuevamente.
+     */
+    return null;
+  }
+
+  private buildFormData(
+    payload:
+      | CreateTrainingReportPayload
+      | UpdateTrainingReportPayload,
+    includeExistingIds: boolean,
+  ): FormData {
     const formData = new FormData();
 
-    formData.append("TrainingType", payload.trainingType);
-    formData.append("LeaderName", payload.leaderName);
-    formData.append("LeaderPayroll", payload.leaderPayroll);
+    formData.append(
+      "TrainingType",
+      payload.trainingType,
+    );
 
-    if (payload.weekNumber) {
-      formData.append("WeekNumber", payload.weekNumber.toString());
+    formData.append(
+      "LeaderName",
+      payload.leaderName,
+    );
+
+    formData.append(
+      "LeaderPayroll",
+      payload.leaderPayroll,
+    );
+
+    if (
+      payload.weekNumber !== undefined &&
+      payload.weekNumber !== null
+    ) {
+      formData.append(
+        "WeekNumber",
+        payload.weekNumber.toString(),
+      );
     }
-    if (payload.observations) {
-      formData.append("Observations", payload.observations);
+
+    if (payload.observations?.trim()) {
+      formData.append(
+        "Observations",
+        payload.observations.trim(),
+      );
     }
 
-    const processFile = (
-      fileData: string | File | undefined,
-      fileName: string,
-    ) => {
-      if (!fileData) return null;
-      if (fileData instanceof File) return fileData;
-      return dataURLtoFile(fileData, fileName);
-    };
-
-    const instructorSig = processFile(
+    const instructorSignature = this.processFile(
       payload.instructorSignature,
       "instructor_sig.png",
     );
 
-    if (instructorSig) formData.append("InstructorSignature", instructorSig);
+    if (instructorSignature) {
+      formData.append(
+        "InstructorSignature",
+        instructorSignature,
+      );
+    }
 
-    const coordinatorSig = processFile(
+    const coordinatorSignature = this.processFile(
       payload.coordinatorSignature,
       "coordinator_sig.png",
     );
-    if (coordinatorSig) formData.append("CoordinatorSignature", coordinatorSig);
 
-    const securitySig = processFile(
+    if (coordinatorSignature) {
+      formData.append(
+        "CoordinatorSignature",
+        coordinatorSignature,
+      );
+    }
+
+    const securitySignature = this.processFile(
       payload.securitySignature,
       "security_sig.png",
     );
-    if (securitySig) formData.append("SecuritySignature", securitySig);
 
-    if (payload.unionTypes && payload.unionTypes.length > 0) {
-      payload.unionTypes.forEach((union, index) => {
-        formData.append(
-          `UnionTypes[${index}].ListNumber`,
-          union.listNumber.toString(),
-        );
-        formData.append(`UnionTypes[${index}].UnionName`, union.unionName);
-      });
+    if (securitySignature) {
+      formData.append(
+        "SecuritySignature",
+        securitySignature,
+      );
     }
 
-    payload.attendees.forEach((att, index) => {
-      const baseKey = `Attendees[${index}]`;
+    if (includeExistingIds) {
+      const updatePayload =
+        payload as UpdateTrainingReportPayload;
 
-      formData.append(`${baseKey}.EmployeeId`, att.employeeId.toString());
-      formData.append(`${baseKey}.LineId`, att.lineId.toString());
+      formData.append(
+        "RemoveInstructorSignature",
+        String(
+          updatePayload.removeInstructorSignature,
+        ),
+      );
 
-      formData.append(`${baseKey}.DayMonday`, String(att.dayMonday));
-      formData.append(`${baseKey}.DayTuesday`, String(att.dayTuesday));
-      formData.append(`${baseKey}.DayWednesday`, String(att.dayWednesday));
-      formData.append(`${baseKey}.DayThursday`, String(att.dayThursday));
-      formData.append(`${baseKey}.DayFriday`, String(att.dayFriday));
-      formData.append(`${baseKey}.DaySaturday`, String(att.daySaturday));
-      formData.append(`${baseKey}.DaySunday`, String(att.daySunday));
+      formData.append(
+        "RemoveCoordinatorSignature",
+        String(
+          updatePayload.removeCoordinatorSignature,
+        ),
+      );
 
-      if (att.customerClient)
-        formData.append(`${baseKey}.CustomerClient`, att.customerClient);
-      if (att.unionClassification)
+      formData.append(
+        "RemoveSecuritySignature",
+        String(
+          updatePayload.removeSecuritySignature,
+        ),
+      );
+    }
+
+    payload.unionTypes?.forEach(
+      (union, index) => {
+        const baseKey = `UnionTypes[${index}]`;
+
+        if (includeExistingIds) {
+          const updateUnion =
+            union as UpdateWeldingUnionType;
+
+          if (updateUnion.id !== undefined) {
+            formData.append(
+              `${baseKey}.Id`,
+              updateUnion.id.toString(),
+            );
+          }
+        }
+
         formData.append(
-          `${baseKey}.UnionClassification`,
-          att.unionClassification,
+          `${baseKey}.ListNumber`,
+          union.listNumber.toString(),
         );
-      if (att.weldingPercentage)
-        formData.append(`${baseKey}.WeldingPercentage`, att.weldingPercentage);
-      if (att.diameter) formData.append(`${baseKey}.Diameter`, att.diameter);
-      if (att.shift) formData.append(`${baseKey}.Shift`, att.shift);
-      if (att.machinery) formData.append(`${baseKey}.Machinery`, att.machinery);
-      if (att.ast) formData.append(`${baseKey}.Ast`, att.ast);
 
-      if (att.topicIds && att.topicIds.length > 0) {
-        att.topicIds.forEach((topicId, topicIndex) => {
-          formData.append(
-            `${baseKey}.TopicIds[${topicIndex}]`,
-            topicId.toString(),
-          );
-        });
-      }
-
-      const traineeSig = processFile(
-        att.traineeSignature,
-        `trainee_${att.employeeId}_sig.png`,
-      );
-      if (traineeSig)
-        formData.append(`${baseKey}.TraineeSignature`, traineeSig);
-
-      const supervisorSig = processFile(
-        att.supervisorSignature,
-        `supervisor_${att.employeeId}_sig.png`,
-      );
-      if (supervisorSig)
-        formData.append(`${baseKey}.SupervisorSignature`, supervisorSig);
-    });
-
-    const response = await apiClient.post<any>(this.createEndpoint, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
+        formData.append(
+          `${baseKey}.UnionName`,
+          union.unionName,
+        );
       },
-    });
+    );
 
-    const responseData = response.data ? response.data : response;
-    return responseData.id || responseData.Id;
+    payload.attendees.forEach(
+      (attendee, index) => {
+        const baseKey = `Attendees[${index}]`;
+
+        if (includeExistingIds) {
+          const updateAttendee =
+            attendee as UpdateTrainingReportAttendee;
+
+          if (
+            updateAttendee.id !== undefined
+          ) {
+            formData.append(
+              `${baseKey}.Id`,
+              updateAttendee.id.toString(),
+            );
+          }
+
+          formData.append(
+            `${baseKey}.RemoveTraineeSignature`,
+            String(
+              updateAttendee
+                .removeTraineeSignature,
+            ),
+          );
+
+          formData.append(
+            `${baseKey}.RemoveSupervisorSignature`,
+            String(
+              updateAttendee
+                .removeSupervisorSignature,
+            ),
+          );
+        }
+
+        formData.append(
+          `${baseKey}.EmployeeId`,
+          attendee.employeeId.toString(),
+        );
+
+        formData.append(
+          `${baseKey}.LineId`,
+          attendee.lineId.toString(),
+        );
+
+        formData.append(
+          `${baseKey}.DayMonday`,
+          String(attendee.dayMonday),
+        );
+
+        formData.append(
+          `${baseKey}.DayTuesday`,
+          String(attendee.dayTuesday),
+        );
+
+        formData.append(
+          `${baseKey}.DayWednesday`,
+          String(attendee.dayWednesday),
+        );
+
+        formData.append(
+          `${baseKey}.DayThursday`,
+          String(attendee.dayThursday),
+        );
+
+        formData.append(
+          `${baseKey}.DayFriday`,
+          String(attendee.dayFriday),
+        );
+
+        formData.append(
+          `${baseKey}.DaySaturday`,
+          String(attendee.daySaturday),
+        );
+
+        formData.append(
+          `${baseKey}.DaySunday`,
+          String(attendee.daySunday),
+        );
+
+        this.appendOptionalText(
+          formData,
+          `${baseKey}.CustomerClient`,
+          attendee.customerClient,
+        );
+
+        this.appendOptionalText(
+          formData,
+          `${baseKey}.UnionClassification`,
+          attendee.unionClassification,
+        );
+
+        this.appendOptionalText(
+          formData,
+          `${baseKey}.WeldingPercentage`,
+          attendee.weldingPercentage,
+        );
+
+        this.appendOptionalText(
+          formData,
+          `${baseKey}.Diameter`,
+          attendee.diameter,
+        );
+
+        this.appendOptionalText(
+          formData,
+          `${baseKey}.Shift`,
+          attendee.shift,
+        );
+
+        this.appendOptionalText(
+          formData,
+          `${baseKey}.Machinery`,
+          attendee.machinery,
+        );
+
+        this.appendOptionalText(
+          formData,
+          `${baseKey}.Ast`,
+          attendee.ast,
+        );
+
+        attendee.topicIds.forEach(
+          (topicId, topicIndex) => {
+            formData.append(
+              `${baseKey}.TopicIds[${topicIndex}]`,
+              topicId.toString(),
+            );
+          },
+        );
+
+        const traineeSignature =
+          this.processFile(
+            attendee.traineeSignature,
+            `trainee_${attendee.employeeId}_sig.png`,
+          );
+
+        if (traineeSignature) {
+          formData.append(
+            `${baseKey}.TraineeSignature`,
+            traineeSignature,
+          );
+        }
+
+        const supervisorSignature =
+          this.processFile(
+            attendee.supervisorSignature,
+            `supervisor_${attendee.employeeId}_sig.png`,
+          );
+
+        if (supervisorSignature) {
+          formData.append(
+            `${baseKey}.SupervisorSignature`,
+            supervisorSignature,
+          );
+        }
+      },
+    );
+
+    return formData;
   }
 
-  async getById(id: number): Promise<TrainingReportDetails> {
+  private appendOptionalText(
+    formData: FormData,
+    key: string,
+    value: string | undefined,
+  ): void {
+    if (value?.trim()) {
+      formData.append(key, value.trim());
+    }
+  }
+
+  async create(
+    payload: CreateTrainingReportPayload,
+  ): Promise<number> {
+    const formData = this.buildFormData(
+      payload,
+      false,
+    );
+
+    const response =
+      await apiClient.post<CreateTrainingReportResponse>(
+        this.createEndpoint,
+        formData,
+      );
+
+    return response.id;
+  }
+
+  async update(
+    reportId: number,
+    payload: UpdateTrainingReportPayload,
+  ): Promise<UpdateTrainingReportResponse> {
+    if (
+      !Number.isInteger(reportId) ||
+      reportId <= 0
+    ) {
+      throw new Error(
+        "El identificador del reporte no es válido.",
+      );
+    }
+
+    const formData = this.buildFormData(
+      payload,
+      true,
+    );
+
+    return apiClient.put<UpdateTrainingReportResponse>(
+      `${this.updateEndpoint}${reportId}`,
+      formData,
+    );
+  }
+
+  async getById(
+    id: number,
+  ): Promise<TrainingReportDetails> {
     return apiClient.get<TrainingReportDetails>(
       `${this.getByIdEndpoint}${id}`,
     );
   }
 
-  async getAll(): Promise<TrainingReportSummary> {
-    return apiClient.get<TrainingReportSummary>(
-      this.getAllEndpoint,
-    );
+  async getAll(): Promise<
+    TrainingReportSummary[]
+  > {
+    return apiClient.get<
+      TrainingReportSummary[]
+    >(this.getAllEndpoint);
   }
 
+  async delete(
+    id: number,
+  ): Promise<DeleteTrainingReportResponse> {
+    if (
+      !Number.isInteger(id) ||
+      id <= 0
+    ) {
+      throw new Error(
+        "El identificador del reporte no es válido.",
+      );
+    }
+
+    return apiClient.delete<DeleteTrainingReportResponse>(
+      `${this.deleteEndpoint}${id}`,
+    );
+  }
 }
 
-export const trainingReportsService = new TrainingReportsService();
+export const trainingReportsService =
+  new TrainingReportsService();

@@ -54,19 +54,23 @@ export const MyRoutes = () => {
         <Route path="/ver/:id" element={<WeldersEvaluationDetails />} />
         <Route path="/editar/:id" element={<WeldersEditEvaluation />} />
 
-      <Route path="/reportes-entrenamientos" element={<TrainingReports />} />
-      <Route
-        path="/reportes-entrenaminetos/nuevo"
-        element={<TrainingReportsForm />}
-      />
-      <Route
-        path="/reportes-entrenamientos/ver/:id"
-        element={<TrainingReportDetails />}
-      />
-      <Route
-        path="/reportes-entrenamientos/temas-entrenamientos"
-        element={<TrainingTopics />}
-      />
+        <Route path="/reportes-entrenamientos" element={<TrainingReports />} />
+        <Route
+          path="/reportes-entrenamientos/editar/:id"
+          element={<TrainingReportsForm />}
+        />
+        <Route
+          path="/reportes-entrenaminetos/nuevo"
+          element={<TrainingReportsForm />}
+        />
+        <Route
+          path="/reportes-entrenamientos/ver/:id"
+          element={<TrainingReportDetails />}
+        />
+        <Route
+          path="/reportes-entrenamientos/temas-entrenamientos"
+          element={<TrainingTopics />}
+        />
         <Route path="/reportes-entrenamientos" element={<TrainingReports />} />
         <Route
           path="/reportes-entrenaminetos/nuevo"

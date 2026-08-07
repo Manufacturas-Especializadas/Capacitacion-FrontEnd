@@ -1,4 +1,13 @@
-import { Calendar, Edit, Eye, FileText, Trash2, Users } from "lucide-react";
+import {
+  Calendar,
+  Edit,
+  Eye,
+  FileText,
+  Loader2,
+  Trash2,
+  Users,
+} from "lucide-react";
+
 import type { TrainingReportSummary } from "../../../types/Types";
 
 interface GridProps {
@@ -6,6 +15,7 @@ interface GridProps {
   onViewDetails: (id: number) => void;
   onEdit: (id: number) => void;
   onDelete: (id: number) => void;
+  deletingReportId: number | null;
 }
 
 export const TrainingReportsGrid = ({
@@ -13,6 +23,7 @@ export const TrainingReportsGrid = ({
   onViewDetails,
   onEdit,
   onDelete,
+  deletingReportId,
 }: GridProps) => {
   const getThemeConfig = (type: string) => {
     switch (type) {
@@ -23,6 +34,7 @@ export const TrainingReportsGrid = ({
           borderHover: "hover:border-emerald-200",
           iconBg: "bg-emerald-100",
         };
+
       case "SOLDADURA":
         return {
           bgLight: "bg-orange-50",
@@ -30,6 +42,7 @@ export const TrainingReportsGrid = ({
           borderHover: "hover:border-orange-200",
           iconBg: "bg-orange-100",
         };
+
       case "FABRICACION":
         return {
           bgLight: "bg-purple-50",
@@ -37,6 +50,7 @@ export const TrainingReportsGrid = ({
           borderHover: "hover:border-purple-200",
           iconBg: "bg-purple-100",
         };
+
       default:
         return {
           bgLight: "bg-slate-50",
@@ -59,9 +73,11 @@ export const TrainingReportsGrid = ({
         >
           <FileText size={32} className="text-slate-300" />
         </div>
+
         <h3 className="text-lg font-bold text-slate-700 mb-1">
           No hay reportes
         </h3>
+
         <p className="text-slate-500 font-medium text-sm">
           No se encontraron reportes que coincidan con tu búsqueda.
         </p>
@@ -74,18 +90,21 @@ export const TrainingReportsGrid = ({
       {data.map((report) => {
         const theme = getThemeConfig(report.trainingType);
 
+        const isDeleting = deletingReportId === report.id;
+        const isAnyReportDeleting = deletingReportId !== null;
+
         return (
           <div
             key={report.id}
             className={`group bg-white border border-slate-200 rounded-3xl p-6 shadow-sm 
             hover:shadow-xl ${theme.borderHover} transition-all duration-300 flex flex-col`}
           >
-            {/* Cabecera de la tarjeta */}
             <div className="flex justify-between items-start mb-4">
               <div className="flex flex-col gap-1">
                 <span className="font-mono text-xs font-bold text-slate-400">
                   ID: #{report.id}
                 </span>
+
                 <span
                   className={`inline-flex items-center px-2.5 py-1 rounded-lg text-[10px] 
                   font-black tracking-widest uppercase ${theme.bgLight} ${theme.textPrimary}`}
@@ -93,8 +112,10 @@ export const TrainingReportsGrid = ({
                   {report.trainingType}
                 </span>
               </div>
+
               <div
-                className={`w-10 h-10 rounded-xl flex items-center justify-center ${theme.bgLight} ${theme.textPrimary}`}
+                className={`w-10 h-10 rounded-xl flex items-center justify-center 
+                ${theme.bgLight} ${theme.textPrimary}`}
               >
                 <FileText size={20} strokeWidth={2.5} />
               </div>
@@ -113,6 +134,7 @@ export const TrainingReportsGrid = ({
                   <div className="p-1.5 bg-slate-50 rounded-md text-slate-400">
                     <Calendar size={14} />
                   </div>
+
                   <div>
                     <p
                       className="text-[10px] font-bold text-slate-400 uppercase 
@@ -120,8 +142,9 @@ export const TrainingReportsGrid = ({
                     >
                       Semana
                     </p>
+
                     <p className="text-sm font-semibold text-slate-700">
-                      {report.weekNumber}
+                      {report.weekNumber ?? "No especificada"}
                     </p>
                   </div>
                 </div>
@@ -130,6 +153,7 @@ export const TrainingReportsGrid = ({
                   <div className="p-1.5 bg-slate-50 rounded-md text-slate-400">
                     <Users size={14} />
                   </div>
+
                   <div>
                     <p
                       className="text-[10px] font-bold text-slate-400 uppercase 
@@ -137,6 +161,7 @@ export const TrainingReportsGrid = ({
                     >
                       Asistentes
                     </p>
+
                     <p className="text-sm font-semibold text-slate-700">
                       {report.attendeesCount} personas
                     </p>
@@ -145,7 +170,7 @@ export const TrainingReportsGrid = ({
               </div>
             </div>
 
-            <div className="h-px bg-slate-100 w-full mb-4"></div>
+            <div className="h-px bg-slate-100 w-full mb-4" />
 
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium text-slate-400">
@@ -154,28 +179,47 @@ export const TrainingReportsGrid = ({
 
               <div className="flex items-center gap-1">
                 <button
+                  type="button"
                   onClick={() => onViewDetails(report.id)}
+                  disabled={isAnyReportDeleting}
                   className="p-2 text-slate-400 hover:text-blue-600 rounded-lg 
-                  hover:bg-blue-50 transition-colors hover:cursor-pointer"
-                  title="Ver Detalles"
+                  hover:bg-blue-50 transition-colors hover:cursor-pointer
+                  disabled:opacity-40 disabled:cursor-not-allowed"
+                  title="Ver detalles"
                 >
                   <Eye size={18} />
                 </button>
+
                 <button
+                  type="button"
                   onClick={() => onEdit(report.id)}
+                  disabled={isAnyReportDeleting}
                   className="p-2 text-slate-400 hover:text-emerald-600 rounded-lg 
-                  hover:bg-emerald-50 transition-colors hover:cursor-pointer"
-                  title="Editar Reporte"
+                  hover:bg-emerald-50 transition-colors hover:cursor-pointer
+                  disabled:opacity-40 disabled:cursor-not-allowed"
+                  title="Editar reporte"
                 >
                   <Edit size={18} />
                 </button>
+
                 <button
+                  type="button"
                   onClick={() => onDelete(report.id)}
+                  disabled={isAnyReportDeleting}
                   className="p-2 text-slate-400 hover:text-rose-600 rounded-lg 
-                  hover:bg-rose-50 transition-colors hover:cursor-pointer"
-                  title="Eliminar Reporte"
+                  hover:bg-rose-50 transition-colors hover:cursor-pointer
+                  disabled:opacity-40 disabled:cursor-not-allowed"
+                  title={
+                    isDeleting
+                      ? "Eliminando reporte..."
+                      : "Eliminar reporte"
+                  }
                 >
-                  <Trash2 size={18} />
+                  {isDeleting ? (
+                    <Loader2 size={18} className="animate-spin" />
+                  ) : (
+                    <Trash2 size={18} />
+                  )}
                 </button>
               </div>
             </div>

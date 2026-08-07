@@ -1,19 +1,161 @@
-import { FileText, Save, ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
+import {
+  AlertCircle,
+  ArrowLeft,
+  ArrowRight,
+  FileText,
+  Loader2,
+  Save,
+} from "lucide-react";
+
 import {
   useEffect,
   useState,
   type ChangeEvent,
   type SyntheticEvent,
 } from "react";
-import { useNavigate } from "react-router-dom";
+
+import {
+  useNavigate,
+  useParams,
+} from "react-router-dom";
+
+import { toast } from "sonner";
+
 import { useTrainingTopics } from "../../../hooks/useTrainingTopics";
 import { useEmployees } from "../../../hooks/useEmployees";
+import {
+  useTrainingReportDetails,
+  useTrainingReports,
+} from "../../../hooks/useTrainingReports";
+import { useCatalogs } from "../../../hooks/useCatalogs";
+
 import { AttendeesSection } from "./AttendeesSection";
 import { AttendeeSelectionCard } from "./FormUI/AttendeeSelectionCard";
 import { GeneralInfoCard } from "./FormUI/GeneralInfoCard";
-import { useTrainingReports } from "../../../hooks/useTrainingReports";
-import type { CreateTrainingReportPayload } from "../../../types/Types";
-import { useCatalogs } from "../../../hooks/useCatalogs";
+
+import type {
+  CreateTrainingReportPayload,
+  TrainingReportSignatureValue,
+  UpdateTrainingReportPayload,
+  UpdateWeldingUnionType,
+} from "../../../types/Types";
+
+export interface CreateWeldingUnionType {
+  listNumber: number;
+  unionName: string;
+}
+
+
+interface TrainingReportFormAttendee {
+  id: string;
+
+  backendId: number | null;
+
+  employeeNumber: string;
+  employeeId: number | null;
+  lineId: number | null;
+  name: string;
+  line: string;
+
+  topicCode: string;
+  topicIds: number[];
+
+  dayMonday: boolean;
+  dayTuesday: boolean;
+  dayWednesday: boolean;
+  dayThursday: boolean;
+  dayFriday: boolean;
+  daySaturday: boolean;
+  daySunday: boolean;
+
+  customerClient?: string;
+  unionClassification?: string;
+  weldingPercentage?: string;
+  diameter?: string;
+  shift?: string;
+  machinery?: string;
+  ast?: string;
+
+  traineeSignature:
+  TrainingReportSignatureValue;
+
+  supervisorSignature:
+  TrainingReportSignatureValue;
+
+  removeTraineeSignature: boolean;
+  removeSupervisorSignature: boolean;
+}
+
+interface TrainingReportFormState {
+  leaderName: string;
+  leaderNomina: string;
+  weekNumber: number | null;
+  trainingType: string;
+  observations: string;
+
+  instructorSignature:
+  TrainingReportSignatureValue;
+
+  coordinatorSignature:
+  TrainingReportSignatureValue;
+
+  safetySignature:
+  TrainingReportSignatureValue;
+
+  removeInstructorSignature: boolean;
+  removeCoordinatorSignature: boolean;
+  removeSecuritySignature: boolean;
+
+  unionTypes: UpdateWeldingUnionType[];
+  attendees: TrainingReportFormAttendee[];
+}
+
+const normalizeTrainingType = (
+  value: string,
+): string => {
+  return value
+    .trim()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toUpperCase();
+};
+
+const createEmptyAttendee =
+  (): TrainingReportFormAttendee => ({
+    id: crypto.randomUUID(),
+    backendId: null,
+
+    employeeNumber: "",
+    employeeId: null,
+    lineId: null,
+    name: "",
+    line: "",
+
+    topicCode: "",
+    topicIds: [],
+
+    dayMonday: false,
+    dayTuesday: false,
+    dayWednesday: false,
+    dayThursday: false,
+    dayFriday: false,
+    daySaturday: false,
+    daySunday: false,
+
+    customerClient: "",
+    unionClassification: "",
+    weldingPercentage: "",
+    diameter: "",
+    shift: "",
+    machinery: "",
+    ast: "",
+
+    traineeSignature: null,
+    supervisorSignature: null,
+
+    removeTraineeSignature: false,
+    removeSupervisorSignature: false,
+  });
 
 const getWeekNumber = (d: Date): number => {
   const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
@@ -25,217 +167,754 @@ const getWeekNumber = (d: Date): number => {
 
 export const TrainingReportsForm = () => {
   const navigate = useNavigate();
-  const { topics, fetchTopics } = useTrainingTopics();
+  const { id } = useParams<{
+    id?: string;
+  }>();
+
+  const isEditMode = id !== undefined;
+  const parsedReportId = Number(id);
+
+  const reportId =
+    isEditMode &&
+      Number.isInteger(parsedReportId) &&
+      parsedReportId > 0
+      ? parsedReportId
+      : null;
+
+  const { topics, fetchTopics } =
+    useTrainingTopics();
+
   const { employees } = useEmployees();
-  const { createReport, isSubmitting } = useTrainingReports();
-  const { lines, fetchLines } = useCatalogs();
-  const [step, setStep] = useState<1 | 2>(1);
-  const [formData, setFormData] = useState<any>({
-    leaderName: "",
-    leaderNomina: "",
-    weekNumber: getWeekNumber(new Date()),
-    trainingType: "",
-    observations: "",
-    instructorSignature: null,
-    coordinatorSignature: null,
-    safetySignature: null,
-    attendees: [],
-  });
+
+  const {
+    createReport,
+    updateReport,
+    isSubmitting,
+  } = useTrainingReports();
+
+  const { lines, fetchLines } =
+    useCatalogs();
+
+  const {
+    report,
+    isLoading: isLoadingReport,
+    error: reportError,
+  } = useTrainingReportDetails(
+    reportId,
+    isEditMode,
+  );
+
+  const [step, setStep] =
+    useState<1 | 2>(1);
+
+  const [loadedReportId, setLoadedReportId] =
+    useState<number | null>(null);
+
+  const [formData, setFormData] =
+    useState<TrainingReportFormState>({
+      leaderName: "",
+      leaderNomina: "",
+      weekNumber: getWeekNumber(
+        new Date(),
+      ),
+      trainingType: "",
+      observations: "",
+
+      instructorSignature: null,
+      coordinatorSignature: null,
+      safetySignature: null,
+
+      removeInstructorSignature: false,
+      removeCoordinatorSignature: false,
+      removeSecuritySignature: false,
+
+      unionTypes: [],
+      attendees: [],
+    });
 
   useEffect(() => {
-    fetchTopics();
-    fetchLines();
+    void fetchTopics();
+    void fetchLines();
   }, [fetchTopics, fetchLines]);
 
+  useEffect(() => {
+    if (
+      !isEditMode ||
+      !report ||
+      loadedReportId === report.id
+    ) {
+      return;
+    }
+
+    setFormData({
+      leaderName: report.leaderName,
+      leaderNomina: report.leaderPayroll,
+      weekNumber: report.weekNumber,
+
+      trainingType:
+        normalizeTrainingType(
+          report.trainingType,
+        ),
+
+      observations:
+        report.observations ?? "",
+
+      /*
+       * Guardamos las URLs en el estado para que los
+       * componentes puedan mostrar las firmas actuales.
+       * El servicio no reenviará URLs como archivos.
+       */
+      instructorSignature:
+        report.instructorSignatureUrl,
+
+      coordinatorSignature:
+        report.coordinatorSignatureUrl,
+
+      safetySignature:
+        report.securitySignatureUrl,
+
+      removeInstructorSignature: false,
+      removeCoordinatorSignature: false,
+      removeSecuritySignature: false,
+
+      /*
+       * El formulario aún no tiene UI para editar uniones,
+       * pero las conservamos para evitar eliminarlas.
+       */
+      unionTypes:
+        report.weldingUnionTypes.map(
+          (union) => ({
+            id: union.id,
+            listNumber:
+              union.listNumber,
+            unionName:
+              union.unionName,
+          }),
+        ),
+
+      attendees: report.attendees.map(
+        (attendee) => ({
+          /*
+           * Este ID se usa en React.
+           */
+          id: `existing-${attendee.id}`,
+
+          /*
+           * Este ID se envía al backend.
+           */
+          backendId: attendee.id,
+
+          employeeNumber:
+            attendee.employeeNumber,
+
+          employeeId:
+            attendee.employeeId,
+
+          lineId:
+            attendee.lineId,
+
+          name:
+            attendee.employeeName,
+
+          line:
+            attendee.lineName,
+
+          topicCode:
+            attendee.topics[0]
+              ?.topicCode ?? "",
+
+          topicIds:
+            attendee.topics.map(
+              (topic) => topic.id,
+            ),
+
+          dayMonday:
+            attendee.dayMonday,
+
+          dayTuesday:
+            attendee.dayTuesday,
+
+          dayWednesday:
+            attendee.dayWednesday,
+
+          dayThursday:
+            attendee.dayThursday,
+
+          dayFriday:
+            attendee.dayFriday,
+
+          daySaturday:
+            attendee.daySaturday,
+
+          daySunday:
+            attendee.daySunday,
+
+          customerClient:
+            attendee.customerClient ?? "",
+
+          unionClassification:
+            attendee.unionClassification ??
+            "",
+
+          weldingPercentage:
+            attendee.weldingPercentage ??
+            "",
+
+          diameter:
+            attendee.diameter ?? "",
+
+          shift:
+            attendee.shift ?? "",
+
+          machinery:
+            attendee.machinery ?? "",
+
+          ast:
+            attendee.ast ?? "",
+
+          traineeSignature:
+            attendee.traineeSignatureUrl,
+
+          supervisorSignature:
+            attendee
+              .supervisorSignatureUrl,
+
+          removeTraineeSignature: false,
+          removeSupervisorSignature: false,
+        }),
+      ),
+    });
+
+    setLoadedReportId(report.id);
+  }, [
+    isEditMode,
+    report,
+    loadedReportId,
+  ]);
+
   const availableTopics = topics.filter(
-    (t) => t.trainingType === formData.trainingType,
+    (topic) =>
+      normalizeTrainingType(
+        topic.trainingType,
+      ) ===
+      normalizeTrainingType(
+        formData.trainingType,
+      ),
   );
+
   const topicOptions = availableTopics.map((t) => ({
     value: t.topicCode,
     label: `${t.topicCode} - ${t.topicName}`,
   }));
 
   const handleMasterChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+    event: ChangeEvent<
+      HTMLInputElement |
+      HTMLSelectElement
+    >,
   ) => {
-    setFormData((prev: any) => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value } =
+      event.target;
+
+    setFormData((previous) => ({
+      ...previous,
+      [name]:
+        name === "weekNumber"
+          ? value
+            ? Number(value)
+            : null
+          : value,
+    }));
   };
 
-  const handleGlobalFieldChange = (field: string, value: any) => {
-    setFormData((prev: any) => ({ ...prev, [field]: value }));
+  const handleGlobalFieldChange = (
+    field: string,
+    value: TrainingReportSignatureValue | string,
+  ) => {
+    setFormData((previous) => ({
+      ...previous,
+      [field]: value,
+    }));
   };
 
-  const handleTypeSelect = (type: string) => {
-    setFormData((prev: any) => ({ ...prev, trainingType: type }));
+  const handleTypeSelect = (
+    selectedType: string,
+  ) => {
+    const normalizedType =
+      normalizeTrainingType(selectedType);
+
+    setFormData((previous) => {
+      if (
+        previous.trainingType ===
+        normalizedType
+      ) {
+        return previous;
+      }
+
+      return {
+        ...previous,
+        trainingType: normalizedType,
+
+        /*
+         * Los temas del tipo anterior ya no serían
+         * válidos para el nuevo entrenamiento.
+         */
+        attendees:
+          previous.attendees.map(
+            (attendee) => ({
+              ...attendee,
+              topicCode: "",
+              topicIds: [],
+            }),
+          ),
+      };
+    });
   };
 
   const addAttendeeRow = () => {
-    setFormData((prev: any) => ({
-      ...prev,
+    setFormData((previous) => ({
+      ...previous,
       attendees: [
-        ...prev.attendees,
-        {
-          id: crypto.randomUUID(),
-          employeeNumber: "",
-          employeeId: null,
-          lineId: null,
-          name: "",
-          line: "",
-          topicCode: "",
-          dayMonday: false,
-          dayTuesday: false,
-          dayWednesday: false,
-          dayThursday: false,
-          dayFriday: false,
-          daySaturday: false,
-          daySunday: false,
-        },
+        ...previous.attendees,
+        createEmptyAttendee(),
       ],
     }));
   };
 
-  const removeAttendeeRow = (idToRemove: string) => {
-    setFormData((prev: any) => ({
-      ...prev,
-      attendees: prev.attendees.filter((a: any) => a.id !== idToRemove),
+  const removeAttendeeRow = (
+    idToRemove: string,
+  ) => {
+    setFormData((previous) => ({
+      ...previous,
+      attendees:
+        previous.attendees.filter(
+          (attendee) =>
+            attendee.id !== idToRemove,
+        ),
     }));
   };
 
   const handleAttendeeFileChange = (
-    id: string,
+    idToUpdate: string,
     field: string,
-    file: File | null,
+    signature:
+      TrainingReportSignatureValue,
   ) => {
-    setFormData((prev: any) => ({
-      ...prev,
-      attendees: prev.attendees.map((a: any) =>
-        a.id === id ? { ...a, [field]: file } : a,
-      ),
+    setFormData((previous) => ({
+      ...previous,
+      attendees:
+        previous.attendees.map(
+          (attendee) =>
+            attendee.id === idToUpdate
+              ? {
+                ...attendee,
+                [field]: signature,
+              }
+              : attendee,
+        ),
     }));
   };
 
   const handleAttendeeChange = (
-    id: string,
-    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+    idToUpdate: string,
+    event: ChangeEvent<
+      HTMLInputElement |
+      HTMLSelectElement
+    >,
   ) => {
-    const { name, value } = e.target;
+    const target = event.target;
 
-    setFormData((prev: any) => {
-      const updatedAttendees = prev.attendees.map((attendee: any) => {
-        if (attendee.id !== id) return attendee;
+    const fieldValue =
+      target instanceof HTMLInputElement &&
+        target.type === "checkbox"
+        ? target.checked
+        : target.value;
 
-        const newAttendeeData = { ...attendee, [name]: value };
+    const fieldName = target.name;
 
-        if (name === "employeeNumber") {
-          const searchValue = String(value).trim();
-
-          console.log(
-            `🔎 Buscando empleado: '${searchValue}' | Total en catálogo: ${employees?.length || 0}`,
-          );
-
-          const match = employees?.find(
-            (emp) => String(emp.employeeNumber).trim() === searchValue,
-          );
-
-          if (match) {
-            console.log("✅ Empleado encontrado:", match);
-
-            newAttendeeData.name = match.name || "";
-            newAttendeeData.employeeId = match.id || null;
-
-            if (match.line) {
-              const empLineText = String(match.line).trim().toLowerCase();
-
-              const lineObj = lines?.find((l: any) => {
-                const catName1 = l.name
-                  ? String(l.name).trim().toLowerCase()
-                  : "";
-                const catName2 = l.lineName
-                  ? String(l.lineName).trim().toLowerCase()
-                  : "";
-
-                return catName1 === empLineText || catName2 === empLineText;
-              });
-
-              if (lineObj) {
-                newAttendeeData.lineId = lineObj.id;
-                newAttendeeData.line =
-                  lineObj.name || lineObj.name || String(match.line);
-              } else {
-                newAttendeeData.lineId = null;
-                newAttendeeData.line = String(match.line);
-              }
-            } else {
-              newAttendeeData.line = "";
-              newAttendeeData.lineId = null;
+    setFormData((previous) => {
+      const updatedAttendees =
+        previous.attendees.map(
+          (attendee) => {
+            if (
+              attendee.id !== idToUpdate
+            ) {
+              return attendee;
             }
-          } else {
-            newAttendeeData.name = "";
-            newAttendeeData.line = "";
-            newAttendeeData.lineId = null;
-            newAttendeeData.employeeId = null;
-          }
-        }
 
-        return newAttendeeData;
-      });
-      return { ...prev, attendees: updatedAttendees };
+            const updatedAttendee = {
+              ...attendee,
+              [fieldName]: fieldValue,
+            };
+
+            if (
+              fieldName === "topicCode"
+            ) {
+              const selectedTopic =
+                topics.find(
+                  (topic) =>
+                    topic.topicCode ===
+                    String(fieldValue) &&
+                    normalizeTrainingType(
+                      topic.trainingType,
+                    ) ===
+                    normalizeTrainingType(
+                      previous.trainingType,
+                    ),
+                );
+
+              updatedAttendee.topicIds =
+                selectedTopic
+                  ? [selectedTopic.id]
+                  : [];
+            }
+
+            if (
+              fieldName ===
+              "employeeNumber"
+            ) {
+              const searchValue =
+                String(
+                  fieldValue,
+                ).trim();
+
+              const employee =
+                employees?.find(
+                  (currentEmployee) =>
+                    String(
+                      currentEmployee
+                        .employeeNumber,
+                    ).trim() ===
+                    searchValue,
+                );
+
+              if (employee) {
+                updatedAttendee.name =
+                  employee.name ?? "";
+
+                updatedAttendee.employeeId =
+                  Number(employee.id);
+
+                if (employee.line) {
+                  const employeeLine =
+                    String(employee.line)
+                      .trim()
+                      .toLowerCase();
+
+                  const line =
+                    lines?.find(
+                      (currentLine) => {
+                        const lineName = String(
+                          currentLine.name ?? "",
+                        )
+                          .trim()
+                          .toLowerCase();
+
+                        return (
+                          lineName ===
+                          employeeLine
+                        );
+                      },
+                    );
+
+                  updatedAttendee.lineId =
+                    line
+                      ? Number(line.id)
+                      : null;
+
+                  updatedAttendee.line = line
+                    ? line.name
+                    : String(employee.line);
+                }
+              } else {
+                updatedAttendee.name = "";
+                updatedAttendee.line = "";
+                updatedAttendee.lineId =
+                  null;
+
+                updatedAttendee.employeeId =
+                  null;
+              }
+            }
+
+            return updatedAttendee;
+          },
+        );
+
+      return {
+        ...previous,
+        attendees:
+          updatedAttendees,
+      };
     });
   };
 
-  const handleSubmit = async (e: SyntheticEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleSubmit = async (
+    event: SyntheticEvent<HTMLFormElement>,
+  ) => {
+    event.preventDefault();
 
-    const payload: CreateTrainingReportPayload = {
-      trainingType: formData.trainingType,
-      leaderName: formData.leaderName,
-      leaderPayroll: formData.leaderNomina,
-      weekNumber: formData.weekNumber,
-      observations: formData.observations,
-      instructorSignature: formData.instructorSignature,
-      coordinatorSignature: formData.coordinatorSignature,
-      securitySignature: formData.safetySignature,
-      unionTypes: [],
-      attendees: formData.attendees.map((a: any) => {
-        const topicMatch = topics.find((t) => t.topicCode === a.topicCode);
+    const invalidAttendee =
+      formData.attendees.find(
+        (attendee) =>
+          attendee.employeeId === null ||
+          attendee.employeeId <= 0 ||
+          attendee.lineId === null ||
+          attendee.lineId <= 0 ||
+          attendee.topicIds.length === 0,
+      );
 
-        return {
-          employeeId: a.employeeId
-            ? Number(a.employeeId)
-            : Number(a.employeeNumber),
-          lineId: a.lineId ? Number(a.lineId) : 0,
-          dayMonday: a.dayMonday,
-          dayTuesday: a.dayTuesday,
-          dayWednesday: a.dayWednesday,
-          dayThursday: a.dayThursday,
-          dayFriday: a.dayFriday,
-          daySaturday: a.daySaturday,
-          daySunday: a.daySunday,
-          customerClient: a.customerClient,
-          unionClassification: a.unionClassification,
-          weldingPercentage: a.weldingPercentage,
-          diameter: a.diameter,
-          shift: a.shift,
-          machinery: a.machinery,
-          ast: a.ast,
-          topicIds: topicMatch?.id ? [Number(topicMatch.id)] : [],
-          traineeSignature: a.traineeSignature,
-          supervisorSignature: a.supervisorSignature,
-        };
-      }),
-    };
+    if (invalidAttendee) {
+      toast.error(
+        `Verifica los datos del asistente ${invalidAttendee.employeeNumber || "sin nómina"
+        }. Debe tener empleado, línea y tema válidos.`,
+      );
 
-    const success = await createReport(payload);
+      return;
+    }
+
+    const commonAttendees =
+      formData.attendees.map((attendee) => ({
+        employeeId: Number(attendee.employeeId),
+        lineId: Number(attendee.lineId),
+
+        dayMonday: attendee.dayMonday,
+        dayTuesday: attendee.dayTuesday,
+        dayWednesday: attendee.dayWednesday,
+        dayThursday: attendee.dayThursday,
+        dayFriday: attendee.dayFriday,
+        daySaturday: attendee.daySaturday,
+        daySunday: attendee.daySunday,
+
+        customerClient: attendee.customerClient,
+        unionClassification:
+          attendee.unionClassification,
+        weldingPercentage:
+          attendee.weldingPercentage,
+        diameter: attendee.diameter,
+        shift: attendee.shift,
+        machinery: attendee.machinery,
+        ast: attendee.ast,
+
+        topicIds: attendee.topicIds,
+
+        traineeSignature:
+          attendee.traineeSignature,
+
+        supervisorSignature:
+          attendee.supervisorSignature,
+      }));
+
+    let success = false;
+
+    if (isEditMode) {
+      if (reportId === null) {
+        toast.error(
+          "El identificador del reporte no es válido.",
+        );
+
+        return;
+      }
+
+      const updatePayload:
+        UpdateTrainingReportPayload = {
+        trainingType:
+          normalizeTrainingType(
+            formData.trainingType,
+          ),
+
+        leaderName:
+          formData.leaderName,
+
+        leaderPayroll:
+          formData.leaderNomina,
+
+        weekNumber:
+          formData.weekNumber,
+
+        observations:
+          formData.observations,
+
+        instructorSignature:
+          formData
+            .instructorSignature,
+
+        coordinatorSignature:
+          formData
+            .coordinatorSignature,
+
+        securitySignature:
+          formData.safetySignature,
+
+        removeInstructorSignature:
+          formData
+            .removeInstructorSignature,
+
+        removeCoordinatorSignature:
+          formData
+            .removeCoordinatorSignature,
+
+        removeSecuritySignature:
+          formData
+            .removeSecuritySignature,
+
+        unionTypes:
+          formData.unionTypes,
+
+        attendees:
+          formData.attendees.map(
+            (attendee, index) => ({
+              ...commonAttendees[index],
+
+              id:
+                attendee.backendId ??
+                undefined,
+
+              removeTraineeSignature:
+                attendee
+                  .removeTraineeSignature,
+
+              removeSupervisorSignature:
+                attendee
+                  .removeSupervisorSignature,
+            }),
+          ),
+      };
+
+      success = await updateReport(
+        reportId,
+        updatePayload,
+      );
+    } else {
+      const createPayload:
+        CreateTrainingReportPayload = {
+        trainingType:
+          normalizeTrainingType(
+            formData.trainingType,
+          ),
+
+        leaderName:
+          formData.leaderName,
+
+        leaderPayroll:
+          formData.leaderNomina,
+
+        weekNumber:
+          formData.weekNumber,
+
+        observations:
+          formData.observations,
+
+        instructorSignature:
+          formData
+            .instructorSignature,
+
+        coordinatorSignature:
+          formData
+            .coordinatorSignature,
+
+        securitySignature:
+          formData.safetySignature,
+
+        unionTypes:
+          formData.unionTypes.map(
+            (union) => ({
+              listNumber:
+                union.listNumber,
+              unionName:
+                union.unionName,
+            }),
+          ),
+
+        attendees:
+          commonAttendees,
+      };
+
+      success = await createReport(
+        createPayload,
+      );
+    }
 
     if (success) {
-      navigate("/reportes-entrenamientos");
+      navigate(
+        "/reportes-entrenamientos",
+      );
     }
   };
 
-  const isStep1Complete =
+  const isStep1Complete = Boolean(
     formData.trainingType &&
     formData.attendees.length > 0 &&
-    formData.attendees.every((a: any) => a.employeeNumber && a.topicCode);
+    formData.attendees.every(
+      (attendee) =>
+        attendee.employeeNumber.trim() !== "" &&
+        attendee.employeeId !== null &&
+        attendee.employeeId > 0 &&
+        attendee.lineId !== null &&
+        attendee.lineId > 0 &&
+        attendee.topicCode.trim() !== "" &&
+        attendee.topicIds.length > 0,
+    ),
+  );
+
+  if (
+    isEditMode &&
+    isLoadingReport
+  ) {
+    return (
+      <div className="flex min-h-72 items-center justify-center gap-3 text-slate-500">
+        <Loader2
+          size={28}
+          className="animate-spin text-blue-600"
+        />
+
+        <span className="font-semibold">
+          Cargando reporte...
+        </span>
+      </div>
+    );
+  }
+
+  if (
+    isEditMode &&
+    reportError
+  ) {
+    return (
+      <div className="mx-auto max-w-3xl p-6">
+        <div className="rounded-2xl border border-rose-200 bg-rose-50 p-5 text-rose-800">
+          <div className="flex items-start gap-3">
+            <AlertCircle
+              size={22}
+              className="shrink-0"
+            />
+
+            <div>
+              <h2 className="font-bold">
+                No se pudo cargar el reporte
+              </h2>
+
+              <p className="mt-1 text-sm">
+                {reportError}
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={() =>
+              navigate(
+                "/reportes-entrenamientos",
+              )
+            }
+            className="mt-4 rounded-xl bg-white px-4 py-2 text-sm font-bold shadow-sm hover:cursor-pointer"
+          >
+            Regresar
+          </button>
+        </div>
+      </div>
+    );
+  }
+
 
   return (
     <div className="w-full max-w-6xl mx-auto space-y-6 p-4">
@@ -244,8 +923,12 @@ export const TrainingReportsForm = () => {
           <FileText className="text-blue-600" size={24} />
           <h1 className="text-2xl font-bold text-slate-800">
             {step === 1
-              ? "Nuevo Reporte de Entrenamiento"
-              : "Registro de Asistencia y Evidencias"}
+              ? isEditMode
+                ? `Editar Reporte #${reportId}`
+                : "Nuevo Reporte de Entrenamiento"
+              : isEditMode
+                ? "Actualizar Asistencia y Evidencias"
+                : "Registro de Asistencia y Evidencias"}
           </h1>
         </div>
 
@@ -333,19 +1016,27 @@ export const TrainingReportsForm = () => {
                 type="submit"
                 disabled={isSubmitting}
                 className={`px-6 py-2.5 text-sm font-bold text-white rounded-lg 
-                    shadow-sm transition-all flex items-center gap-2 hover:cursor-pointer ${
-                      isSubmitting
-                        ? "bg-slate-500 cursor-not-allowed"
-                        : "bg-slate-800 hover:bg-slate-900 active:scale-95"
-                    }`}
+                    shadow-sm transition-all flex items-center gap-2 hover:cursor-pointer ${isSubmitting
+                    ? "bg-slate-500 cursor-not-allowed"
+                    : "bg-slate-800 hover:bg-slate-900 active:scale-95"
+                  }`}
               >
                 {isSubmitting ? (
                   <>
-                    <Loader2 size={18} className="animate-spin" /> Procesando...
+                    <Loader2
+                      size={18}
+                      className="animate-spin"
+                    />
+                    {isEditMode
+                      ? "Actualizando..."
+                      : "Procesando..."}
                   </>
                 ) : (
                   <>
-                    <Save size={18} /> Guardar Reporte Final
+                    <Save size={18} />
+                    {isEditMode
+                      ? "Actualizar Reporte"
+                      : "Guardar Reporte Final"}
                   </>
                 )}
               </button>
