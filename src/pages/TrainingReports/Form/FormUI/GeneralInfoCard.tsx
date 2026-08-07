@@ -4,14 +4,27 @@ interface GeneralInfoCardProps {
   formData: {
     leaderNomina: string;
     leaderName: string;
-    weekNumber: number;
+    weekNumber: number | null;
     trainingType: string;
   };
   onChange: (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
   onTypeSelect: (type: string) => void;
 }
 
-const TRAINING_TYPES = ["SOLDADURA", "EMPAQUE", "FABRICACIÓN"];
+const TRAINING_TYPES = [
+  {
+    value: "SOLDADURA",
+    label: "SOLDADURA",
+  },
+  {
+    value: "EMPAQUE",
+    label: "EMPAQUE",
+  },
+  {
+    value: "FABRICACION",
+    label: "FABRICACIÓN",
+  },
+];
 
 export const GeneralInfoCard = ({
   formData,
@@ -64,7 +77,7 @@ export const GeneralInfoCard = ({
           <input
             type="number"
             name="weekNumber"
-            value={formData.weekNumber}
+            value={formData.weekNumber ?? ""}
             readOnly
             className="border border-slate-200 bg-slate-50 rounded-lg px-3 py-2 text-sm 
             text-slate-500 cursor-not-allowed"
@@ -79,16 +92,17 @@ export const GeneralInfoCard = ({
         <div className="flex gap-2 p-1 bg-slate-100 rounded-lg w-full md:w-1/2">
           {TRAINING_TYPES.map((type) => (
             <button
-              key={type}
+              key={type.value}
               type="button"
-              onClick={() => onTypeSelect(type)}
-              className={`flex-1 py-2 text-xs font-semibold rounded-md transition-all duration-200 hover:cursor-pointer ${
-                formData.trainingType === type
-                  ? "bg-white text-blue-600 shadow-sm border border-slate-200"
-                  : "text-slate-500 hover:text-slate-700 hover:bg-slate-200"
-              }`}
+              onClick={() =>
+                onTypeSelect(type.value)
+              }
+              className={`flex-1 py-2 text-xs font-semibold rounded-md transition-all duration-200 hover:cursor-pointer ${formData.trainingType === type.value
+                ? "bg-white text-blue-600 shadow-sm border border-slate-200"
+                : "text-slate-500 hover:text-slate-700 hover:bg-slate-200"
+                }`}
             >
-              {type}
+              {type.label}
             </button>
           ))}
         </div>

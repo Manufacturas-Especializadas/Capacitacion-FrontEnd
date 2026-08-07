@@ -35,6 +35,8 @@ export const API_CONFIG = {
       create: "/api/TrainingReports/create",
       getById: "/api/TrainingReports/getById/",
       getAll: "/api/TrainingReports/getAll",
+      delete: "/api/TrainingReports/delete/",
+      update: "/api/TrainingReports/update/"
     },
     trainingTopics: {
       all: "/api/TrainingTopics/all",

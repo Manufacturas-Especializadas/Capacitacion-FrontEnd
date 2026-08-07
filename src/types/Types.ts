@@ -220,6 +220,71 @@ export interface UnionAnswer {
   score: number;
 }
 
+export type TrainingReportSignatureValue =
+  | string
+  | File
+  | null;
+
+export interface UpdateWeldingUnionType {
+  id?: number;
+  listNumber: number;
+  unionName: string;
+}
+
+export interface UpdateTrainingReportAttendee {
+  id?: number;
+  employeeId: number;
+  lineId: number;
+
+  dayMonday: boolean;
+  dayTuesday: boolean;
+  dayWednesday: boolean;
+  dayThursday: boolean;
+  dayFriday: boolean;
+  daySaturday: boolean;
+  daySunday: boolean;
+
+  customerClient?: string;
+  unionClassification?: string;
+  weldingPercentage?: string;
+  diameter?: string;
+  shift?: string;
+  machinery?: string;
+  ast?: string;
+
+  topicIds: number[];
+
+  traineeSignature?: TrainingReportSignatureValue;
+  supervisorSignature?: TrainingReportSignatureValue;
+
+  removeTraineeSignature: boolean;
+  removeSupervisorSignature: boolean;
+}
+
+export interface UpdateTrainingReportPayload {
+  trainingType: string;
+  leaderName: string;
+  leaderPayroll: string;
+  weekNumber?: number | null;
+  observations?: string;
+
+  unionTypes: UpdateWeldingUnionType[];
+  attendees: UpdateTrainingReportAttendee[];
+
+  instructorSignature?: TrainingReportSignatureValue;
+  coordinatorSignature?: TrainingReportSignatureValue;
+  securitySignature?: TrainingReportSignatureValue;
+
+  removeInstructorSignature: boolean;
+  removeCoordinatorSignature: boolean;
+  removeSecuritySignature: boolean;
+}
+
+export interface UpdateTrainingReportResponse {
+  message: string;
+  id: number;
+}
+
 //"EMPAQUE" | "SOLDADURA" | "FABRICACION";
 export interface TrainingReportSummary {
   id: number;
@@ -251,6 +316,7 @@ export interface CreateWeldingUnionType {
 export interface CreateTrainingReportAttendee {
   employeeId: number;
   lineId: number;
+
   dayMonday: boolean;
   dayTuesday: boolean;
   dayWednesday: boolean;
@@ -258,6 +324,7 @@ export interface CreateTrainingReportAttendee {
   dayFriday: boolean;
   daySaturday: boolean;
   daySunday: boolean;
+
   customerClient?: string;
   unionClassification?: string;
   weldingPercentage?: string;
@@ -265,22 +332,27 @@ export interface CreateTrainingReportAttendee {
   shift?: string;
   machinery?: string;
   ast?: string;
+
   topicIds: number[];
-  traineeSignature?: string | File;
-  supervisorSignature?: string | File;
+
+  traineeSignature?: TrainingReportSignatureValue;
+  supervisorSignature?: TrainingReportSignatureValue;
 }
 
 export interface CreateTrainingReportPayload {
   trainingType: string;
   leaderName: string;
   leaderPayroll: string;
-  weekNumber?: number;
+
+  weekNumber?: number | null;
   observations?: string;
+
   unionTypes?: CreateWeldingUnionType[];
   attendees: CreateTrainingReportAttendee[];
-  instructorSignature?: string | File;
-  coordinatorSignature?: string | File;
-  securitySignature?: string | File;
+
+  instructorSignature?: TrainingReportSignatureValue;
+  coordinatorSignature?: TrainingReportSignatureValue;
+  securitySignature?: TrainingReportSignatureValue;
 }
 
 export interface Tutors {
@@ -439,3 +511,4 @@ export interface Users {
   isActive: boolean;
   createdAt: string;
 }
+
