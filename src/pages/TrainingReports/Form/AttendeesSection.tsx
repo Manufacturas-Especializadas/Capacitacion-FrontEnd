@@ -1,13 +1,36 @@
 import { useState, type ChangeEvent } from "react";
 import { AttendeesTableHeader } from "./AttendeesSectionUI/AttendeesTableHeader";
-import { AttendeeRow } from "./AttendeesSectionUI/AttendeeRow";
+import {
+  AttendeeRow, type AttendeeEvaluationItem,
+  type AttendeeTopicDayField, type AttendeeTopicHoursField,
+} from "./AttendeesSectionUI/AttendeeRow";
 import { SignatureModal } from "../../../components/SignatureModal/SignatureModal";
 import { ReportFooterSection } from "./AttendeesSectionUI/ReportFooterSection";
 
 interface AttendeesSectionProps {
   trainingType: string;
-  attendees: any[];
-  topics: any[];
+  attendees: AttendeeEvaluationItem[];
+
+  topics: {
+    id: number;
+    topicCode: string;
+    topicName: string;
+  }[];
+
+  onTopicDayChange: (
+    attendeeId: string,
+    topicRowId: string,
+    field: AttendeeTopicDayField,
+    checked: boolean,
+  ) => void;
+
+  onTopicHoursChange: (
+    attendeeId: string,
+    topicRowId: string,
+    field: AttendeeTopicHoursField,
+    value: string,
+  ) => void;
+
   onRemove: (id: string) => void;
   onChange: (
     id: string,
@@ -33,18 +56,62 @@ export const AttendeesSection = ({
   coordinatorSignature,
   safetySignature,
   onGlobalFieldChange,
+  onTopicDayChange,
+  onTopicHoursChange,
 }: AttendeesSectionProps) => {
   const hasSunday =
     trainingType === "SOLDADURA" || trainingType === "FABRICACION";
-  const days = [
-    { key: "dayMonday", label: "L" },
-    { key: "dayTuesday", label: "M" },
-    { key: "dayWednesday", label: "M" },
-    { key: "dayThursday", label: "J" },
-    { key: "dayFriday", label: "V" },
-    { key: "daySaturday", label: "S" },
-    ...(hasSunday ? [{ key: "daySunday", label: "D" }] : []),
-  ];
+
+  const days: {
+    key: AttendeeTopicDayField;
+    hoursKey: AttendeeTopicHoursField;
+    label: string;
+  }[] = [
+      {
+        key: "dayMonday",
+        hoursKey: "hoursMonday",
+        label: "L",
+      },
+      {
+        key: "dayTuesday",
+        hoursKey: "hoursTuesday",
+        label: "M",
+      },
+      {
+        key: "dayWednesday",
+        hoursKey: "hoursWednesday",
+        label: "M",
+      },
+      {
+        key: "dayThursday",
+        hoursKey: "hoursThursday",
+        label: "J",
+      },
+      {
+        key: "dayFriday",
+        hoursKey: "hoursFriday",
+        label: "V",
+      },
+      {
+        key: "daySaturday",
+        hoursKey: "hoursSaturday",
+        label: "S",
+      },
+
+      ...(hasSunday
+        ? [
+          {
+            key:
+              "daySunday" as AttendeeTopicDayField,
+
+            hoursKey:
+              "hoursSunday" as AttendeeTopicHoursField,
+
+            label: "D",
+          },
+        ]
+        : []),
+    ];
 
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -100,24 +167,28 @@ export const AttendeesSection = ({
           <AttendeesTableHeader trainingType={trainingType} days={days} />
 
           <tbody className="bg-white">
-            {attendees.map((attendee, index) => {
-              const selectedTopic = topics.find(
-                (t) => t.topicCode === attendee.topicCode,
-              );
-
-              return (
+            {attendees.map(
+              (attendee, index) => (
                 <AttendeeRow
                   key={attendee.id || index}
                   attendee={attendee}
                   trainingType={trainingType}
                   days={days}
-                  topicName={selectedTopic?.topicName}
+                  topics={topics}
                   onChange={onChange}
+                  onTopicDayChange={
+                    onTopicDayChange
+                  }
+                  onTopicHoursChange={
+                    onTopicHoursChange
+                  }
                   onRemove={onRemove}
-                  onOpenSignature={handleOpenRowSignature}
+                  onOpenSignature={
+                    handleOpenRowSignature
+                  }
                 />
-              );
-            })}
+              ),
+            )}
           </tbody>
         </table>
 
