@@ -33,7 +33,7 @@ export const AttendeesTableHeader = ({
           colSpan={days.length}
           className="border border-slate-200 px-3 py-1 text-center bg-slate-200/50"
         >
-          Día de entrenamiento
+          Día / horas de entrenamiento
         </th>
 
         {trainingType === "EMPAQUE" && (
@@ -81,7 +81,13 @@ export const AttendeesTableHeader = ({
         </th>
         <th
           rowSpan={2}
-          className="border border-slate-200 px-3 py-2 w-32 text-center"
+          className="border border-slate-200 px-3 py-2 w-28 text-center"
+        >
+          Horas Totales
+        </th>
+        <th
+          rowSpan={2}
+          className="border border-slate-200 px-3 py-2 w-28 text-center"
         >
           Firma Colaborador
         </th>
@@ -93,8 +99,11 @@ export const AttendeesTableHeader = ({
         </th>
         <th
           rowSpan={2}
-          className="border border-slate-200 px-3 py-2 w-12 text-center"
-        ></th>
+          className="border border-slate-200 px-3 py-2 w-32 text-center"
+        >
+          Eliminar
+        </th>
+
       </tr>
 
       <tr>

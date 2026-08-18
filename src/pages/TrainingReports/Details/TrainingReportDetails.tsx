@@ -73,22 +73,112 @@ const SignatureCard = ({ label, url }: SignatureCardProps) => {
     );
 };
 
-const getAttendedDays = (
-    attendee: TrainingReportAttendeeDetails,
-): string[] => {
-    const days = [
-        { label: "Lunes", selected: attendee.dayMonday },
-        { label: "Martes", selected: attendee.dayTuesday },
-        { label: "Miércoles", selected: attendee.dayWednesday },
-        { label: "Jueves", selected: attendee.dayThursday },
-        { label: "Viernes", selected: attendee.dayFriday },
-        { label: "Sábado", selected: attendee.daySaturday },
-        { label: "Domingo", selected: attendee.daySunday },
-    ];
+type TrainingReportTopicDetail =
+    TrainingReportAttendeeDetails["topics"][number];
 
-    return days
-        .filter((day) => day.selected)
-        .map((day) => day.label);
+
+interface TopicDayColumn {
+    shortLabel: string;
+    fullLabel: string;
+
+    isSelected: (
+        topic: TrainingReportTopicDetail,
+    ) => boolean;
+
+    getHours: (
+        topic: TrainingReportTopicDetail,
+    ) => number | null;
+}
+
+
+const topicDayColumns: TopicDayColumn[] = [
+    {
+        shortLabel: "L",
+        fullLabel: "Lunes",
+
+        isSelected:
+            (topic) => topic.dayMonday,
+
+        getHours:
+            (topic) => topic.hoursMonday,
+    },
+    {
+        shortLabel: "M",
+        fullLabel: "Martes",
+
+        isSelected:
+            (topic) => topic.dayTuesday,
+
+        getHours:
+            (topic) => topic.hoursTuesday,
+    },
+    {
+        shortLabel: "X",
+        fullLabel: "Miércoles",
+
+        isSelected:
+            (topic) => topic.dayWednesday,
+
+        getHours:
+            (topic) => topic.hoursWednesday,
+    },
+    {
+        shortLabel: "J",
+        fullLabel: "Jueves",
+
+        isSelected:
+            (topic) => topic.dayThursday,
+
+        getHours:
+            (topic) => topic.hoursThursday,
+    },
+    {
+        shortLabel: "V",
+        fullLabel: "Viernes",
+
+        isSelected:
+            (topic) => topic.dayFriday,
+
+        getHours:
+            (topic) => topic.hoursFriday,
+    },
+    {
+        shortLabel: "S",
+        fullLabel: "Sábado",
+
+        isSelected:
+            (topic) => topic.daySaturday,
+
+        getHours:
+            (topic) => topic.hoursSaturday,
+    },
+    {
+        shortLabel: "D",
+        fullLabel: "Domingo",
+
+        isSelected:
+            (topic) => topic.daySunday,
+
+        getHours:
+            (topic) => topic.hoursSunday,
+    },
+];
+
+
+const formatHours = (
+    value: number | null,
+): string => {
+    if (value === null) {
+        return "—";
+    }
+
+    return new Intl.NumberFormat(
+        "es-MX",
+        {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 2,
+        },
+    ).format(value);
 };
 
 const formatDate = (value: string): string => {
@@ -307,7 +397,6 @@ export const TrainingReportDetails = () => {
                 ) : (
                     <div className="space-y-5">
                         {report.attendees.map((attendee, index) => {
-                            const attendedDays = getAttendedDays(attendee);
 
                             return (
                                 <article
@@ -355,52 +444,189 @@ export const TrainingReportDetails = () => {
 
                                         <div className="mt-5">
                                             <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-400">
-                                                Días de asistencia
+                                                Temas, días y horas
                                             </p>
 
-                                            <div className="flex flex-wrap gap-2">
-                                                {attendedDays.length > 0 ? (
-                                                    attendedDays.map((day) => (
-                                                        <span
-                                                            key={day}
-                                                            className="inline-flex items-center gap-1 rounded-lg
-                              bg-emerald-50 px-3 py-1.5 text-xs font-bold
-                              text-emerald-700"
-                                                        >
-                                                            <CheckCircle2 size={14} />
-                                                            {day}
-                                                        </span>
-                                                    ))
-                                                ) : (
-                                                    <span className="text-sm text-slate-500">
-                                                        No se registraron días de asistencia.
-                                                    </span>
-                                                )}
-                                            </div>
-                                        </div>
+                                            {attendee.topics.length > 0 ? (
+                                                <div className="overflow-x-auto rounded-xl border border-slate-200">
+                                                    <table className="w-full min-w-212.5 table-fixed border-collapse">
+                                                        <colgroup>
+                                                            <col className="w-[34%]" />
 
-                                        <div className="mt-5">
-                                            <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-400">
-                                                Temas asignados
-                                            </p>
+                                                            {topicDayColumns.map(
+                                                                (day) => (
+                                                                    <col
+                                                                        key={day.fullLabel}
+                                                                        className="w-[7%]"
+                                                                    />
+                                                                ),
+                                                            )}
 
-                                            <div className="flex flex-wrap gap-2">
-                                                {attendee.topics.length > 0 ? (
-                                                    attendee.topics.map((topic) => (
-                                                        <span
-                                                            key={topic.id}
-                                                            className="rounded-lg bg-blue-50 px-3 py-1.5
-                              text-xs font-semibold text-blue-700"
-                                                        >
-                                                            {topic.topicCode} — {topic.topicName}
-                                                        </span>
-                                                    ))
-                                                ) : (
-                                                    <span className="text-sm text-slate-500">
-                                                        No hay temas registrados.
-                                                    </span>
-                                                )}
-                                            </div>
+                                                            <col className="w-[10%]" />
+                                                        </colgroup>
+
+                                                        <thead>
+                                                            <tr className="bg-slate-50">
+                                                                <th
+                                                                    scope="col"
+                                                                    className="border-b border-r border-slate-200 px-4 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-slate-500"
+                                                                >
+                                                                    Tema
+                                                                </th>
+
+                                                                {topicDayColumns.map(
+                                                                    (day) => (
+                                                                        <th
+                                                                            key={day.fullLabel}
+                                                                            scope="col"
+                                                                            title={
+                                                                                day.fullLabel
+                                                                            }
+                                                                            className="border-b border-r border-slate-200 px-2 py-3 text-center"
+                                                                        >
+                                                                            <span className="block text-xs font-black text-slate-700">
+                                                                                {
+                                                                                    day.shortLabel
+                                                                                }
+                                                                            </span>
+
+                                                                            <span className="mt-0.5 hidden text-[9px] font-semibold text-slate-400 xl:block">
+                                                                                {
+                                                                                    day.fullLabel
+                                                                                }
+                                                                            </span>
+                                                                        </th>
+                                                                    ),
+                                                                )}
+
+                                                                <th
+                                                                    scope="col"
+                                                                    className="border-b border-slate-200 px-3 py-3 text-center text-[11px] font-bold uppercase tracking-wider text-slate-500"
+                                                                >
+                                                                    Total
+                                                                </th>
+                                                            </tr>
+                                                        </thead>
+
+                                                        <tbody>
+                                                            {attendee.topics.map(
+                                                                (topic) => {
+                                                                    const hasDailyHours =
+                                                                        topicDayColumns.some(
+                                                                            (day) =>
+                                                                                day.getHours(
+                                                                                    topic,
+                                                                                ) !== null,
+                                                                        );
+
+                                                                    const hasSelectedDays =
+                                                                        topicDayColumns.some(
+                                                                            (day) =>
+                                                                                day.isSelected(
+                                                                                    topic,
+                                                                                ),
+                                                                        );
+
+                                                                    const isHistorical =
+                                                                        hasSelectedDays &&
+                                                                        !hasDailyHours &&
+                                                                        topic.totalHours !==
+                                                                        null;
+
+                                                                    return (
+                                                                        <tr
+                                                                            key={topic.id}
+                                                                            className="last:[&>td]:border-b-0"
+                                                                        >
+                                                                            <td className="border-b border-r border-slate-200 px-4 py-3 align-middle">
+                                                                                <p className="text-xs font-bold text-blue-700">
+                                                                                    {
+                                                                                        topic.topicCode
+                                                                                    }
+                                                                                </p>
+
+                                                                                <p className="mt-1 wrap-break-word text-sm font-semibold text-slate-700">
+                                                                                    {
+                                                                                        topic.topicName
+                                                                                    }
+                                                                                </p>
+                                                                            </td>
+
+                                                                            {topicDayColumns.map(
+                                                                                (day) => {
+                                                                                    const selected =
+                                                                                        day.isSelected(
+                                                                                            topic,
+                                                                                        );
+
+                                                                                    const hours =
+                                                                                        day.getHours(
+                                                                                            topic,
+                                                                                        );
+
+                                                                                    return (
+                                                                                        <td
+                                                                                            key={
+                                                                                                day.fullLabel
+                                                                                            }
+                                                                                            className="border-b border-r border-slate-200 px-1 py-2 text-center align-middle"
+                                                                                        >
+                                                                                            {selected ? (
+                                                                                                <div className="flex min-h-12 flex-col items-center justify-center gap-1">
+                                                                                                    <CheckCircle2
+                                                                                                        size={
+                                                                                                            15
+                                                                                                        }
+                                                                                                        className="text-emerald-600"
+                                                                                                    />
+
+                                                                                                    <span className="whitespace-nowrap text-[11px] font-bold text-slate-700">
+                                                                                                        {hours !==
+                                                                                                            null
+                                                                                                            ? `${formatHours(
+                                                                                                                hours,
+                                                                                                            )} h`
+                                                                                                            : "—"}
+                                                                                                    </span>
+                                                                                                </div>
+                                                                                            ) : (
+                                                                                                <span className="text-sm font-medium text-slate-300">
+                                                                                                    —
+                                                                                                </span>
+                                                                                            )}
+                                                                                        </td>
+                                                                                    );
+                                                                                },
+                                                                            )}
+
+                                                                            <td className="border-b border-slate-200 px-2 py-3 text-center align-middle">
+                                                                                <span className="whitespace-nowrap text-sm font-black text-slate-800">
+                                                                                    {topic.totalHours !==
+                                                                                        null
+                                                                                        ? `${formatHours(
+                                                                                            topic.totalHours,
+                                                                                        )} h`
+                                                                                        : "—"}
+                                                                                </span>
+
+                                                                                {isHistorical && (
+                                                                                    <span className="mx-auto mt-1 block w-fit rounded-md bg-amber-50 px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wide text-amber-700">
+                                                                                        Histórico
+                                                                                    </span>
+                                                                                )}
+                                                                            </td>
+                                                                        </tr>
+                                                                    );
+                                                                },
+                                                            )}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            ) : (
+                                                <div className="rounded-xl border border-dashed border-slate-200 p-4 text-sm text-slate-500">
+                                                    No hay temas registrados.
+                                                </div>
+                                            )}
                                         </div>
 
                                         <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2">

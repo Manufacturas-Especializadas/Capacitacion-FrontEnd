@@ -220,6 +220,27 @@ export interface UnionAnswer {
   score: number;
 }
 
+export interface TrainingReportAttendeeTopicPayload {
+  topicId: number;
+
+  dayMonday: boolean;
+  dayTuesday: boolean;
+  dayWednesday: boolean;
+  dayThursday: boolean;
+  dayFriday: boolean;
+  daySaturday: boolean;
+  daySunday: boolean;
+
+  hoursMonday?: number | null;
+  hoursTuesday?: number | null;
+  hoursWednesday?: number | null;
+  hoursThursday?: number | null;
+  hoursFriday?: number | null;
+  hoursSaturday?: number | null;
+  hoursSunday?: number | null;
+  totalHours?: number | null;
+}
+
 export type TrainingReportSignatureValue =
   | string
   | File
@@ -253,6 +274,8 @@ export interface UpdateTrainingReportAttendee {
   ast?: string;
 
   topicIds: number[];
+
+  topics?: TrainingReportAttendeeTopicPayload[];
 
   traineeSignature?: TrainingReportSignatureValue;
   supervisorSignature?: TrainingReportSignatureValue;
@@ -334,6 +357,8 @@ export interface CreateTrainingReportAttendee {
   ast?: string;
 
   topicIds: number[];
+
+  topics?: TrainingReportAttendeeTopicPayload[];
 
   traineeSignature?: TrainingReportSignatureValue;
   supervisorSignature?: TrainingReportSignatureValue;
@@ -491,7 +516,26 @@ export interface TrainingReportTopicDetails {
   trainingType: string;
   topicCode: string;
   topicName: string;
+
+  dayMonday: boolean;
+  dayTuesday: boolean;
+  dayWednesday: boolean;
+  dayThursday: boolean;
+  dayFriday: boolean;
+  daySaturday: boolean;
+  daySunday: boolean;
+
+  hoursMonday: number | null;
+  hoursTuesday: number | null;
+  hoursWednesday: number | null;
+  hoursThursday: number | null;
+  hoursFriday: number | null;
+  hoursSaturday: number | null;
+  hoursSunday: number | null;
+
+  totalHours: number | null;
 }
+
 export interface Roles {
   id: number;
   roleName: string;

@@ -324,6 +324,133 @@ class TrainingReportsService {
           },
         );
 
+        attendee.topics?.forEach(
+          (topic, topicIndex) => {
+            const topicBaseKey =
+              `${baseKey}.Topics[${topicIndex}]`;
+
+            formData.append(
+              `${topicBaseKey}.TopicId`,
+              topic.topicId.toString(),
+            );
+
+            formData.append(
+              `${topicBaseKey}.DayMonday`,
+              String(topic.dayMonday),
+            );
+
+            formData.append(
+              `${topicBaseKey}.DayTuesday`,
+              String(topic.dayTuesday),
+            );
+
+            formData.append(
+              `${topicBaseKey}.DayWednesday`,
+              String(topic.dayWednesday),
+            );
+
+            formData.append(
+              `${topicBaseKey}.DayThursday`,
+              String(topic.dayThursday),
+            );
+
+            formData.append(
+              `${topicBaseKey}.DayFriday`,
+              String(topic.dayFriday),
+            );
+
+            formData.append(
+              `${topicBaseKey}.DaySaturday`,
+              String(topic.daySaturday),
+            );
+
+            formData.append(
+              `${topicBaseKey}.DaySunday`,
+              String(topic.daySunday),
+            );
+
+            if (
+              topic.hoursMonday !== undefined &&
+              topic.hoursMonday !== null
+            ) {
+              formData.append(
+                `${topicBaseKey}.HoursMonday`,
+                topic.hoursMonday.toString(),
+              );
+            }
+
+            if (
+              topic.hoursTuesday !== undefined &&
+              topic.hoursTuesday !== null
+            ) {
+              formData.append(
+                `${topicBaseKey}.HoursTuesday`,
+                topic.hoursTuesday.toString(),
+              );
+            }
+
+            if (
+              topic.hoursWednesday !== undefined &&
+              topic.hoursWednesday !== null
+            ) {
+              formData.append(
+                `${topicBaseKey}.HoursWednesday`,
+                topic.hoursWednesday.toString(),
+              );
+            }
+
+            if (
+              topic.hoursThursday !== undefined &&
+              topic.hoursThursday !== null
+            ) {
+              formData.append(
+                `${topicBaseKey}.HoursThursday`,
+                topic.hoursThursday.toString(),
+              );
+            }
+
+            if (
+              topic.hoursFriday !== undefined &&
+              topic.hoursFriday !== null
+            ) {
+              formData.append(
+                `${topicBaseKey}.HoursFriday`,
+                topic.hoursFriday.toString(),
+              );
+            }
+
+            if (
+              topic.hoursSaturday !== undefined &&
+              topic.hoursSaturday !== null
+            ) {
+              formData.append(
+                `${topicBaseKey}.HoursSaturday`,
+                topic.hoursSaturday.toString(),
+              );
+            }
+
+            if (
+              topic.hoursSunday !== undefined &&
+              topic.hoursSunday !== null
+            ) {
+              formData.append(
+                `${topicBaseKey}.HoursSunday`,
+                topic.hoursSunday.toString(),
+              );
+            }
+
+            if (
+              topic.totalHours !== undefined &&
+              topic.totalHours !== null
+            ) {
+              formData.append(
+                `${topicBaseKey}.TotalHours`,
+                topic.totalHours.toString(),
+              );
+            }
+          },
+        );
+
         const traineeSignature =
           this.processFile(
             attendee.traineeSignature,
