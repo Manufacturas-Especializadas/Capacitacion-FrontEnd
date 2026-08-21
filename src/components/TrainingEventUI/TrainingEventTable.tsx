@@ -299,7 +299,7 @@ export const TrainingEventTable = ({
         gap-8"
       >
         <div className="flex flex-col items-center justify-end">
-          <div className="w-64 border-b border-slate-800 mb-2 h-16" />
+
           <p className="text-sm font-semibold text-slate-800">Irene Santiago</p>
           <p className="text-xs text-slate-500 uppercase tracking-wider">
             Coord. De Capacitación
@@ -350,10 +350,9 @@ export const TrainingEventTable = ({
           onClick={() => handleSaveAll(false)}
           disabled={isSaving}
           className={`px-6 py-3 font-semibold rounded-lg shadow-sm transition-all flex 
-            items-center gap-2 ${
-              isSaving
-                ? "bg-slate-200 text-slate-400 cursor-not-allowed"
-                : "bg-white border border-blue-600 text-blue-600 hover:bg-blue-50 active:scale-95 hover:cursor-pointer"
+            items-center gap-2 ${isSaving
+              ? "bg-slate-200 text-slate-400 cursor-not-allowed"
+              : "bg-white border border-blue-600 text-blue-600 hover:bg-blue-50 active:scale-95 hover:cursor-pointer"
             }`}
         >
           Guardar Progreso
@@ -371,10 +370,9 @@ export const TrainingEventTable = ({
           }}
           disabled={isSaving}
           className={`px-8 py-3 font-semibold rounded-lg shadow-sm transition-all flex 
-            items-center gap-2 ${
-              isSaving
-                ? "bg-blue-400 text-white cursor-not-allowed"
-                : "bg-blue-600 hover:bg-blue-700 text-white active:scale-95 hover:cursor-pointer"
+            items-center gap-2 ${isSaving
+              ? "bg-blue-400 text-white cursor-not-allowed"
+              : "bg-blue-600 hover:bg-blue-700 text-white active:scale-95 hover:cursor-pointer"
             }`}
         >
           {isSaving ? "Guardando..." : "Finalizar y Cerrar Curso"}
