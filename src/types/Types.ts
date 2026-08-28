@@ -50,6 +50,7 @@ export interface TrainingEventData {
   dateFrom: string;
   dateTo: string;
   area: string;
+  instructorSignatureUrl: string | null;
   evaluationTopics: string[];
 }
 
@@ -113,6 +114,7 @@ export interface TrainingEventDetail {
     courseName: string;
     instructor: string;
     area: string;
+    instructorSignatureUrl: string | null;
     dateFrom: string;
     dateTo: string;
     evaluationTopics: string[];
