@@ -45,6 +45,8 @@ export const TrainingEventTable = ({
     null,
   );
 
+  const displayedInstructorSignature = instructorSignature ?? eventData.instructorSignatureUrl ?? null;
+
   const topicStats = useMemo(
     () =>
       calculateTopicStats(
@@ -314,9 +316,9 @@ export const TrainingEventTable = ({
               openSignatureModal("instructor", eventData.instructor)
             }
           >
-            {instructorSignature ? (
+            {displayedInstructorSignature ? (
               <img
-                src={instructorSignature}
+                src={displayedInstructorSignature}
                 alt="Firma Instructor"
                 className="h-14 object-contain"
               />
