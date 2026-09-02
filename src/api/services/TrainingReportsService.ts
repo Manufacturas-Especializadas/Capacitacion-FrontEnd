@@ -34,6 +34,9 @@ class TrainingReportsService {
   private readonly updateEndpoint =
     API_CONFIG.endpoint.trainingReports.update;
 
+  private readonly pdfEndpoint =
+    API_CONFIG.endpoint.trainingReports.pdf;
+
   private readonly deleteEndpoint =
     API_CONFIG.endpoint.trainingReports.delete;
 
@@ -520,6 +523,27 @@ class TrainingReportsService {
       `${this.deleteEndpoint}${id}`,
     );
   }
+
+  async downloadPdf(
+    id: number,
+  ): Promise<void> {
+    if (
+      !Number.isInteger(id) ||
+      id <= 0
+    ) {
+      throw new Error(
+        "El identificador del reporte no es válido.",
+      );
+    }
+
+    await apiClient.downloadFile(
+      `${this.pdfEndpoint}${id}`,
+      `ReporteCapacitacion_${id}.pdf`,
+    );
+  }
+
+
+
 }
 
 export const trainingReportsService =

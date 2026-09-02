@@ -340,12 +340,12 @@ const validateAttendeeDailyHours = (
     const value =
       attendee[hoursField].trim();
 
-    if (selected && value === "") {
-      return (
-        `Debes capturar las horas de ${label}.`
-      );
-    }
-
+    /*
+     * Las horas son opcionales.
+     *
+     * Pero si existen horas, el día sí debe
+     * estar seleccionado.
+     */
     if (!selected && value !== "") {
       return (
         `Existen horas capturadas para ${label}, ` +
@@ -353,20 +353,21 @@ const validateAttendeeDailyHours = (
       );
     }
 
-    if (value !== "") {
-
-      if (
-        value !== "" &&
-        parseHourMinuteToMinutes(
-          value,
-        ) === null
-      ) {
-        return (
-          `Las horas de ${label} deben usar ` +
-          "el formato horas.minutos, por ejemplo 2.30, " +
-          "con un máximo de 8.00."
-        );
-      }
+    /*
+     * Si el usuario sí capturó una hora,
+     * entonces debe respetar HH.MM.
+     */
+    if (
+      value !== "" &&
+      parseHourMinuteToMinutes(
+        value,
+      ) === null
+    ) {
+      return (
+        `Las horas de ${label} deben usar ` +
+        "el formato horas.minutos, por ejemplo 2.30, " +
+        "con un máximo de 8.00."
+      );
     }
   }
 

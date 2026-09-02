@@ -10,11 +10,17 @@ import {
     ShieldCheck,
     UserRound,
     Users,
+    Download,
 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
-import type { ReactNode } from "react";
+import {
+    useState,
+    type ReactNode,
+} from "react";
 import { useTrainingReportDetails } from "../../../hooks/useTrainingReports";
 import type { TrainingReportAttendeeDetails } from "../../../types/Types";
+import { toast } from "sonner";
+import { trainingReportsService } from "../../../api/services/TrainingReportsService";
 
 interface DetailItemProps {
     label: string;
@@ -203,6 +209,41 @@ export const TrainingReportDetails = () => {
         refetch,
     } = useTrainingReportDetails(validId);
 
+    const [isDownloadingPdf, setIsDownloadingPdf] =
+        useState(false);
+
+    const handleDownloadPdf = async (): Promise<void> => {
+        if (!report || isDownloadingPdf) {
+            return;
+        }
+
+        setIsDownloadingPdf(true);
+
+        try {
+            await trainingReportsService.downloadPdf(
+                report.id,
+            );
+
+            toast.success(
+                "PDF descargado correctamente.",
+            );
+        } catch (error) {
+            console.error(
+                "Error al descargar el PDF:",
+                error,
+            );
+
+            const message =
+                error instanceof Error
+                    ? error.message
+                    : "No se pudo descargar el PDF.";
+
+            toast.error(message);
+        } finally {
+            setIsDownloadingPdf(false);
+        }
+    };
+
     if (isLoading) {
         return (
             <div className="flex min-h-[60vh] items-center justify-center">
@@ -272,9 +313,43 @@ export const TrainingReportDetails = () => {
                     Regresar a reportes
                 </button>
 
-                <span className="self-start rounded-lg bg-slate-100 px-3 py-1.5 font-mono text-xs font-bold text-slate-500 sm:self-auto">
-                    ID: #{report.id}
-                </span>
+                <div className="flex items-center gap-3 self-start sm:self-auto">
+                    <button
+                        type="button"
+                        onClick={() => void handleDownloadPdf()}
+                        disabled={isDownloadingPdf}
+                        className="
+            flex cursor-pointer items-center gap-2
+            rounded-xl bg-blue-600 px-4 py-2.5
+            text-sm font-bold text-white
+            shadow-sm transition-colors
+            hover:bg-blue-700
+            disabled:cursor-not-allowed
+            disabled:opacity-60
+        "
+                    >
+                        {isDownloadingPdf ? (
+                            <>
+                                <Loader2
+                                    size={17}
+                                    className="animate-spin"
+                                />
+
+                                Generando PDF...
+                            </>
+                        ) : (
+                            <>
+                                <Download size={17} />
+
+                                Descargar PDF
+                            </>
+                        )}
+                    </button>
+
+                    <span className="rounded-lg bg-slate-100 px-3 py-1.5 font-mono text-xs font-bold text-slate-500">
+                        ID: #{report.id}
+                    </span>
+                </div>
             </div>
 
             <header className="mb-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">

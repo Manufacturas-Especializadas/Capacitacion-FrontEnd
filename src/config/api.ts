@@ -36,7 +36,8 @@ export const API_CONFIG = {
       getById: "/api/TrainingReports/getById/",
       getAll: "/api/TrainingReports/getAll",
       delete: "/api/TrainingReports/delete/",
-      update: "/api/TrainingReports/update/"
+      update: "/api/TrainingReports/update/",
+      pdf: "/api/TrainingReports/pdf/",
     },
     trainingTopics: {
       all: "/api/TrainingTopics/all",
