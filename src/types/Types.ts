@@ -224,23 +224,6 @@ export interface UnionAnswer {
 
 export interface TrainingReportAttendeeTopicPayload {
   topicId: number;
-
-  dayMonday: boolean;
-  dayTuesday: boolean;
-  dayWednesday: boolean;
-  dayThursday: boolean;
-  dayFriday: boolean;
-  daySaturday: boolean;
-  daySunday: boolean;
-
-  hoursMonday?: number | null;
-  hoursTuesday?: number | null;
-  hoursWednesday?: number | null;
-  hoursThursday?: number | null;
-  hoursFriday?: number | null;
-  hoursSaturday?: number | null;
-  hoursSunday?: number | null;
-  totalHours?: number | null;
 }
 
 export type TrainingReportSignatureValue =
@@ -266,6 +249,14 @@ export interface UpdateTrainingReportAttendee {
   dayFriday: boolean;
   daySaturday: boolean;
   daySunday: boolean;
+
+  hoursMonday?: number | null;
+  hoursTuesday?: number | null;
+  hoursWednesday?: number | null;
+  hoursThursday?: number | null;
+  hoursFriday?: number | null;
+  hoursSaturday?: number | null;
+  hoursSunday?: number | null;
 
   customerClient?: string;
   unionClassification?: string;
@@ -349,6 +340,14 @@ export interface CreateTrainingReportAttendee {
   dayFriday: boolean;
   daySaturday: boolean;
   daySunday: boolean;
+
+  hoursMonday?: number | null;
+  hoursTuesday?: number | null;
+  hoursWednesday?: number | null;
+  hoursThursday?: number | null;
+  hoursFriday?: number | null;
+  hoursSaturday?: number | null;
+  hoursSunday?: number | null;
 
   customerClient?: string;
   unionClassification?: string;
@@ -499,6 +498,16 @@ export interface TrainingReportAttendeeDetails {
   daySaturday: boolean;
   daySunday: boolean;
 
+  hoursMonday: number | null;
+  hoursTuesday: number | null;
+  hoursWednesday: number | null;
+  hoursThursday: number | null;
+  hoursFriday: number | null;
+  hoursSaturday: number | null;
+  hoursSunday: number | null;
+
+  totalHours: number | null;
+
   customerClient: string | null;
   unionClassification: string | null;
   weldingPercentage: string | null;
@@ -518,24 +527,6 @@ export interface TrainingReportTopicDetails {
   trainingType: string;
   topicCode: string;
   topicName: string;
-
-  dayMonday: boolean;
-  dayTuesday: boolean;
-  dayWednesday: boolean;
-  dayThursday: boolean;
-  dayFriday: boolean;
-  daySaturday: boolean;
-  daySunday: boolean;
-
-  hoursMonday: number | null;
-  hoursTuesday: number | null;
-  hoursWednesday: number | null;
-  hoursThursday: number | null;
-  hoursFriday: number | null;
-  hoursSaturday: number | null;
-  hoursSunday: number | null;
-
-  totalHours: number | null;
 }
 
 export interface Roles {

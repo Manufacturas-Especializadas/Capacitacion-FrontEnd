@@ -73,94 +73,76 @@ const SignatureCard = ({ label, url }: SignatureCardProps) => {
     );
 };
 
-type TrainingReportTopicDetail =
-    TrainingReportAttendeeDetails["topics"][number];
-
-
-interface TopicDayColumn {
+interface AttendeeDayColumn {
     shortLabel: string;
     fullLabel: string;
 
     isSelected: (
-        topic: TrainingReportTopicDetail,
+        attendee: TrainingReportAttendeeDetails,
     ) => boolean;
 
     getHours: (
-        topic: TrainingReportTopicDetail,
+        attendee: TrainingReportAttendeeDetails,
     ) => number | null;
 }
 
 
-const topicDayColumns: TopicDayColumn[] = [
+const attendeeDayColumns: AttendeeDayColumn[] = [
     {
         shortLabel: "L",
         fullLabel: "Lunes",
-
         isSelected:
-            (topic) => topic.dayMonday,
-
+            (attendee) => attendee.dayMonday,
         getHours:
-            (topic) => topic.hoursMonday,
+            (attendee) => attendee.hoursMonday,
     },
     {
         shortLabel: "M",
         fullLabel: "Martes",
-
         isSelected:
-            (topic) => topic.dayTuesday,
-
+            (attendee) => attendee.dayTuesday,
         getHours:
-            (topic) => topic.hoursTuesday,
+            (attendee) => attendee.hoursTuesday,
     },
     {
         shortLabel: "X",
         fullLabel: "Miércoles",
-
         isSelected:
-            (topic) => topic.dayWednesday,
-
+            (attendee) => attendee.dayWednesday,
         getHours:
-            (topic) => topic.hoursWednesday,
+            (attendee) => attendee.hoursWednesday,
     },
     {
         shortLabel: "J",
         fullLabel: "Jueves",
-
         isSelected:
-            (topic) => topic.dayThursday,
-
+            (attendee) => attendee.dayThursday,
         getHours:
-            (topic) => topic.hoursThursday,
+            (attendee) => attendee.hoursThursday,
     },
     {
         shortLabel: "V",
         fullLabel: "Viernes",
-
         isSelected:
-            (topic) => topic.dayFriday,
-
+            (attendee) => attendee.dayFriday,
         getHours:
-            (topic) => topic.hoursFriday,
+            (attendee) => attendee.hoursFriday,
     },
     {
         shortLabel: "S",
         fullLabel: "Sábado",
-
         isSelected:
-            (topic) => topic.daySaturday,
-
+            (attendee) => attendee.daySaturday,
         getHours:
-            (topic) => topic.hoursSaturday,
+            (attendee) => attendee.hoursSaturday,
     },
     {
         shortLabel: "D",
         fullLabel: "Domingo",
-
         isSelected:
-            (topic) => topic.daySunday,
-
+            (attendee) => attendee.daySunday,
         getHours:
-            (topic) => topic.hoursSunday,
+            (attendee) => attendee.hoursSunday,
     },
 ];
 
@@ -172,13 +154,23 @@ const formatHours = (
         return "—";
     }
 
-    return new Intl.NumberFormat(
-        "es-MX",
-        {
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 2,
-        },
-    ).format(value);
+    const wholeHours =
+        Math.trunc(value);
+
+    const minutes =
+        Math.round(
+            (value - wholeHours) * 100,
+        );
+
+    if (minutes === 0) {
+        return `${wholeHours} h`;
+    }
+
+    if (wholeHours === 0) {
+        return `${minutes} min`;
+    }
+
+    return `${wholeHours} h ${minutes} min`;
 };
 
 const formatDate = (value: string): string => {
@@ -453,7 +445,7 @@ export const TrainingReportDetails = () => {
                                                         <colgroup>
                                                             <col className="w-[34%]" />
 
-                                                            {topicDayColumns.map(
+                                                            {attendeeDayColumns.map(
                                                                 (day) => (
                                                                     <col
                                                                         key={day.fullLabel}
@@ -474,7 +466,7 @@ export const TrainingReportDetails = () => {
                                                                     Tema
                                                                 </th>
 
-                                                                {topicDayColumns.map(
+                                                                {attendeeDayColumns.map(
                                                                     (day) => (
                                                                         <th
                                                                             key={day.fullLabel}
@@ -509,116 +501,78 @@ export const TrainingReportDetails = () => {
                                                         </thead>
 
                                                         <tbody>
-                                                            {attendee.topics.map(
-                                                                (topic) => {
-                                                                    const hasDailyHours =
-                                                                        topicDayColumns.some(
-                                                                            (day) =>
-                                                                                day.getHours(
-                                                                                    topic,
-                                                                                ) !== null,
-                                                                        );
+                                                            <tr>
+                                                                <td className="border-r border-slate-200 px-4 py-3 align-middle">
+                                                                    <div className="space-y-2">
+                                                                        {attendee.topics.map(
+                                                                            (topic) => (
+                                                                                <div
+                                                                                    key={topic.id}
+                                                                                    className="rounded-lg bg-slate-50 px-3 py-2"
+                                                                                >
+                                                                                    <p className="text-xs font-bold text-blue-700">
+                                                                                        {topic.topicCode}
+                                                                                    </p>
 
-                                                                    const hasSelectedDays =
-                                                                        topicDayColumns.some(
-                                                                            (day) =>
-                                                                                day.isSelected(
-                                                                                    topic,
-                                                                                ),
-                                                                        );
+                                                                                    <p className="mt-0.5 wrap-break-word text-sm font-semibold text-slate-700">
+                                                                                        {topic.topicName}
+                                                                                    </p>
+                                                                                </div>
+                                                                            ),
+                                                                        )}
+                                                                    </div>
+                                                                </td>
 
-                                                                    const isHistorical =
-                                                                        hasSelectedDays &&
-                                                                        !hasDailyHours &&
-                                                                        topic.totalHours !==
-                                                                        null;
+                                                                {attendeeDayColumns.map(
+                                                                    (day) => {
+                                                                        const selected =
+                                                                            day.isSelected(
+                                                                                attendee,
+                                                                            );
 
-                                                                    return (
-                                                                        <tr
-                                                                            key={topic.id}
-                                                                            className="last:[&>td]:border-b-0"
-                                                                        >
-                                                                            <td className="border-b border-r border-slate-200 px-4 py-3 align-middle">
-                                                                                <p className="text-xs font-bold text-blue-700">
-                                                                                    {
-                                                                                        topic.topicCode
-                                                                                    }
-                                                                                </p>
+                                                                        const hours =
+                                                                            day.getHours(
+                                                                                attendee,
+                                                                            );
 
-                                                                                <p className="mt-1 wrap-break-word text-sm font-semibold text-slate-700">
-                                                                                    {
-                                                                                        topic.topicName
-                                                                                    }
-                                                                                </p>
-                                                                            </td>
+                                                                        return (
+                                                                            <td
+                                                                                key={
+                                                                                    day.fullLabel
+                                                                                }
+                                                                                className="border-r border-slate-200 px-1 py-3 text-center align-middle"
+                                                                            >
+                                                                                {selected ? (
+                                                                                    <div className="flex min-h-12 flex-col items-center justify-center gap-1">
+                                                                                        <CheckCircle2
+                                                                                            size={15}
+                                                                                            className="text-emerald-600"
+                                                                                        />
 
-                                                                            {topicDayColumns.map(
-                                                                                (day) => {
-                                                                                    const selected =
-                                                                                        day.isSelected(
-                                                                                            topic,
-                                                                                        );
-
-                                                                                    const hours =
-                                                                                        day.getHours(
-                                                                                            topic,
-                                                                                        );
-
-                                                                                    return (
-                                                                                        <td
-                                                                                            key={
-                                                                                                day.fullLabel
-                                                                                            }
-                                                                                            className="border-b border-r border-slate-200 px-1 py-2 text-center align-middle"
-                                                                                        >
-                                                                                            {selected ? (
-                                                                                                <div className="flex min-h-12 flex-col items-center justify-center gap-1">
-                                                                                                    <CheckCircle2
-                                                                                                        size={
-                                                                                                            15
-                                                                                                        }
-                                                                                                        className="text-emerald-600"
-                                                                                                    />
-
-                                                                                                    <span className="whitespace-nowrap text-[11px] font-bold text-slate-700">
-                                                                                                        {hours !==
-                                                                                                            null
-                                                                                                            ? `${formatHours(
-                                                                                                                hours,
-                                                                                                            )} h`
-                                                                                                            : "—"}
-                                                                                                    </span>
-                                                                                                </div>
-                                                                                            ) : (
-                                                                                                <span className="text-sm font-medium text-slate-300">
-                                                                                                    —
-                                                                                                </span>
+                                                                                        <span className="text-[11px] font-bold text-slate-700">
+                                                                                            {formatHours(
+                                                                                                hours,
                                                                                             )}
-                                                                                        </td>
-                                                                                    );
-                                                                                },
-                                                                            )}
-
-                                                                            <td className="border-b border-slate-200 px-2 py-3 text-center align-middle">
-                                                                                <span className="whitespace-nowrap text-sm font-black text-slate-800">
-                                                                                    {topic.totalHours !==
-                                                                                        null
-                                                                                        ? `${formatHours(
-                                                                                            topic.totalHours,
-                                                                                        )} h`
-                                                                                        : "—"}
-                                                                                </span>
-
-                                                                                {isHistorical && (
-                                                                                    <span className="mx-auto mt-1 block w-fit rounded-md bg-amber-50 px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wide text-amber-700">
-                                                                                        Histórico
+                                                                                        </span>
+                                                                                    </div>
+                                                                                ) : (
+                                                                                    <span className="text-sm font-medium text-slate-300">
+                                                                                        —
                                                                                     </span>
                                                                                 )}
                                                                             </td>
-                                                                        </tr>
-                                                                    );
-                                                                },
-                                                            )}
+                                                                        );
+                                                                    },
+                                                                )}
+
+                                                                <td className="px-2 py-3 text-center align-middle">
+                                                                    <span className="text-sm font-black text-slate-800">
+                                                                        {formatHours(
+                                                                            attendee.totalHours,
+                                                                        )}
+                                                                    </span>
+                                                                </td>
+                                                            </tr>
                                                         </tbody>
                                                     </table>
                                                 </div>

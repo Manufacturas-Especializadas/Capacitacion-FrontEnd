@@ -47,25 +47,7 @@ export interface CreateWeldingUnionType {
 
 interface TrainingReportFormTopic {
   id: string;
-
   topicId: number | null;
-
-  dayMonday: boolean;
-  dayTuesday: boolean;
-  dayWednesday: boolean;
-  dayThursday: boolean;
-  dayFriday: boolean;
-  daySaturday: boolean;
-  daySunday: boolean;
-
-  hoursMonday: string;
-  hoursTuesday: string;
-  hoursWednesday: string;
-  hoursThursday: string;
-  hoursFriday: string;
-  hoursSaturday: string;
-  hoursSunday: string;
-  totalHours: string;
 }
 
 
@@ -92,6 +74,16 @@ interface TrainingReportFormAttendee {
   dayFriday: boolean;
   daySaturday: boolean;
   daySunday: boolean;
+
+  hoursMonday: string;
+  hoursTuesday: string;
+  hoursWednesday: string;
+  hoursThursday: string;
+  hoursFriday: string;
+  hoursSaturday: string;
+  hoursSunday: string;
+
+  totalHours: string;
 
   customerClient?: string;
   unionClassification?: string;
@@ -148,26 +140,7 @@ const normalizeTrainingType = (
 const createEmptyTopic =
   (): TrainingReportFormTopic => ({
     id: crypto.randomUUID(),
-
     topicId: null,
-
-    dayMonday: false,
-    dayTuesday: false,
-    dayWednesday: false,
-    dayThursday: false,
-    dayFriday: false,
-    daySaturday: false,
-    daySunday: false,
-
-    hoursMonday: "",
-    hoursTuesday: "",
-    hoursWednesday: "",
-    hoursThursday: "",
-    hoursFriday: "",
-    hoursSaturday: "",
-    hoursSunday: "",
-
-    totalHours: "",
   });
 
 type TrainingReportDayField =
@@ -231,24 +204,92 @@ const trainingDayHours: {
     },
   ];
 
+const parseHourMinuteToMinutes = (
+  value: string,
+): number | null => {
+  const normalized =
+    value.trim();
 
-const hasAnyDailyHours = (
-  topic: TrainingReportFormTopic,
-): boolean =>
-  trainingDayHours.some(
-    ({ hoursField }) =>
-      topic[hoursField].trim() !== "",
+  if (normalized === "") {
+    return null;
+  }
+
+  const match =
+    normalized.match(
+      /^(\d{1,2})(?:\.(\d{1,2}))?$/,
+    );
+
+  if (!match) {
+    return null;
+  }
+
+  const hours =
+    Number(match[1]);
+
+  const minuteText =
+    match[2] ?? "00";
+
+  /*
+   * Si escribe 2.3 interpretamos 2.30.
+   */
+  const minutes =
+    Number(
+      minuteText.padEnd(2, "0"),
+    );
+
+  if (
+    !Number.isInteger(hours) ||
+    !Number.isInteger(minutes) ||
+    minutes < 0 ||
+    minutes > 59
+  ) {
+    return null;
+  }
+
+  if (
+    hours > 8 ||
+    (hours === 8 && minutes > 0)
+  ) {
+    return null;
+  }
+
+  return (
+    hours * 60 +
+    minutes
   );
+};
+
+const formatMinutesAsHourMinute = (
+  totalMinutes: number,
+): string => {
+  const hours =
+    Math.floor(
+      totalMinutes / 60,
+    );
+
+  const minutes =
+    totalMinutes % 60;
+
+  return (
+    `${hours}.` +
+    String(minutes).padStart(
+      2,
+      "0",
+    )
+  );
+};
 
 
-const calculateTopicTotalHours = (
-  topic: TrainingReportFormTopic,
+const calculateAttendeeTotalHours = (
+  attendee: TrainingReportFormAttendee,
 ): string => {
   const values =
     trainingDayHours
       .map(
         ({ hoursField }) =>
-          topic[hoursField].trim(),
+          attendee[
+            hoursField
+          ].trim(),
       )
       .filter(
         (value) =>
@@ -259,80 +300,33 @@ const calculateTopicTotalHours = (
     return "";
   }
 
-  const total =
-    values.reduce(
-      (sum, value) => {
-        const parsed =
-          Number(value);
+  let totalMinutes = 0;
 
-        if (!Number.isFinite(parsed)) {
-          return sum;
-        }
-
-        return sum + parsed;
-      },
-      0,
-    );
-
-  return total.toFixed(2);
-};
-
-
-const validateTopicDailyHours = (
-  topic: TrainingReportFormTopic,
-): string | null => {
-  const hasDailyHours =
-    hasAnyDailyHours(topic);
-
-
-  if (!hasDailyHours) {
-    if (
-      topic.totalHours.trim() !== ""
-    ) {
-      const legacyTotal =
-        Number(topic.totalHours);
-
-      if (
-        !Number.isFinite(legacyTotal) ||
-        legacyTotal < 0 ||
-        legacyTotal > 56
-      ) {
-        return (
-          "Las horas totales históricas " +
-          "deben estar entre 0 y 56."
-        );
-      }
-
-      return null;
-    }
-
-    const selectedDay =
-      trainingDayHours.find(
-        ({ dayField }) =>
-          topic[dayField],
+  for (const value of values) {
+    const minutes =
+      parseHourMinuteToMinutes(
+        value,
       );
 
     /*
-     * Tema nuevo:
-     * si seleccionó un día ya debe capturar
-     * sus horas.
+     * Mientras haya un valor inválido,
+     * no mostramos un total engañoso.
      */
-    if (selectedDay) {
-      return (
-        `Debes capturar las horas de ${selectedDay.label}.`
-      );
+    if (minutes === null) {
+      return "";
     }
 
-    return null;
+    totalMinutes += minutes;
   }
 
+  return formatMinutesAsHourMinute(
+    totalMinutes,
+  );
+};
 
-  /*
-   * CONTRATO NUEVO.
-   *
-   * Si existe al menos una hora diaria,
-   * validamos completamente todos los días.
-   */
+const validateAttendeeDailyHours = (
+  attendee: TrainingReportFormAttendee,
+): string | null => {
   for (
     const {
       dayField,
@@ -341,24 +335,18 @@ const validateTopicDailyHours = (
     } of trainingDayHours
   ) {
     const selected =
-      topic[dayField];
+      attendee[dayField];
 
     const value =
-      topic[hoursField].trim();
+      attendee[hoursField].trim();
 
-    if (
-      selected &&
-      value === ""
-    ) {
+    if (selected && value === "") {
       return (
         `Debes capturar las horas de ${label}.`
       );
     }
 
-    if (
-      !selected &&
-      value !== ""
-    ) {
+    if (!selected && value !== "") {
       return (
         `Existen horas capturadas para ${label}, ` +
         "pero ese día no está seleccionado."
@@ -366,16 +354,17 @@ const validateTopicDailyHours = (
     }
 
     if (value !== "") {
-      const hours =
-        Number(value);
 
       if (
-        !Number.isFinite(hours) ||
-        hours < 0 ||
-        hours > 8
+        value !== "" &&
+        parseHourMinuteToMinutes(
+          value,
+        ) === null
       ) {
         return (
-          `Las horas de ${label} deben estar entre 0 y 8.`
+          `Las horas de ${label} deben usar ` +
+          "el formato horas.minutos, por ejemplo 2.30, " +
+          "con un máximo de 8.00."
         );
       }
     }
@@ -383,38 +372,6 @@ const validateTopicDailyHours = (
 
   return null;
 };
-
-const getLegacyDaysFromTopics = (
-  topics: TrainingReportFormTopic[],
-) => ({
-  dayMonday: topics.some(
-    (topic) => topic.dayMonday,
-  ),
-
-  dayTuesday: topics.some(
-    (topic) => topic.dayTuesday,
-  ),
-
-  dayWednesday: topics.some(
-    (topic) => topic.dayWednesday,
-  ),
-
-  dayThursday: topics.some(
-    (topic) => topic.dayThursday,
-  ),
-
-  dayFriday: topics.some(
-    (topic) => topic.dayFriday,
-  ),
-
-  daySaturday: topics.some(
-    (topic) => topic.daySaturday,
-  ),
-
-  daySunday: topics.some(
-    (topic) => topic.daySunday,
-  ),
-});
 
 const createEmptyAttendee =
   (): TrainingReportFormAttendee => ({
@@ -438,6 +395,16 @@ const createEmptyAttendee =
     dayFriday: false,
     daySaturday: false,
     daySunday: false,
+
+    hoursMonday: "",
+    hoursTuesday: "",
+    hoursWednesday: "",
+    hoursThursday: "",
+    hoursFriday: "",
+    hoursSaturday: "",
+    hoursSunday: "",
+
+    totalHours: "",
 
     customerClient: "",
     unionClassification: "",
@@ -632,75 +599,6 @@ export const TrainingReportsForm = () => {
 
               topicId:
                 topic.id,
-
-              dayMonday:
-                topic.dayMonday,
-
-              dayTuesday:
-                topic.dayTuesday,
-
-              dayWednesday:
-                topic.dayWednesday,
-
-              dayThursday:
-                topic.dayThursday,
-
-              dayFriday:
-                topic.dayFriday,
-
-              daySaturday:
-                topic.daySaturday,
-
-              daySunday:
-                topic.daySunday,
-
-
-              hoursMonday:
-                topic.hoursMonday !== null
-                  ? String(topic.hoursMonday)
-                  : "",
-
-              hoursTuesday:
-                topic.hoursTuesday !== null
-                  ? String(topic.hoursTuesday)
-                  : "",
-
-              hoursWednesday:
-                topic.hoursWednesday !== null
-                  ? String(topic.hoursWednesday)
-                  : "",
-
-              hoursThursday:
-                topic.hoursThursday !== null
-                  ? String(topic.hoursThursday)
-                  : "",
-
-              hoursFriday:
-                topic.hoursFriday !== null
-                  ? String(topic.hoursFriday)
-                  : "",
-
-              hoursSaturday:
-                topic.hoursSaturday !== null
-                  ? String(topic.hoursSaturday)
-                  : "",
-
-              hoursSunday:
-                topic.hoursSunday !== null
-                  ? String(topic.hoursSunday)
-                  : "",
-
-
-              /*
-               * Importante para históricos:
-               *
-               * Puede existir TotalHours aunque todas las
-               * HoursX sean NULL.
-               */
-              totalHours:
-                topic.totalHours !== null
-                  ? String(topic.totalHours)
-                  : "",
             }),
           ),
 
@@ -724,6 +622,46 @@ export const TrainingReportsForm = () => {
 
           daySunday:
             attendee.daySunday,
+
+          hoursMonday:
+            attendee.hoursMonday !== null
+              ? String(attendee.hoursMonday)
+              : "",
+
+          hoursTuesday:
+            attendee.hoursTuesday !== null
+              ? String(attendee.hoursTuesday)
+              : "",
+
+          hoursWednesday:
+            attendee.hoursWednesday !== null
+              ? String(attendee.hoursWednesday)
+              : "",
+
+          hoursThursday:
+            attendee.hoursThursday !== null
+              ? String(attendee.hoursThursday)
+              : "",
+
+          hoursFriday:
+            attendee.hoursFriday !== null
+              ? String(attendee.hoursFriday)
+              : "",
+
+          hoursSaturday:
+            attendee.hoursSaturday !== null
+              ? String(attendee.hoursSaturday)
+              : "",
+
+          hoursSunday:
+            attendee.hoursSunday !== null
+              ? String(attendee.hoursSunday)
+              : "",
+
+          totalHours:
+            attendee.totalHours !== null
+              ? String(attendee.totalHours)
+              : "",
 
           customerClient:
             attendee.customerClient ?? "",
@@ -852,6 +790,14 @@ export const TrainingReportsForm = () => {
               dayFriday: false,
               daySaturday: false,
               daySunday: false,
+              hoursMonday: "",
+              hoursTuesday: "",
+              hoursWednesday: "",
+              hoursThursday: "",
+              hoursFriday: "",
+              hoursSaturday: "",
+              hoursSunday: "",
+              totalHours: "",
             }),
           ),
       };
@@ -937,10 +883,7 @@ export const TrainingReportsForm = () => {
              * legacy usando los temas
              * que todavía permanecen.
              */
-            const legacyDays =
-              getLegacyDaysFromTopics(
-                updatedTopics,
-              );
+
 
             /*
              * Mantenemos TopicIds
@@ -984,8 +927,6 @@ export const TrainingReportsForm = () => {
               ...attendee,
 
               topics: updatedTopics,
-
-              ...legacyDays,
 
               topicIds,
 
@@ -1046,26 +987,7 @@ export const TrainingReportsForm = () => {
                   ) {
                     return {
                       ...topic,
-
                       topicId,
-
-                      dayMonday: false,
-                      dayTuesday: false,
-                      dayWednesday: false,
-                      dayThursday: false,
-                      dayFriday: false,
-                      daySaturday: false,
-                      daySunday: false,
-
-                      hoursMonday: "",
-                      hoursTuesday: "",
-                      hoursWednesday: "",
-                      hoursThursday: "",
-                      hoursFriday: "",
-                      hoursSaturday: "",
-                      hoursSunday: "",
-
-                      totalHours: "",
                     };
                   }
 
@@ -1073,10 +995,6 @@ export const TrainingReportsForm = () => {
                 },
               );
 
-            const legacyDays =
-              getLegacyDaysFromTopics(
-                updatedTopics,
-              );
 
             const topicIds =
               updatedTopics
@@ -1116,7 +1034,6 @@ export const TrainingReportsForm = () => {
                * sincronizados los días
                * legacy del asistente.
                */
-              ...legacyDays,
 
               /*
                * Legacy temporal.
@@ -1132,9 +1049,8 @@ export const TrainingReportsForm = () => {
     }));
   };
 
-  const handleAttendeeTopicHoursChange = (
+  const handleAttendeeHoursChange = (
     attendeeId: string,
-    topicRowId: string,
     field: TrainingReportHoursField,
     value: string,
   ) => {
@@ -1150,48 +1066,27 @@ export const TrainingReportsForm = () => {
               return attendee;
             }
 
-            const updatedTopics =
-              attendee.topics.map(
-                (topic) => {
-                  if (
-                    topic.id !== topicRowId
-                  ) {
-                    return topic;
-                  }
-
-                  const updatedTopic = {
-                    ...topic,
-                    [field]: value,
-                  };
-
-                  /*
-                   * En cuanto el usuario captura
-                   * horas diarias, el total deja de
-                   * ser manual/histórico.
-                   */
-                  return {
-                    ...updatedTopic,
-
-                    totalHours:
-                      calculateTopicTotalHours(
-                        updatedTopic,
-                      ),
-                  };
-                },
-              );
+            const updatedAttendee:
+              TrainingReportFormAttendee = {
+              ...attendee,
+              [field]: value,
+            };
 
             return {
-              ...attendee,
-              topics: updatedTopics,
+              ...updatedAttendee,
+
+              totalHours:
+                calculateAttendeeTotalHours(
+                  updatedAttendee,
+                ),
             };
           },
         ),
     }));
   };
 
-  const handleAttendeeTopicDayChange = (
+  const handleAttendeeDayChange = (
     attendeeId: string,
-    topicRowId: string,
     field: TrainingReportDayField,
     checked: boolean,
   ) => {
@@ -1217,84 +1112,28 @@ export const TrainingReportsForm = () => {
               return attendee;
             }
 
-            const updatedTopics =
-              attendee.topics.map(
-                (topic) => {
-                  if (
-                    topic.id !== topicRowId
-                  ) {
-                    return topic;
-                  }
-
-                  /*
-                   * Si antes no había ninguna hora diaria
-                   * pero sí TotalHours, estamos viendo
-                   * un registro histórico.
-                   */
-                  const wasHistorical =
-                    !hasAnyDailyHours(topic) &&
-                    topic.totalHours.trim() !== "";
-
-                  const updatedTopic = {
-                    ...topic,
-
-                    [field]:
-                      checked,
-
-                    /*
-                     * Al desmarcar un día eliminamos
-                     * obligatoriamente sus horas.
-                     */
-                    [dayConfiguration.hoursField]:
-                      checked
-                        ? topic[
-                        dayConfiguration
-                          .hoursField
-                        ]
-                        : "",
-                  };
-
-
-                  /*
-                   * Si el usuario modificó los días
-                   * de un histórico, ya no podemos
-                   * confiar en el total histórico.
-                   *
-                   * No sabemos cómo redistribuirlo.
-                   */
-                  if (wasHistorical) {
-                    return {
-                      ...updatedTopic,
-                      totalHours: "",
-                    };
-                  }
-
-
-                  return {
-                    ...updatedTopic,
-
-                    totalHours:
-                      calculateTopicTotalHours(
-                        updatedTopic,
-                      ),
-                  };
-                },
-              );
-
-
-            return {
+            const updatedAttendee:
+              TrainingReportFormAttendee = {
               ...attendee,
 
-              topics:
-                updatedTopics,
+              [field]: checked,
 
-              /*
-               * Seguimos manteniendo los campos
-               * legacy del asistente.
-               */
-              ...getLegacyDaysFromTopics(
-                updatedTopics,
-              ),
+              [dayConfiguration.hoursField]:
+                checked
+                  ? attendee[
+                  dayConfiguration
+                    .hoursField
+                  ]
+                  : "",
+            };
+
+            return {
+              ...updatedAttendee,
+
+              totalHours:
+                calculateAttendeeTotalHours(
+                  updatedAttendee,
+                ),
             };
           },
         ),
@@ -1488,24 +1327,20 @@ export const TrainingReportsForm = () => {
     for (
       const attendee of formData.attendees
     ) {
-      for (
-        const topic of attendee.topics
-      ) {
-        const hoursError =
-          validateTopicDailyHours(
-            topic,
-          );
+      const hoursError =
+        validateAttendeeDailyHours(
+          attendee,
+        );
 
-        if (hoursError) {
-          toast.error(
-            `${hoursError} ` +
-            `Asistente: ${attendee.employeeNumber ||
-            "sin nómina"
-            }.`,
-          );
+      if (hoursError) {
+        toast.error(
+          `${hoursError} ` +
+          `Asistente: ${attendee.employeeNumber ||
+          "sin nómina"
+          }.`,
+        );
 
-          return;
-        }
+        return;
       }
     }
 
@@ -1522,6 +1357,41 @@ export const TrainingReportsForm = () => {
         daySaturday: attendee.daySaturday,
         daySunday: attendee.daySunday,
 
+        hoursMonday:
+          attendee.hoursMonday.trim() === ""
+            ? null
+            : Number(attendee.hoursMonday),
+
+        hoursTuesday:
+          attendee.hoursTuesday.trim() === ""
+            ? null
+            : Number(attendee.hoursTuesday),
+
+        hoursWednesday:
+          attendee.hoursWednesday.trim() === ""
+            ? null
+            : Number(attendee.hoursWednesday),
+
+        hoursThursday:
+          attendee.hoursThursday.trim() === ""
+            ? null
+            : Number(attendee.hoursThursday),
+
+        hoursFriday:
+          attendee.hoursFriday.trim() === ""
+            ? null
+            : Number(attendee.hoursFriday),
+
+        hoursSaturday:
+          attendee.hoursSaturday.trim() === ""
+            ? null
+            : Number(attendee.hoursSaturday),
+
+        hoursSunday:
+          attendee.hoursSunday.trim() === ""
+            ? null
+            : Number(attendee.hoursSunday),
+
         customerClient: attendee.customerClient,
         unionClassification:
           attendee.unionClassification,
@@ -1536,86 +1406,7 @@ export const TrainingReportsForm = () => {
 
         topics: attendee.topics.map(
           (topic) => ({
-            topicId:
-              topic.topicId!,
-
-            dayMonday:
-              topic.dayMonday,
-
-            dayTuesday:
-              topic.dayTuesday,
-
-            dayWednesday:
-              topic.dayWednesday,
-
-            dayThursday:
-              topic.dayThursday,
-
-            dayFriday:
-              topic.dayFriday,
-
-            daySaturday:
-              topic.daySaturday,
-
-            daySunday:
-              topic.daySunday,
-
-
-            hoursMonday:
-              topic.hoursMonday.trim() === ""
-                ? null
-                : Number(
-                  topic.hoursMonday,
-                ),
-
-            hoursTuesday:
-              topic.hoursTuesday.trim() === ""
-                ? null
-                : Number(
-                  topic.hoursTuesday,
-                ),
-
-            hoursWednesday:
-              topic.hoursWednesday.trim() === ""
-                ? null
-                : Number(
-                  topic.hoursWednesday,
-                ),
-
-            hoursThursday:
-              topic.hoursThursday.trim() === ""
-                ? null
-                : Number(
-                  topic.hoursThursday,
-                ),
-
-            hoursFriday:
-              topic.hoursFriday.trim() === ""
-                ? null
-                : Number(
-                  topic.hoursFriday,
-                ),
-
-            hoursSaturday:
-              topic.hoursSaturday.trim() === ""
-                ? null
-                : Number(
-                  topic.hoursSaturday,
-                ),
-
-            hoursSunday:
-              topic.hoursSunday.trim() === ""
-                ? null
-                : Number(
-                  topic.hoursSunday,
-                ),
-
-            totalHours:
-              topic.totalHours.trim() === ""
-                ? null
-                : Number(
-                  topic.totalHours,
-                ),
+            topicId: topic.topicId!,
           }),
         ),
 
@@ -1939,14 +1730,22 @@ export const TrainingReportsForm = () => {
               topics={availableTopics}
               onRemove={removeAttendeeRow}
               onChange={handleAttendeeChange}
-              onTopicDayChange={handleAttendeeTopicDayChange}
-              onTopicHoursChange={handleAttendeeTopicHoursChange}
+              onDayChange={handleAttendeeDayChange}
+              onHoursChange={handleAttendeeHoursChange}
               onSignatureChange={handleAttendeeFileChange}
               observations={formData.observations}
-              instructorSignature={formData.instructorSignature}
-              coordinatorSignature={formData.coordinatorSignature}
-              safetySignature={formData.safetySignature}
-              onGlobalFieldChange={handleGlobalFieldChange}
+              instructorSignature={
+                formData.instructorSignature
+              }
+              coordinatorSignature={
+                formData.coordinatorSignature
+              }
+              safetySignature={
+                formData.safetySignature
+              }
+              onGlobalFieldChange={
+                handleGlobalFieldChange
+              }
             />
 
             <div className="flex justify-between gap-3 pt-4">
