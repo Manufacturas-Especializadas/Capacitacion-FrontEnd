@@ -9,8 +9,13 @@ export const AttendeesTableHeader = ({
 }: AttendeesTableHeaderProps) => {
   return (
     <thead
-      className="bg-slate-100 text-slate-600 font-bold text-xs uppercase 
-      tracking-wider"
+      className="
+    sticky top-0 z-30
+    bg-slate-100
+    text-slate-600 font-bold text-xs uppercase
+    tracking-wider
+    shadow-sm
+  "
     >
       <tr>
         <th rowSpan={2} className="border border-slate-200 px-3 py-2 w-28">

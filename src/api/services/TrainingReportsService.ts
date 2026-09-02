@@ -273,6 +273,76 @@ class TrainingReportsService {
           String(attendee.daySunday),
         );
 
+        if (
+          attendee.hoursMonday !== undefined &&
+          attendee.hoursMonday !== null
+        ) {
+          formData.append(
+            `${baseKey}.HoursMonday`,
+            attendee.hoursMonday.toString(),
+          );
+        }
+
+        if (
+          attendee.hoursTuesday !== undefined &&
+          attendee.hoursTuesday !== null
+        ) {
+          formData.append(
+            `${baseKey}.HoursTuesday`,
+            attendee.hoursTuesday.toString(),
+          );
+        }
+
+        if (
+          attendee.hoursWednesday !== undefined &&
+          attendee.hoursWednesday !== null
+        ) {
+          formData.append(
+            `${baseKey}.HoursWednesday`,
+            attendee.hoursWednesday.toString(),
+          );
+        }
+
+        if (
+          attendee.hoursThursday !== undefined &&
+          attendee.hoursThursday !== null
+        ) {
+          formData.append(
+            `${baseKey}.HoursThursday`,
+            attendee.hoursThursday.toString(),
+          );
+        }
+
+        if (
+          attendee.hoursFriday !== undefined &&
+          attendee.hoursFriday !== null
+        ) {
+          formData.append(
+            `${baseKey}.HoursFriday`,
+            attendee.hoursFriday.toString(),
+          );
+        }
+
+        if (
+          attendee.hoursSaturday !== undefined &&
+          attendee.hoursSaturday !== null
+        ) {
+          formData.append(
+            `${baseKey}.HoursSaturday`,
+            attendee.hoursSaturday.toString(),
+          );
+        }
+
+        if (
+          attendee.hoursSunday !== undefined &&
+          attendee.hoursSunday !== null
+        ) {
+          formData.append(
+            `${baseKey}.HoursSunday`,
+            attendee.hoursSunday.toString(),
+          );
+        }
+
         this.appendOptionalText(
           formData,
           `${baseKey}.CustomerClient`,
@@ -333,121 +403,6 @@ class TrainingReportsService {
               `${topicBaseKey}.TopicId`,
               topic.topicId.toString(),
             );
-
-            formData.append(
-              `${topicBaseKey}.DayMonday`,
-              String(topic.dayMonday),
-            );
-
-            formData.append(
-              `${topicBaseKey}.DayTuesday`,
-              String(topic.dayTuesday),
-            );
-
-            formData.append(
-              `${topicBaseKey}.DayWednesday`,
-              String(topic.dayWednesday),
-            );
-
-            formData.append(
-              `${topicBaseKey}.DayThursday`,
-              String(topic.dayThursday),
-            );
-
-            formData.append(
-              `${topicBaseKey}.DayFriday`,
-              String(topic.dayFriday),
-            );
-
-            formData.append(
-              `${topicBaseKey}.DaySaturday`,
-              String(topic.daySaturday),
-            );
-
-            formData.append(
-              `${topicBaseKey}.DaySunday`,
-              String(topic.daySunday),
-            );
-
-            if (
-              topic.hoursMonday !== undefined &&
-              topic.hoursMonday !== null
-            ) {
-              formData.append(
-                `${topicBaseKey}.HoursMonday`,
-                topic.hoursMonday.toString(),
-              );
-            }
-
-            if (
-              topic.hoursTuesday !== undefined &&
-              topic.hoursTuesday !== null
-            ) {
-              formData.append(
-                `${topicBaseKey}.HoursTuesday`,
-                topic.hoursTuesday.toString(),
-              );
-            }
-
-            if (
-              topic.hoursWednesday !== undefined &&
-              topic.hoursWednesday !== null
-            ) {
-              formData.append(
-                `${topicBaseKey}.HoursWednesday`,
-                topic.hoursWednesday.toString(),
-              );
-            }
-
-            if (
-              topic.hoursThursday !== undefined &&
-              topic.hoursThursday !== null
-            ) {
-              formData.append(
-                `${topicBaseKey}.HoursThursday`,
-                topic.hoursThursday.toString(),
-              );
-            }
-
-            if (
-              topic.hoursFriday !== undefined &&
-              topic.hoursFriday !== null
-            ) {
-              formData.append(
-                `${topicBaseKey}.HoursFriday`,
-                topic.hoursFriday.toString(),
-              );
-            }
-
-            if (
-              topic.hoursSaturday !== undefined &&
-              topic.hoursSaturday !== null
-            ) {
-              formData.append(
-                `${topicBaseKey}.HoursSaturday`,
-                topic.hoursSaturday.toString(),
-              );
-            }
-
-            if (
-              topic.hoursSunday !== undefined &&
-              topic.hoursSunday !== null
-            ) {
-              formData.append(
-                `${topicBaseKey}.HoursSunday`,
-                topic.hoursSunday.toString(),
-              );
-            }
-
-            if (
-              topic.totalHours !== undefined &&
-              topic.totalHours !== null
-            ) {
-              formData.append(
-                `${topicBaseKey}.TotalHours`,
-                topic.totalHours.toString(),
-              );
-            }
           },
         );
 

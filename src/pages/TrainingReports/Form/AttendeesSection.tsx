@@ -1,8 +1,10 @@
 import { useState, type ChangeEvent } from "react";
 import { AttendeesTableHeader } from "./AttendeesSectionUI/AttendeesTableHeader";
 import {
-  AttendeeRow, type AttendeeEvaluationItem,
-  type AttendeeTopicDayField, type AttendeeTopicHoursField,
+  AttendeeRow,
+  type AttendeeEvaluationItem,
+  type AttendeeDayField,
+  type AttendeeHoursField,
 } from "./AttendeesSectionUI/AttendeeRow";
 import { SignatureModal } from "../../../components/SignatureModal/SignatureModal";
 import { ReportFooterSection } from "./AttendeesSectionUI/ReportFooterSection";
@@ -17,17 +19,15 @@ interface AttendeesSectionProps {
     topicName: string;
   }[];
 
-  onTopicDayChange: (
+  onDayChange: (
     attendeeId: string,
-    topicRowId: string,
-    field: AttendeeTopicDayField,
+    field: AttendeeDayField,
     checked: boolean,
   ) => void;
 
-  onTopicHoursChange: (
+  onHoursChange: (
     attendeeId: string,
-    topicRowId: string,
-    field: AttendeeTopicHoursField,
+    field: AttendeeHoursField,
     value: string,
   ) => void;
 
@@ -56,15 +56,13 @@ export const AttendeesSection = ({
   coordinatorSignature,
   safetySignature,
   onGlobalFieldChange,
-  onTopicDayChange,
-  onTopicHoursChange,
+  onDayChange,
+  onHoursChange,
 }: AttendeesSectionProps) => {
-  const hasSunday =
-    trainingType === "SOLDADURA" || trainingType === "FABRICACION";
 
   const days: {
-    key: AttendeeTopicDayField;
-    hoursKey: AttendeeTopicHoursField;
+    key: AttendeeDayField;
+    hoursKey: AttendeeHoursField;
     label: string;
   }[] = [
       {
@@ -97,20 +95,11 @@ export const AttendeesSection = ({
         hoursKey: "hoursSaturday",
         label: "S",
       },
-
-      ...(hasSunday
-        ? [
-          {
-            key:
-              "daySunday" as AttendeeTopicDayField,
-
-            hoursKey:
-              "hoursSunday" as AttendeeTopicHoursField,
-
-            label: "D",
-          },
-        ]
-        : []),
+      {
+        key: "daySunday",
+        hoursKey: "hoursSunday",
+        label: "D",
+      },
     ];
 
   const [modalOpen, setModalOpen] = useState(false);
@@ -162,7 +151,7 @@ export const AttendeesSection = ({
         </h3>
       </div>
 
-      <div className="overflow-x-auto bg-white rounded-xl border border-slate-200 shadow-sm">
+      <div className="max-h-[70vh] overflow-auto bg-white rounded-xl border border-slate-200 shadow-sm">
         <table className="w-full min-w-max border-collapse text-sm text-left">
           <AttendeesTableHeader trainingType={trainingType} days={days} />
 
@@ -176,12 +165,8 @@ export const AttendeesSection = ({
                   days={days}
                   topics={topics}
                   onChange={onChange}
-                  onTopicDayChange={
-                    onTopicDayChange
-                  }
-                  onTopicHoursChange={
-                    onTopicHoursChange
-                  }
+                  onDayChange={onDayChange}
+                  onHoursChange={onHoursChange}
                   onRemove={onRemove}
                   onOpenSignature={
                     handleOpenRowSignature

@@ -8,7 +8,7 @@ import type {
   ChangeEvent,
 } from "react";
 
-export type AttendeeTopicDayField =
+export type AttendeeDayField =
   | "dayMonday"
   | "dayTuesday"
   | "dayWednesday"
@@ -17,8 +17,7 @@ export type AttendeeTopicDayField =
   | "daySaturday"
   | "daySunday";
 
-
-export type AttendeeTopicHoursField =
+export type AttendeeHoursField =
   | "hoursMonday"
   | "hoursTuesday"
   | "hoursWednesday"
@@ -29,8 +28,15 @@ export type AttendeeTopicHoursField =
 
 export interface AttendeeTopicEvaluation {
   id: string;
-
   topicId: number | null;
+}
+
+export interface AttendeeEvaluationItem {
+  id: string;
+
+  employeeNumber: string;
+  name: string;
+  line: string;
 
   dayMonday: boolean;
   dayTuesday: boolean;
@@ -49,14 +55,6 @@ export interface AttendeeTopicEvaluation {
   hoursSunday: string;
 
   totalHours: string;
-}
-
-export interface AttendeeEvaluationItem {
-  id: string;
-
-  employeeNumber: string;
-  name: string;
-  line: string;
 
   shift?: string;
   customerClient?: string;
@@ -78,8 +76,8 @@ interface AttendeeRowProps {
   trainingType: string;
 
   days: {
-    key: AttendeeTopicDayField;
-    hoursKey: AttendeeTopicHoursField;
+    key: AttendeeDayField;
+    hoursKey: AttendeeHoursField;
     label: string;
   }[];
 
@@ -97,17 +95,15 @@ interface AttendeeRowProps {
     >,
   ) => void;
 
-  onTopicDayChange: (
+  onDayChange: (
     attendeeId: string,
-    topicRowId: string,
-    field: AttendeeTopicDayField,
+    field: AttendeeDayField,
     checked: boolean,
   ) => void;
 
-  onTopicHoursChange: (
+  onHoursChange: (
     attendeeId: string,
-    topicRowId: string,
-    field: AttendeeTopicHoursField,
+    field: AttendeeHoursField,
     value: string,
   ) => void;
 
@@ -130,8 +126,8 @@ export const AttendeeRow = ({
   days,
   topics,
   onChange,
-  onTopicDayChange,
-  onTopicHoursChange,
+  onDayChange,
+  onHoursChange,
   onRemove,
   onOpenSignature,
 }: AttendeeRowProps) => {
@@ -217,56 +213,44 @@ export const AttendeeRow = ({
                 </>
               )}
 
-              {days.map((day) => (
-                <td
-                  key={day.key}
-                  className="border border-slate-200 p-1 text-center align-middle"
-                >
-                  <div className="flex min-h-16 flex-col items-center justify-center gap-1.5">
-                    <input
-                      type="checkbox"
-                      checked={
-                        topicAssignment[
-                        day.key
-                        ]
-                      }
-                      onChange={(e) =>
-                        onTopicDayChange(
-                          attendee.id,
-                          topicAssignment.id,
-                          day.key,
-                          e.target.checked,
-                        )
-                      }
-                      className="w-4 h-4 text-blue-600 bg-slate-100 border-slate-300 rounded cursor-pointer"
-                    />
+              {isFirstTopic &&
+                days.map((day) => (
+                  <td
+                    key={day.key}
+                    rowSpan={rowSpan}
+                    className="border border-slate-200 p-1 text-center align-middle"
+                  >
+                    <div className="flex min-h-16 flex-col items-center justify-center gap-1.5">
+                      <input
+                        type="checkbox"
+                        checked={attendee[day.key]}
+                        onChange={(e) =>
+                          onDayChange(
+                            attendee.id,
+                            day.key,
+                            e.target.checked,
+                          )
+                        }
+                        className="w-4 h-4 text-blue-600 bg-slate-100 border-slate-300 rounded cursor-pointer"
+                      />
 
-                    {topicAssignment[
-                      day.key
-                    ] && (
+                      {attendee[day.key] && (
                         <div className="flex items-center gap-1">
                           <input
                             type="number"
                             min="0"
                             max="8"
                             step="0.01"
-                            value={
-                              topicAssignment[
-                              day.hoursKey
-                              ]
-                            }
+                            value={attendee[day.hoursKey]}
                             onChange={(e) =>
-                              onTopicHoursChange(
+                              onHoursChange(
                                 attendee.id,
-                                topicAssignment.id,
                                 day.hoursKey,
                                 e.target.value,
                               )
                             }
                             placeholder="0.00"
-                            aria-label={
-                              `Horas ${day.label}`
-                            }
+                            aria-label={`Horas ${day.label}`}
                             className="w-16 rounded-md border border-slate-200 px-1 py-1 text-center text-xs outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-500"
                           />
 
@@ -275,9 +259,9 @@ export const AttendeeRow = ({
                           </span>
                         </div>
                       )}
-                  </div>
-                </td>
-              ))}
+                    </div>
+                  </td>
+                ))}
 
               {isFirstTopic &&
                 trainingType ===
@@ -435,36 +419,25 @@ export const AttendeeRow = ({
                 </div>
               </td>
 
-              <td className="border border-slate-200 p-2 text-center align-middle bg-slate-50/40">
-                {topicAssignment.totalHours.trim() !== "" ? (
-                  <div className="flex flex-col items-center justify-center">
+              {isFirstTopic && (
+                <td
+                  rowSpan={rowSpan}
+                  className="border border-slate-200 p-2 text-center align-middle bg-slate-50/40"
+                >
+                  {attendee.totalHours.trim() !== "" ? (
                     <span className="font-bold text-slate-700">
                       {Number(
-                        topicAssignment.totalHours,
+                        attendee.totalHours,
                       ).toFixed(2)}
                       {" h"}
                     </span>
-
-                    {!(
-                      topicAssignment.hoursMonday.trim() !== "" ||
-                      topicAssignment.hoursTuesday.trim() !== "" ||
-                      topicAssignment.hoursWednesday.trim() !== "" ||
-                      topicAssignment.hoursThursday.trim() !== "" ||
-                      topicAssignment.hoursFriday.trim() !== "" ||
-                      topicAssignment.hoursSaturday.trim() !== "" ||
-                      topicAssignment.hoursSunday.trim() !== ""
-                    ) && (
-                        <span className="mt-0.5 text-[9px] font-semibold uppercase tracking-wide text-amber-600">
-                          Histórico
-                        </span>
-                      )}
-                  </div>
-                ) : (
-                  <span className="text-slate-300">
-                    —
-                  </span>
-                )}
-              </td>
+                  ) : (
+                    <span className="text-slate-300">
+                      —
+                    </span>
+                  )}
+                </td>
+              )}
 
               {isFirstTopic && (
                 <>
