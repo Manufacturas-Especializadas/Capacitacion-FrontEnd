@@ -5,6 +5,7 @@ import type {
   SaveAttendance,
   TrainingEventDetail,
   TrainingEvents,
+  UpdateTrainingEvent,
 } from "../../types/Types";
 import { apiClient } from "../client";
 
@@ -16,7 +17,7 @@ class TrainingEventService {
   private assignAttendeesEndpoint = API_CONFIG.endpoint.trainingEvent.assingAttendees;
   private saveAttendanceEndpoint = API_CONFIG.endpoint.trainingEvent.saveAttendance;
   private updateAttendeesEndpoint = API_CONFIG.endpoint.trainingEvent.updateAttendees;
-
+  private updateEventEndpoint = API_CONFIG.endpoint.trainingEvent.updateEvent;
   async getTrainingEvents(): Promise<TrainingEvents[]> {
     return apiClient.get<TrainingEvents[]>(this.getTrainingEventsEndpoint);
   }
@@ -53,6 +54,14 @@ class TrainingEventService {
       data,
     );
   }
+
+  async updateEvent(id: number, data: UpdateTrainingEvent,): Promise<void> {
+    await apiClient.put<void>(
+      `${this.updateEventEndpoint}${id}`,
+      data,
+    );
+  }
+
 }
 
 export const trainingEventService = new TrainingEventService();

@@ -1,9 +1,6 @@
 import { useState, useEffect } from "react";
-import {
-  useNavigate,
-  useParams,
-} from "react-router-dom";
-import { Users } from "lucide-react";
+import { useNavigate, useParams, } from "react-router-dom";
+import { Users, Pencil } from "lucide-react";
 import { TrainingEventTable } from "../../components/TrainingEventUI/TrainingEventTable";
 import type {
   TrainingEventData,
@@ -11,6 +8,7 @@ import type {
   AttendanceRecord,
 } from "../../types/Types";
 import { trainingEventService } from "../../api/services/TrainingEventService";
+
 
 interface EventDetailsResponse {
   eventData: TrainingEventData;
@@ -64,7 +62,35 @@ export const TrainingEvent = () => {
 
   return (
     <div className="p-8 bg-slate-100 min-h-screen">
-      <div className="mb-4 flex justify-end">
+
+
+      <div className="mb-4 flex flex-wrap justify-end gap-3">
+        <button
+          type="button"
+          onClick={() =>
+            navigate(
+              `/registro-asistencia/editar/${id}`,
+            )
+          }
+          className="
+      flex items-center gap-2
+      rounded-lg
+      border border-slate-300
+      bg-white
+      px-4 py-2.5
+      text-sm font-semibold
+      text-slate-700
+      shadow-sm
+      transition-colors
+      hover:bg-slate-50
+      hover:text-blue-600
+      cursor-pointer
+    "
+        >
+          <Pencil size={18} />
+          Editar datos del evento
+        </button>
+
         <button
           type="button"
           onClick={() =>
@@ -74,20 +100,20 @@ export const TrainingEvent = () => {
           }
           className="
       flex items-center gap-2
-      rounded-lg bg-white
+      rounded-lg
       border border-slate-300
+      bg-white
       px-4 py-2.5
       text-sm font-semibold
       text-slate-700
       shadow-sm
+      transition-colors
       hover:bg-slate-50
       hover:text-blue-600
-      transition-colors
       cursor-pointer
     "
         >
           <Users size={18} />
-
           Editar participantes
         </button>
       </div>
