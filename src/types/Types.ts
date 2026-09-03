@@ -43,15 +43,24 @@ export interface AttendanceRecord {
   signature?: string | null;
 }
 
+export interface TrainingEventTopic {
+  id?: number;
+  name: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+}
+
 export interface TrainingEventData {
-  id: string;
+  id: number;
   courseName: string;
   instructor: string;
   dateFrom: string;
   dateTo: string;
+  roomId: number;
   area: string;
   instructorSignatureUrl: string | null;
-  evaluationTopics: string[];
+  evaluationTopics: TrainingEventTopic[];
 }
 
 export interface TrainingRooms {
@@ -75,7 +84,27 @@ export interface CreateTrainingEvent {
   roomId: number;
   dateFrom: string;
   dateTo: string;
-  evaluationTopics: string[];
+  evaluationTopics: {
+    name: string;
+    date: string;
+    startTime: string;
+    endTime: string;
+  }[];
+}
+
+export interface UpdateTrainingEvent {
+  courseName: string;
+  instructorName: string;
+  roomId: number;
+  dateFrom: string;
+  dateTo: string;
+  evaluationTopics: {
+    id?: number;
+    name: string;
+    date: string;
+    startTime: string;
+    endTime: string;
+  }[];
 }
 
 export interface AssignAttendees {
@@ -109,18 +138,9 @@ export interface Evaluation {
 }
 
 export interface TrainingEventDetail {
-  eventData: {
-    id: number;
-    courseName: string;
-    instructor: string;
-    area: string;
-    instructorSignatureUrl: string | null;
-    dateFrom: string;
-    dateTo: string;
-    evaluationTopics: string[];
-  };
-  employees: any[];
-  initialAttendance: any[];
+  eventData: TrainingEventData;
+  employees: Employee[];
+  initialAttendance: AttendanceRecord[];
 }
 
 export interface TrainingEvents {

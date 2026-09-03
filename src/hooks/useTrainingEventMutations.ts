@@ -3,6 +3,7 @@ import type {
   AssignAttendees,
   CreateTrainingEvent,
   SaveAttendance,
+  UpdateTrainingEvent,
 } from "../types/Types";
 import { trainingEventService } from "../api/services/TrainingEventService";
 import { toast } from "sonner";
@@ -12,6 +13,7 @@ export const useTrainingEventMutations = () => {
   const [isAssing, setIsAssigning] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const createEvent = async (data: CreateTrainingEvent) => {
     setIsCreating(true);
@@ -80,6 +82,42 @@ export const useTrainingEventMutations = () => {
     }
   };
 
+  const updateEvent = async (
+    id: number,
+    data: UpdateTrainingEvent,
+  ) => {
+    setIsUpdating(true);
+
+    try {
+      await trainingEventService.updateEvent(
+        id,
+        data,
+      );
+
+      toast.success(
+        "Evento actualizado correctamente",
+      );
+
+      return true;
+    } catch (error) {
+      console.error(
+        "Error updating training event:",
+        error,
+      );
+
+      const message =
+        error instanceof Error
+          ? error.message
+          : "No se pudo actualizar el evento.";
+
+      toast.error(message);
+
+      return false;
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
   const saveFinalAttendance = async (data: SaveAttendance, id: number) => {
     setIsSaving(true);
 
@@ -122,5 +160,7 @@ export const useTrainingEventMutations = () => {
     deleteEvent,
     isDeleting,
     updateAttendees,
+    updateEvent,
+    isUpdating,
   };
 };

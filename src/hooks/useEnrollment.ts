@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTrainingEventMutations } from "./useTrainingEventMutations";
-import type { Employee } from "../types/Types";
+import type { Employee, TrainingEventTopic } from "../types/Types";
 import { trainingEventService } from "../api/services/TrainingEventService";
 import { toast } from "sonner";
 
@@ -19,7 +19,7 @@ export const useEnrollment = (
   const navigate = useNavigate();
   const { assignAttendees, updateAttendees, isAssing } = useTrainingEventMutations();
 
-  const [topics, setTopics] = useState<string[]>([]);
+  const [topics, setTopics] = useState<TrainingEventTopic[]>([]);
   const [rows, setRows] = useState<EnrolledRow[]>([]);
   const [isLoadingEvent, setIsLoadingEvent] = useState(true);
 

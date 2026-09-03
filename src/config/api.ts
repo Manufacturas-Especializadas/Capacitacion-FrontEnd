@@ -24,6 +24,7 @@ export const API_CONFIG = {
       trainingEventsDetails: "/api/TrainingEvents/details/",
       getTrainingEvents: "/api/TrainingEvents/trainingEvents",
       updateAttendees: "/api/TrainingEvents/update-attendees/",
+      updateEvent: "/api/TrainingEvents/update-event/",
     },
     weldersChecklist: {
       all: "/api/WelderEvaluations/getAll",

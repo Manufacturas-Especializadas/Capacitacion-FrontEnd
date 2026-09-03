@@ -5,14 +5,21 @@ import {
   type SyntheticEvent,
 } from "react";
 import { ArrowLeft, Plus, Trash2 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useTrainingEventMutations } from "../../hooks/useTrainingEventMutations";
 import { useCatalogs } from "../../hooks/useCatalogs";
 import InputField from "../Inputs/InputField";
 import SelectField from "../Inputs/SelectField";
 import { toast } from "sonner";
+import { trainingEventService } from "../../api/services/TrainingEventService";
+
+import type {
+  CreateTrainingEvent,
+  UpdateTrainingEvent,
+} from "../../types/Types";
 
 interface TopicEntry {
+  id?: number;
   name: string;
   date: string;
   startTime: string;
@@ -21,12 +28,112 @@ interface TopicEntry {
 
 export const TrainingEventFormLayout = () => {
   const navigate = useNavigate();
-  const { createEvent, isCreating } = useTrainingEventMutations();
+  const { createEvent, updateEvent, isCreating, isUpdating } = useTrainingEventMutations();
   const { rooms, fetchRooms } = useCatalogs();
+  const [isLoadingEvent, setIsLoadingEvent] = useState(false);
+  const isSubmitting = isCreating || isUpdating;
+  const { id } = useParams<{ id?: string; }>();
+
+  const isEditMode = id !== undefined;
+
+  const parsedEventId = Number(id);
+
+  const eventId = isEditMode && Number.isInteger(parsedEventId) && parsedEventId > 0
+    ? parsedEventId
+    : null;
 
   useEffect(() => {
     fetchRooms();
   }, [fetchRooms]);
+
+  useEffect(() => {
+    if (
+      !isEditMode ||
+      !eventId
+    ) {
+      return;
+    }
+
+    const loadEvent = async () => {
+      try {
+        setIsLoadingEvent(true);
+
+        const data =
+          await trainingEventService.getDetails(
+            eventId,
+          );
+
+        setFormData({
+          courseName:
+            data.eventData.courseName,
+
+          instructor:
+            data.eventData.instructor,
+
+          room:
+            String(
+              data.eventData.roomId,
+            ),
+
+          /*
+           * Este dato no existe como propiedad
+           * guardada en TrainingEvent.
+           *
+           * En edición mostramos la cantidad
+           * actual de participantes.
+           */
+          attendeeCount:
+            String(
+              data.employees.length,
+            ),
+        });
+
+        setTopics(
+          data.eventData.evaluationTopics.map(
+            (topic) => ({
+              id: topic.id,
+
+              name:
+                topic.name,
+
+              date:
+                toDateInputValue(
+                  topic.date,
+                ),
+
+              startTime:
+                topic.startTime.substring(
+                  0,
+                  5,
+                ),
+
+              endTime:
+                topic.endTime.substring(
+                  0,
+                  5,
+                ),
+            }),
+          ),
+        );
+      } catch (error) {
+        console.error(
+          "Error cargando evento:",
+          error,
+        );
+
+        toast.error(
+          "No se pudo cargar el evento.",
+        );
+      } finally {
+        setIsLoadingEvent(false);
+      }
+    };
+
+    void loadEvent();
+  }, [
+    eventId,
+    isEditMode,
+  ]);
 
   const [formData, setFormData] = useState({
     courseName: "",
@@ -46,16 +153,23 @@ export const TrainingEventFormLayout = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  type EditableTopicField =
+    | "name"
+    | "date"
+    | "startTime"
+    | "endTime";
+
   const handleTopicChange = (
     index: number,
-    field: keyof TopicEntry,
+    field: EditableTopicField,
     value: string,
   ) => {
     const newTopics = [...topics];
+
     newTopics[index][field] = value;
+
     setTopics(newTopics);
   };
-
   const addTopic = () => {
     if (topics.length < 5) {
       setTopics([
@@ -103,24 +217,119 @@ export const TrainingEventFormLayout = () => {
     const globalDateFrom = sortedDates[0];
     const globalDateTo = sortedDates[sortedDates.length - 1];
 
-    const payload = {
-      courseName: formData.courseName,
-      instructorName: formData.instructor,
-      roomId: Number(formData.room),
-      dateFrom: `${globalDateFrom}T00:00:00`,
-      dateTo: `${globalDateTo}T23:59:59`,
-      evaluationTopics: validTopics,
+    if (
+      isEditMode &&
+      eventId
+    ) {
+      const payload: UpdateTrainingEvent =
+      {
+        courseName:
+          formData.courseName,
+
+        instructorName:
+          formData.instructor,
+
+        roomId:
+          Number(formData.room),
+
+        dateFrom:
+          `${globalDateFrom}T00:00:00`,
+
+        dateTo:
+          `${globalDateTo}T23:59:59`,
+
+        evaluationTopics:
+          validTopics.map(
+            (topic) => ({
+              id: topic.id,
+
+              name:
+                topic.name,
+
+              date:
+                `${topic.date}T00:00:00`,
+
+              startTime:
+                `${topic.startTime}:00`,
+
+              endTime:
+                `${topic.endTime}:00`,
+            }),
+          ),
+      };
+
+      const success =
+        await updateEvent(
+          eventId,
+          payload,
+        );
+
+      if (success) {
+        /*
+         * Vamos después a EnrollmentMatrix
+         * porque si se agregó un tema nuevo,
+         * debemos decidir qué participantes
+         * estarán inscritos en él.
+         */
+        navigate(
+          `/registro-asistencia/usuarios/${eventId}`,
+        );
+      }
+
+      return;
+    }
+
+    const payload: CreateTrainingEvent =
+    {
+      courseName:
+        formData.courseName,
+
+      instructorName:
+        formData.instructor,
+
+      roomId:
+        Number(formData.room),
+
+      dateFrom:
+        `${globalDateFrom}T00:00:00`,
+
+      dateTo:
+        `${globalDateTo}T23:59:59`,
+
+      evaluationTopics:
+        validTopics.map(
+          (topic) => ({
+            name:
+              topic.name,
+
+            date:
+              `${topic.date}T00:00:00`,
+
+            startTime:
+              `${topic.startTime}:00`,
+
+            endTime:
+              `${topic.endTime}:00`,
+          }),
+        ),
     };
 
-    const eventId = await createEvent(payload as any);
+    const newEventId =
+      await createEvent(payload);
 
-    if (eventId) {
-      navigate("/registro-asistencia/usuarios", {
-        state: {
-          eventId,
-          expectedAttendees: formData.attendeeCount,
+    if (newEventId) {
+      navigate(
+        "/registro-asistencia/usuarios",
+        {
+          state: {
+            eventId:
+              newEventId,
+
+            expectedAttendees:
+              formData.attendeeCount,
+          },
         },
-      });
+      );
     }
   };
 
@@ -131,6 +340,42 @@ export const TrainingEventFormLayout = () => {
       label: room.name,
     })),
   ];
+
+  const toDateInputValue = (
+    value: string,
+  ): string => {
+    if (!value) {
+      return "";
+    }
+
+    const parts =
+      value.split("-");
+
+    if (
+      parts.length === 3 &&
+      parts[0].length === 2 &&
+      parts[1].length === 2 &&
+      parts[2].length === 4
+    ) {
+      const [day, month, year] =
+        parts;
+
+      return `${year}-${month}-${day}`;
+    }
+
+    return value.slice(0, 10);
+  };
+
+  if (
+    isEditMode &&
+    isLoadingEvent
+  ) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-slate-500 font-medium">
+        Cargando datos del evento...
+      </div>
+    );
+  }
 
   return (
     <div className="w-full max-w-4xl mx-auto p-6 min-h-screen font-sans">
@@ -145,10 +390,15 @@ export const TrainingEventFormLayout = () => {
           Volver al Historial
         </button>
         <h1 className="text-3xl font-bold text-slate-900 tracking-tight">
-          Configurar nueva lista de asistencia
+          {isEditMode
+            ? "Editar control de asistencia"
+            : "Configurar nueva lista de asistencia"}
         </h1>
+
         <p className="text-slate-500 mt-1">
-          Completa los detalles para generar la tabla de asistencia y evaluación
+          {isEditMode
+            ? "Modifica los datos generales, temas y horarios del evento."
+            : "Completa los detalles para generar la tabla de asistencia y evaluación"}
         </p>
       </div>
 
@@ -196,12 +446,17 @@ export const TrainingEventFormLayout = () => {
               <div className="col-span-1">
                 <InputField
                   type="number"
-                  label="Cantidad de Asistentes Esperados"
+                  label={
+                    isEditMode
+                      ? "Participantes Actuales"
+                      : "Cantidad de Asistentes Esperados"
+                  }
                   name="attendeeCount"
                   min="1"
                   value={formData.attendeeCount}
                   onChange={handleInputChange}
-                  required
+                  disabled={isEditMode}
+                  required={!isEditMode}
                 />
               </div>
             </div>
@@ -306,17 +561,30 @@ export const TrainingEventFormLayout = () => {
         <div className="bg-slate-50 p-6 border-t border-slate-200 flex justify-end gap-4">
           <button
             type="button"
-            onClick={() => navigate(-1)}
+            onClick={() =>
+              isEditMode && eventId
+                ? navigate(
+                  `/registro-asistencia/ejecucion/${eventId}`,
+                )
+                : navigate(-1)
+            }
             className="px-6 py-3 bg-white border border-slate-300 text-slate-700 font-semibold rounded-lg hover:bg-slate-50 transition-colors cursor-pointer"
           >
             Cancelar
           </button>
           <button
             type="submit"
-            disabled={isCreating}
-            className={`px-6 py-3 font-semibold rounded-lg shadow-sm transition-all flex items-center gap-2 ${isCreating ? "bg-blue-400 text-white cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700 text-white active:scale-95 cursor-pointer"}`}
+            disabled={isSubmitting}
+            className={`px-6 py-3 font-semibold rounded-lg shadow-sm transition-all flex items-center gap-2 ${isSubmitting
+              ? "bg-blue-400 text-white cursor-not-allowed"
+              : "bg-blue-600 hover:bg-blue-700 text-white active:scale-95 cursor-pointer"
+              }`}
           >
-            {isCreating ? "Generando..." : "Generar Tabla de Asistencia"}
+            {isSubmitting
+              ? "Guardando..."
+              : isEditMode
+                ? "Guardar Cambios"
+                : "Generar Tabla de Asistencia"}
           </button>
         </div>
       </form>
