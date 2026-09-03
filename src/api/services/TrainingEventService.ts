@@ -9,16 +9,13 @@ import type {
 import { apiClient } from "../client";
 
 class TrainingEventService {
-  private getTrainingEventsEndpoint =
-    API_CONFIG.endpoint.trainingEvent.getTrainingEvents;
-  private getDetailsEndpoint =
-    API_CONFIG.endpoint.trainingEvent.trainingEventsDetails;
+  private getTrainingEventsEndpoint = API_CONFIG.endpoint.trainingEvent.getTrainingEvents;
+  private getDetailsEndpoint = API_CONFIG.endpoint.trainingEvent.trainingEventsDetails;
   private createEventEndpoint = API_CONFIG.endpoint.trainingEvent.createEvent;
   private deleteEventEndpoint = API_CONFIG.endpoint.trainingEvent.delete;
-  private assignAttendeesEndpoint =
-    API_CONFIG.endpoint.trainingEvent.assingAttendees;
-  private saveAttendanceEndpoint =
-    API_CONFIG.endpoint.trainingEvent.saveAttendance;
+  private assignAttendeesEndpoint = API_CONFIG.endpoint.trainingEvent.assingAttendees;
+  private saveAttendanceEndpoint = API_CONFIG.endpoint.trainingEvent.saveAttendance;
+  private updateAttendeesEndpoint = API_CONFIG.endpoint.trainingEvent.updateAttendees;
 
   async getTrainingEvents(): Promise<TrainingEvents[]> {
     return apiClient.get<TrainingEvents[]>(this.getTrainingEventsEndpoint);
@@ -48,6 +45,13 @@ class TrainingEventService {
 
   async saveAttendance(data: SaveAttendance, id: number): Promise<void> {
     return apiClient.post<void>(`${this.saveAttendanceEndpoint}${id}`, data);
+  }
+
+  async updateAttendees(id: number, data: AssignAttendees,): Promise<void> {
+    await apiClient.put<void>(
+      `${this.updateAttendeesEndpoint}${id}`,
+      data,
+    );
   }
 }
 

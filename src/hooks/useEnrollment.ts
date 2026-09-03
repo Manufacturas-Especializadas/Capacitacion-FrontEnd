@@ -14,9 +14,10 @@ export interface EnrolledRow {
 export const useEnrollment = (
   eventId: number | undefined,
   expectedAttendees: number,
+  isEditMode: boolean = false,
 ) => {
   const navigate = useNavigate();
-  const { assignAttendees, isAssing } = useTrainingEventMutations();
+  const { assignAttendees, updateAttendees, isAssing } = useTrainingEventMutations();
 
   const [topics, setTopics] = useState<string[]>([]);
   const [rows, setRows] = useState<EnrolledRow[]>([]);
@@ -30,29 +31,117 @@ export const useEnrollment = (
 
     const fetchEventData = async () => {
       try {
-        const data = await trainingEventService.getDetails(Number(eventId));
+        const data =
+          await trainingEventService.getDetails(
+            Number(eventId),
+          );
 
-        const fetchedTopics = data.eventData?.evaluationTopics || [];
+        const fetchedTopics =
+          data.eventData?.evaluationTopics || [];
+
         setTopics(fetchedTopics);
 
-        const initialRows = Array.from({ length: expectedAttendees }).map(
-          (_, i) => ({
-            id: `row-${Date.now()}-${i}`,
-            employee: null,
-            enrollments: Array(fetchedTopics.length).fill(true),
-          }),
-        );
+        /*
+         * MODO EDICIÓN
+         *
+         * Reconstruimos EnrollmentMatrix
+         * usando employees + initialAttendance.
+         */
+        if (isEditMode) {
+          const attendanceByEmployeeId =
+            new Map(
+              data.initialAttendance.map(
+                (record: any) => [
+                  String(record.employeeId),
+                  record,
+                ],
+              ),
+            );
+
+          const existingRows: EnrolledRow[] =
+            data.employees.map(
+              (
+                employee: any,
+                index: number,
+              ) => {
+                const attendance =
+                  attendanceByEmployeeId.get(
+                    String(employee.id),
+                  );
+
+                return {
+                  id:
+                    `existing-${employee.id}-${index}`,
+
+                  employee: {
+                    id:
+                      String(employee.id),
+
+                    employeeNumber:
+                      employee.employeeNumber,
+
+                    name:
+                      employee.name,
+
+                    line:
+                      employee.line,
+                  },
+
+                  enrollments:
+                    Array.from(
+                      {
+                        length:
+                          fetchedTopics.length,
+                      },
+                      (_, topicIndex) =>
+                        Boolean(
+                          attendance
+                            ?.evaluations
+                            ?.[topicIndex]
+                            ?.isEnrolled,
+                        ),
+                    ),
+                };
+              },
+            );
+
+          setRows(existingRows);
+
+          return;
+        }
+
+        /*
+         * MODO CREACIÓN
+         */
+        const initialRows =
+          Array.from({
+            length: expectedAttendees,
+          }).map((_, i) => ({
+            id:
+              `row-${Date.now()}-${i}`,
+
+            employee:
+              null,
+
+            enrollments:
+              Array(
+                fetchedTopics.length,
+              ).fill(true),
+          }));
 
         setRows(initialRows);
       } catch (error) {
-        console.error("Error cargando el evento", error);
+        console.error(
+          "Error cargando el evento",
+          error,
+        );
       } finally {
         setIsLoadingEvent(false);
       }
     };
 
     fetchEventData();
-  }, [eventId, expectedAttendees, navigate]);
+  }, [eventId, expectedAttendees, isEditMode, navigate]);
 
   const addEmptyRow = () => {
     setRows((prev) => [
@@ -113,9 +202,20 @@ export const useEnrollment = (
       })),
     };
 
-    const success = await assignAttendees(payload);
+    const success =
+      isEditMode
+        ? await updateAttendees(
+          Number(eventId),
+          payload,
+        )
+        : await assignAttendees(
+          payload,
+        );
+
     if (success) {
-      navigate(`/registro-asistencia/ejecucion/${eventId}`);
+      navigate(
+        `/registro-asistencia/ejecucion/${eventId}`,
+      );
     }
   };
 
