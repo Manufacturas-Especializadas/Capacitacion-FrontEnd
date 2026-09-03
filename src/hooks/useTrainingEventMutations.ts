@@ -44,6 +44,42 @@ export const useTrainingEventMutations = () => {
     }
   };
 
+  const updateAttendees = async (
+    id: number,
+    data: AssignAttendees,
+  ) => {
+    setIsAssigning(true);
+
+    try {
+      await trainingEventService.updateAttendees(
+        id,
+        data,
+      );
+
+      toast.success(
+        "Participantes actualizados correctamente",
+      );
+
+      return true;
+    } catch (error) {
+      console.error(
+        "Error updating attendees:",
+        error,
+      );
+
+      const message =
+        error instanceof Error
+          ? error.message
+          : "No se pudieron actualizar los participantes.";
+
+      toast.error(message);
+
+      return false;
+    } finally {
+      setIsAssigning(false);
+    }
+  };
+
   const saveFinalAttendance = async (data: SaveAttendance, id: number) => {
     setIsSaving(true);
 
@@ -85,5 +121,6 @@ export const useTrainingEventMutations = () => {
     isSaving,
     deleteEvent,
     isDeleting,
+    updateAttendees,
   };
 };

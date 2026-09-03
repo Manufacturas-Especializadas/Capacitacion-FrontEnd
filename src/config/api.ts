@@ -23,6 +23,7 @@ export const API_CONFIG = {
       saveAttendance: "/api/TrainingEvents/save-attendance/",
       trainingEventsDetails: "/api/TrainingEvents/details/",
       getTrainingEvents: "/api/TrainingEvents/trainingEvents",
+      updateAttendees: "/api/TrainingEvents/update-attendees/",
     },
     weldersChecklist: {
       all: "/api/WelderEvaluations/getAll",

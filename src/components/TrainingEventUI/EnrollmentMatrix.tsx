@@ -1,14 +1,47 @@
 import { useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate, useParams, } from "react-router-dom";
 import { useEnrollment } from "../../hooks/useEnrollment";
 import { useCatalogs } from "../../hooks/useCatalogs";
 import { useEmployees } from "../../hooks/useEmployees";
 import { EnrollmentRow } from "./EnrollmentRow";
 
 export const EnrollmentMatrix = () => {
-  const { state } = useLocation();
-  const eventId = state?.eventId;
-  const expectedAttendees = Number(state?.expectedAttendees || 1);
+  const { state } =
+    useLocation();
+
+  const navigate =
+    useNavigate();
+
+  const { id } =
+    useParams<{
+      id?: string;
+    }>();
+
+  const routeEventId =
+    Number(id);
+
+  const hasRouteEventId =
+    Number.isInteger(routeEventId) &&
+    routeEventId > 0;
+
+  const stateEventId =
+    Number(state?.eventId);
+
+  const eventId =
+    hasRouteEventId
+      ? routeEventId
+      : Number.isInteger(stateEventId) &&
+        stateEventId > 0
+        ? stateEventId
+        : undefined;
+
+  const isEditMode =
+    hasRouteEventId;
+
+  const expectedAttendees =
+    Number(
+      state?.expectedAttendees || 1,
+    );
 
   const { lines, fetchLines } = useCatalogs();
 
@@ -24,7 +57,7 @@ export const EnrollmentMatrix = () => {
     toggleEnrollment,
     removeRow,
     saveAssignments,
-  } = useEnrollment(eventId, expectedAttendees);
+  } = useEnrollment(eventId, expectedAttendees, isEditMode,);
 
   useEffect(() => {
     fetchLines();
@@ -45,10 +78,14 @@ export const EnrollmentMatrix = () => {
       <div className="mb-6 flex justify-between items-end border-b border-slate-200 pb-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">
-            Asignación de Participantes
+            {isEditMode
+              ? "Editar Participantes"
+              : "Asignación de Participantes"}
           </h1>
           <p className="text-slate-500 mt-1">
-            Busca o registra operadores para el evento #{eventId}.
+            {isEditMode
+              ? `Modifica los participantes del evento #${eventId}.`
+              : `Busca o registra operadores para el evento #${eventId}.`}
           </p>
         </div>
         <button
@@ -126,17 +163,43 @@ export const EnrollmentMatrix = () => {
         </div>
       </div>
 
-      <div className="mt-6 flex justify-end">
+      <div className="mt-6 flex justify-end gap-3">
+        {isEditMode && (
+          <button
+            type="button"
+            onClick={() =>
+              navigate(
+                `/registro-asistencia/ejecucion/${eventId}`,
+              )
+            }
+            disabled={isAssing}
+            className="
+      px-6 py-3
+      border border-slate-300
+      bg-white text-slate-700
+      font-semibold rounded-lg
+      hover:bg-slate-50
+      transition-colors
+      cursor-pointer
+      disabled:opacity-50
+    "
+          >
+            Cancelar
+          </button>
+        )}
         <button
           onClick={saveAssignments}
           disabled={isAssing || validRowsCount === 0}
-          className={`px-6 py-3 font-semibold rounded-lg shadow-sm transition-all ${
-            isAssing || validRowsCount === 0
-              ? "bg-blue-400 text-white cursor-not-allowed"
-              : "bg-blue-600 hover:bg-blue-700 text-white active:scale-95 cursor-pointer"
-          }`}
+          className={`px-6 py-3 font-semibold rounded-lg shadow-sm transition-all ${isAssing || validRowsCount === 0
+            ? "bg-blue-400 text-white cursor-not-allowed"
+            : "bg-blue-600 hover:bg-blue-700 text-white active:scale-95 cursor-pointer"
+            }`}
         >
-          {isAssing ? "Guardando..." : "Guardar Asignaciones y Continuar"}
+          {isAssing
+            ? "Guardando..."
+            : isEditMode
+              ? "Guardar Cambios"
+              : "Guardar Asignaciones y Continuar"}
         </button>
       </div>
     </div>

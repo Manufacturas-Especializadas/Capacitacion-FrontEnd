@@ -1,5 +1,9 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import {
+  useNavigate,
+  useParams,
+} from "react-router-dom";
+import { Users } from "lucide-react";
 import { TrainingEventTable } from "../../components/TrainingEventUI/TrainingEventTable";
 import type {
   TrainingEventData,
@@ -16,7 +20,7 @@ interface EventDetailsResponse {
 
 export const TrainingEvent = () => {
   const { id } = useParams();
-
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const [details, setDetails] = useState<EventDetailsResponse | null>(null);
 
@@ -60,6 +64,33 @@ export const TrainingEvent = () => {
 
   return (
     <div className="p-8 bg-slate-100 min-h-screen">
+      <div className="mb-4 flex justify-end">
+        <button
+          type="button"
+          onClick={() =>
+            navigate(
+              `/registro-asistencia/usuarios/${id}`,
+            )
+          }
+          className="
+      flex items-center gap-2
+      rounded-lg bg-white
+      border border-slate-300
+      px-4 py-2.5
+      text-sm font-semibold
+      text-slate-700
+      shadow-sm
+      hover:bg-slate-50
+      hover:text-blue-600
+      transition-colors
+      cursor-pointer
+    "
+        >
+          <Users size={18} />
+
+          Editar participantes
+        </button>
+      </div>
       <TrainingEventTable
         eventData={details.eventData}
         employees={details.employees}

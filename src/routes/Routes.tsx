@@ -39,6 +39,10 @@ export const MyRoutes = () => {
           element={<EnrollmentMatrix />}
         />
         <Route
+          path="/registro-asistencia/usuarios/:id"
+          element={<EnrollmentMatrix />}
+        />
+        <Route
           path="/registro-asistencia/ejecucion/:id"
           element={<TrainingEvent />}
         />
