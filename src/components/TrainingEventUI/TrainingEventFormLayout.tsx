@@ -43,7 +43,7 @@ export const TrainingEventFormLayout = () => {
     : null;
 
   useEffect(() => {
-    fetchRooms();
+    void fetchRooms();
   }, [fetchRooms]);
 
   useEffect(() => {
