@@ -6,9 +6,40 @@ import {
   Loader2,
   Trash2,
   Users,
+  Clock3
 } from "lucide-react";
 
 import type { TrainingReportSummary } from "../../../types/Types";
+
+const formatTrainingMinutes = (
+  totalMinutes: number,
+): string => {
+  const safeMinutes =
+    Number.isFinite(totalMinutes)
+      ? Math.max(
+        0,
+        Math.trunc(totalMinutes),
+      )
+      : 0;
+
+  const hours =
+    Math.floor(
+      safeMinutes / 60,
+    );
+
+  const minutes =
+    safeMinutes % 60;
+
+  if (hours === 0) {
+    return `${minutes} min`;
+  }
+
+  if (minutes === 0) {
+    return `${hours} h`;
+  }
+
+  return `${hours} h ${minutes} min`;
+};
 
 interface GridProps {
   data: TrainingReportSummary[];
@@ -17,6 +48,7 @@ interface GridProps {
   onDelete: (id: number) => void;
   deletingReportId: number | null;
 }
+
 
 export const TrainingReportsGrid = ({
   data,
@@ -145,6 +177,32 @@ export const TrainingReportsGrid = ({
 
                     <p className="text-sm font-semibold text-slate-700">
                       {report.weekNumber ?? "No especificada"}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <div className="p-1.5 bg-slate-50 rounded-md text-slate-400">
+                    <Clock3 size={14} />
+                  </div>
+
+                  <div>
+                    <p
+                      className="
+        text-[10px]
+        font-bold
+        text-slate-400
+        uppercase
+        tracking-wide
+      "
+                    >
+                      Horas totales impartidas
+                    </p>
+
+                    <p className="text-sm font-semibold text-slate-700">
+                      {formatTrainingMinutes(
+                        report.totalTrainingMinutes,
+                      )}
                     </p>
                   </div>
                 </div>

@@ -11,6 +11,7 @@ import {
     UserRound,
     Users,
     Download,
+    Clock3,
 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
@@ -179,6 +180,44 @@ const formatHours = (
     return `${wholeHours} h ${minutes} min`;
 };
 
+const hourMinuteToMinutes = (
+    value: number | null,
+): number => {
+    if (value === null) {
+        return 0;
+    }
+
+    const hours =
+        Math.trunc(value);
+
+    const minutes =
+        Math.round(
+            (value - hours) * 100,
+        );
+
+    return hours * 60 + minutes;
+};
+
+const formatTotalMinutes = (
+    totalMinutes: number,
+): string => {
+    const hours =
+        Math.floor(totalMinutes / 60);
+
+    const minutes =
+        totalMinutes % 60;
+
+    if (hours === 0) {
+        return `${minutes} min`;
+    }
+
+    if (minutes === 0) {
+        return `${hours} h`;
+    }
+
+    return `${hours} h ${minutes} min`;
+};
+
 const formatDate = (value: string): string => {
     const date = new Date(value);
 
@@ -300,6 +339,16 @@ export const TrainingReportDetails = () => {
         );
     }
 
+    const totalTrainingMinutes =
+        report.attendees.reduce(
+            (total, attendee) =>
+                total +
+                hourMinuteToMinutes(
+                    attendee.totalHours,
+                ),
+            0,
+        );
+
     return (
         <div className="mx-auto min-h-screen w-full max-w-7xl p-4 text-slate-900 md:p-6">
             <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
@@ -382,7 +431,7 @@ export const TrainingReportDetails = () => {
                     Información general
                 </h2>
 
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
                     <DetailItem
                         label="Líder o instructor"
                         value={report.leaderName || "Sin información"}
@@ -409,6 +458,14 @@ export const TrainingReportDetails = () => {
                         label="Fecha de creación"
                         value={formatDate(report.createdAt)}
                         icon={<CalendarDays size={16} />}
+                    />
+
+                    <DetailItem
+                        label="Horas totales impartidas"
+                        value={formatTotalMinutes(
+                            totalTrainingMinutes,
+                        )}
+                        icon={<Clock3 size={16} />}
                     />
                 </div>
             </section>

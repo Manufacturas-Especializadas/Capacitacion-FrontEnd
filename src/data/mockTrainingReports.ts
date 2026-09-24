@@ -7,6 +7,7 @@ export const mockReports: TrainingReportSummary[] = [
     leaderName: "Roberto Gómez",
     weekNumber: 24,
     attendeesCount: 5,
+    totalTrainingMinutes: 600,
     createdAt: "2026-06-15",
   },
   {
@@ -15,6 +16,7 @@ export const mockReports: TrainingReportSummary[] = [
     leaderName: "Ana Martínez",
     weekNumber: 24,
     attendeesCount: 3,
+    totalTrainingMinutes: 600,
     createdAt: "2026-06-16",
   },
   {
@@ -23,6 +25,7 @@ export const mockReports: TrainingReportSummary[] = [
     leaderName: "Carlos Ruiz",
     weekNumber: 25,
     attendeesCount: 8,
+    totalTrainingMinutes: 600,
     createdAt: "2026-06-20",
   },
 ];

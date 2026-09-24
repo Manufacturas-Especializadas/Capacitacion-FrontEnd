@@ -329,6 +329,7 @@ export interface TrainingReportSummary {
   leaderName: string;
   weekNumber: number | null;
   attendeesCount: number;
+  totalTrainingMinutes: number;
   createdAt: string;
 }
 
