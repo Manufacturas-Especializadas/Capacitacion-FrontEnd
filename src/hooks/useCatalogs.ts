@@ -15,15 +15,22 @@ export const useCatalogs = () => {
   const [weeks, setWeeks] = useState<FollowUpWeeks[]>([]);
   const [isLoadingCatalogs, setIsLoadingCatalogs] = useState(false);
 
-  const fetchRooms = async () => {
+  const fetchRooms = useCallback(async () => {
     try {
       const data = await catalogsService.getRooms();
+
       setRooms(data);
     } catch (error) {
-      console.error("Error al cargar salas", error);
-      toast.error("Error al cargar las salas");
+      console.error(
+        "Error al cargar salas",
+        error,
+      );
+
+      toast.error(
+        "Error al cargar las salas",
+      );
     }
-  };
+  }, []);
 
   const fetchLines = useCallback(async () => {
     try {
