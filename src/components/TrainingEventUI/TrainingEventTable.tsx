@@ -36,7 +36,7 @@ export const TrainingEventTable = ({
     setSignature,
     comments,
     setComments,
-  } = useAttendanceGrid(initialAttendance);
+  } = useAttendanceGrid(initialAttendance, eventData.comments ?? "",);
 
   const [modalOpen, setModalOpen] = useState(false);
   const [currentSignerId, setCurrentSignerId] = useState<string | null>(null);

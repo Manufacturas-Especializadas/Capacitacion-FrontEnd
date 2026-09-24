@@ -60,6 +60,7 @@ export interface TrainingEventData {
   roomId: number;
   area: string;
   instructorSignatureUrl: string | null;
+  comments: string | null;
   evaluationTopics: TrainingEventTopic[];
 }
 
