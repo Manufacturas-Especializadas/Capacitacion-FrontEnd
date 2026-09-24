@@ -170,17 +170,17 @@ export const TrainingEventFormLayout = () => {
 
     setTopics(newTopics);
   };
+
   const addTopic = () => {
-    if (topics.length < 5) {
-      setTopics([
-        ...topics,
-        { name: "", date: "", startTime: "", endTime: "" },
-      ]);
-    } else {
-      toast.error("Solo se permite un máximo de 5 temas por sesión", {
-        id: "max-topics",
-      });
-    }
+    setTopics([
+      ...topics,
+      {
+        name: "",
+        date: "",
+        startTime: "",
+        endTime: "",
+      },
+    ]);
   };
 
   const removeTopic = (index: number) => {
@@ -210,8 +210,6 @@ export const TrainingEventFormLayout = () => {
       toast.error("Debes agregar al menos un tema");
       return;
     }
-
-    if (validTopics.length > 5) return;
 
     const sortedDates = validTopics.map((t) => t.date).sort();
     const globalDateFrom = sortedDates[0];
@@ -463,16 +461,14 @@ export const TrainingEventFormLayout = () => {
           </div>
 
           <div>
-            <div className="flex justify-between items-end mb-6 border-b border-slate-100 pb-2">
+            <div className="mb-6 border-b border-slate-100 pb-2">
               <h2 className="text-lg font-semibold text-slate-800">
                 Temas y Horarios
               </h2>
-              <span
-                className="text-xs font-medium text-slate-500 bg-slate-100 px-2 
-                py-1 rounded"
-              >
-                Máximo 5 temas
-              </span>
+
+              <p className="text-xs text-slate-500 mt-1">
+                Agrega los temas y horarios necesarios para la sesión.
+              </p>
             </div>
 
             <div className="space-y-4">
@@ -546,15 +542,15 @@ export const TrainingEventFormLayout = () => {
               ))}
             </div>
 
-            {topics.length < 5 && (
-              <button
-                type="button"
-                onClick={addTopic}
-                className="mt-4 flex items-center justify-center w-full py-3 border-2 border-dashed border-slate-300 rounded-xl text-sm font-semibold text-slate-500 hover:border-blue-400 hover:text-blue-600 hover:bg-blue-50 transition-colors cursor-pointer"
-              >
-                <Plus size={18} className="mr-2" /> Agregar otro tema y horario
-              </button>
-            )}
+
+            <button
+              type="button"
+              onClick={addTopic}
+              className="mt-4 flex items-center justify-center w-full py-3 border-2 border-dashed border-slate-300 rounded-xl text-sm font-semibold text-slate-500 hover:border-blue-400 hover:text-blue-600 hover:bg-blue-50 transition-colors cursor-pointer"
+            >
+              <Plus size={18} className="mr-2" /> Agregar otro tema y horario
+            </button>
+
           </div>
         </div>
 
