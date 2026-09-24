@@ -36,9 +36,21 @@ export const EnrollmentRow = ({
   const [newLinea, setNewLinea] = useState("");
   const [isSaving, setIsSaving] = useState(false);
 
-  const searchResults = employeeDb.filter((e) =>
-    e.name.toLowerCase().includes(searchQuery.toLowerCase()),
-  );
+  const normalizedSearchQuery =
+    searchQuery.trim().toLowerCase();
+
+  const searchResults = employeeDb.filter((employee) => {
+    const name =
+      employee.name.toLowerCase();
+
+    const employeeNumber =
+      employee.employeeNumber.toLowerCase();
+
+    return (
+      name.includes(normalizedSearchQuery) ||
+      employeeNumber.includes(normalizedSearchQuery)
+    );
+  });
 
   const handleSelectExisting = (emp: Employee) => {
     setSearchQuery(emp.name);
@@ -103,12 +115,11 @@ export const EnrollmentRow = ({
                 setShowDropdown(true);
               }}
               onFocus={() => setShowDropdown(true)}
-              placeholder="Buscar por nombre..."
-              className={`w-full p-1.5 border ${
-                mode === "register"
-                  ? "border-slate-200 bg-slate-50"
-                  : "border-blue-400"
-              } rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500`}
+              placeholder="Buscar por nombre o nómina..."
+              className={`w-full p-1.5 border ${mode === "register"
+                ? "border-slate-200 bg-slate-50"
+                : "border-blue-400"
+                } rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500`}
               disabled={mode === "register" || isSaving}
             />
 
