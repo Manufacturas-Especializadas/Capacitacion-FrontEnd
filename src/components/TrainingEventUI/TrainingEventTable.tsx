@@ -22,6 +22,14 @@ interface TrainingEventProps {
   initialAttendance: AttendanceRecord[];
 }
 
+const formatTime = (time: string): string => {
+  const [hours, minutes] = time.split(":");
+  const hour = Number(hours);
+  const period = hour >= 12 ? "PM" : "AM";
+
+  return `${hour % 12 || 12}:${minutes} ${period}`;
+};
+
 export const TrainingEventTable = ({
   eventData,
   employees,
@@ -185,17 +193,16 @@ export const TrainingEventTable = ({
                       </span>
 
                       {date && (
-                        <span className="inline-flex items-center gap-1 text-[10px] bg-blue-50 text-blue-700 border border-blue-100 px-2 py-0.5 rounded font-medium whitespace-nowrap">
-                          <Calendar size={11} className="text-blue-500" />
+                        <span className="inline-flex items-center gap-1 text-[14px] bg-blue-50 text-blue-700 border border-blue-100 px-2 py-0.5 rounded font-medium whitespace-nowrap">
+                          <Calendar size={16} className="text-blue-500" />
                           {date}
                         </span>
                       )}
 
                       {startTime && endTime && (
-                        <span className="inline-flex items-center gap-1 text-[9px] text-slate-500 bg-slate-50 border border-slate-200 px-1.5 py-0.5 rounded font-normal whitespace-nowrap">
-                          <Clock size={10} className="text-slate-400" />
-                          {startTime.substring(0, 5)} -{" "}
-                          {endTime.substring(0, 5)}
+                        <span className="inline-flex items-center gap-1.5 text-sm text-slate-700 bg-slate-50 border border-slate-200 px-2 py-1 rounded font-medium tabular-nums whitespace-nowrap">
+                          <Clock size={16} className="shrink-0 text-slate-500" />
+                          {formatTime(startTime)} - {formatTime(endTime)}
                         </span>
                       )}
                     </div>
