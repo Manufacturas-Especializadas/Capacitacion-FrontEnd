@@ -2,6 +2,7 @@ import {
   PlusCircle,
   Search,
   Calendar,
+  CalendarDays,
   BookOpen,
   Users,
   SlidersHorizontal,
@@ -184,6 +185,7 @@ export const TrainingHistoryDashboard = () => {
                   <th className="px-6 py-4">Curso / Plática</th>
                   <th className="px-6 py-4">Instructor</th>
                   <th className="px-6 py-4 w-44">Periodo</th>
+                  <th className="px-6 py-4 text-center w-28">Semana</th>
                   <th className="px-6 py-4 text-center w-28">Temas</th>
                   <th className="px-6 py-4 text-center w-28">Personal</th>
                   <th className="px-6 py-4 w-36">Estado</th>
@@ -212,6 +214,15 @@ export const TrainingHistoryDashboard = () => {
                           {event.dateFrom} al {event.dateTo}
                         </span>
                       </div>
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      <span
+                        className="inline-flex items-center gap-1 bg-slate-100
+                        text-slate-700 px-2.5 py-1 rounded-md text-xs font-bold"
+                      >
+                        <CalendarDays size={12} className="text-slate-500" />
+                        {event.weekNumber}
+                      </span>
                     </td>
                     <td className="px-6 py-4 text-center">
                       <span
@@ -322,6 +333,10 @@ export const TrainingHistoryDashboard = () => {
                     <span>
                       {event.dateFrom} / {event.dateTo}
                     </span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <CalendarDays size={14} className="text-slate-400" />
+                    <span>Semana {event.weekNumber}</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <BookOpen size={14} className="text-slate-400" />
