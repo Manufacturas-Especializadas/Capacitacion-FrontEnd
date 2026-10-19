@@ -152,6 +152,22 @@ export interface TrainingEvents {
   dateTo: string;
   status: string;
   attendeeCount: number;
+  topicCount: number;
+}
+
+export interface PagedResult<T> {
+  items: T[];
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages: number;
+}
+
+export interface TrainingEventsQuery {
+  page?: number;
+  pageSize?: number;
+  search?: string;
+  status?: string;
 }
 
 export interface WelderData {
