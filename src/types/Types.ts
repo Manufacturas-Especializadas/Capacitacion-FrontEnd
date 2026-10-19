@@ -150,6 +150,7 @@ export interface TrainingEvents {
   instructorName: string;
   dateFrom: string;
   dateTo: string;
+  weekNumber: number;
   status: string;
   attendeeCount: number;
   topicCount: number;
