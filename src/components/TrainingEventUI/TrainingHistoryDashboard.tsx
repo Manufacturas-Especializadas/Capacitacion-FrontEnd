@@ -1,8 +1,8 @@
-import { useState } from "react";
 import {
   PlusCircle,
   Search,
   Calendar,
+  BookOpen,
   Users,
   SlidersHorizontal,
   ArrowRight,
@@ -16,10 +16,21 @@ import { useTrainingEventMutations } from "../../hooks/useTrainingEventMutations
 
 export const TrainingHistoryDashboard = () => {
   const navigate = useNavigate();
-  const { events, isLoading, error, refetch } = useTrainingEvents();
+  const {
+    events,
+    isLoading,
+    error,
+    page,
+    totalCount,
+    totalPages,
+    search,
+    statusFilter,
+    setPage,
+    setSearch,
+    setStatusFilter,
+    refetch,
+  } = useTrainingEvents();
   const { deleteEvent, isDeleting } = useTrainingEventMutations();
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
 
   const getStatusBadgeStyles = (status: string) => {
     switch (status?.toUpperCase()) {
@@ -35,18 +46,6 @@ export const TrainingHistoryDashboard = () => {
     }
   };
 
-  const filteredEvents = events.filter((evt) => {
-    const matchesSearch =
-      evt.courseName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      evt.instructorName.toLowerCase().includes(searchTerm.toLowerCase());
-
-    const matchesStatus =
-      statusFilter === "" ||
-      evt.status?.toUpperCase() === statusFilter.toUpperCase();
-
-    return matchesSearch && matchesStatus;
-  });
-
   const handleDelete = async (id: number) => {
     if (
       window.confirm(
@@ -59,34 +58,6 @@ export const TrainingHistoryDashboard = () => {
       }
     }
   };
-
-  if (isLoading) {
-    return (
-      <div className="w-full max-w-7xl mx-auto p-6 min-h-screen flex flex-col justify-center items-center font-sans">
-        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4" />
-        <p className="text-slate-500 font-medium animate-pulse">
-          Cargando el historial de capacitaciones...
-        </p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="w-full max-w-7xl mx-auto p-6 min-h-screen flex flex-col justify-center items-center font-sans">
-        <div className="bg-rose-50 border border-rose-200 rounded-xl p-6 text-center max-w-md">
-          <p className="text-rose-700 font-semibold mb-2">Ocurrió un error</p>
-          <p className="text-rose-600 text-sm mb-4">{error}</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="px-4 py-2 bg-rose-600 text-white text-sm font-semibold rounded-lg hover:bg-rose-700 transition-colors"
-          >
-            Reintentar
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div
@@ -140,8 +111,8 @@ export const TrainingHistoryDashboard = () => {
           <input
             type="text"
             placeholder="Buscar por curso o instructor..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
             className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 
             rounded-lg text-sm focus:bg-white focus:ring-2 focus:ring-blue-500/20 
             focus:border-blue-500 outline-none transition-all"
@@ -169,7 +140,25 @@ export const TrainingHistoryDashboard = () => {
         </div>
       </div>
 
-      {filteredEvents.length === 0 ? (
+      {isLoading ? (
+        <div role="status" className="p-12 flex flex-col justify-center items-center">
+          <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4" />
+          <p className="text-slate-500 font-medium animate-pulse">
+            Cargando el historial de capacitaciones...
+          </p>
+        </div>
+      ) : error ? (
+        <div className="bg-rose-50 border border-rose-200 rounded-xl p-6 text-center max-w-md mx-auto">
+          <p className="text-rose-700 font-semibold mb-2">Ocurrió un error</p>
+          <p className="text-rose-600 text-sm mb-4">{error}</p>
+          <button
+            onClick={refetch}
+            className="px-4 py-2 bg-rose-600 text-white text-sm font-semibold rounded-lg hover:bg-rose-700 transition-colors"
+          >
+            Reintentar
+          </button>
+        </div>
+      ) : events.length === 0 ? (
         <div
           className="bg-white border border-slate-200 rounded-xl p-12 text-center 
           shadow-sm"
@@ -183,7 +172,7 @@ export const TrainingHistoryDashboard = () => {
         <>
           <div
             className="hidden md:block bg-white border border-slate-200 rounded-xl 
-            overflow-hidden shadow-sm"
+            overflow-x-auto shadow-sm"
           >
             <table className="w-full text-sm text-left border-collapse">
               <thead
@@ -195,13 +184,14 @@ export const TrainingHistoryDashboard = () => {
                   <th className="px-6 py-4">Curso / Plática</th>
                   <th className="px-6 py-4">Instructor</th>
                   <th className="px-6 py-4 w-44">Periodo</th>
+                  <th className="px-6 py-4 text-center w-28">Temas</th>
                   <th className="px-6 py-4 text-center w-28">Personal</th>
                   <th className="px-6 py-4 w-36">Estado</th>
                   <th className="px-6 py-4 text-center w-28">Acción</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
-                {filteredEvents.map((event) => (
+                {events.map((event) => (
                   <tr
                     key={event.id}
                     className="hover:bg-slate-50/80 transition-colors"
@@ -222,6 +212,15 @@ export const TrainingHistoryDashboard = () => {
                           {event.dateFrom} al {event.dateTo}
                         </span>
                       </div>
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      <span
+                        className="inline-flex items-center gap-1 bg-slate-100
+                        text-slate-700 px-2.5 py-1 rounded-md text-xs font-bold"
+                      >
+                        <BookOpen size={12} className="text-slate-500" />
+                        {event.topicCount}
+                      </span>
                     </td>
                     <td className="px-6 py-4 text-center">
                       <span
@@ -287,7 +286,7 @@ export const TrainingHistoryDashboard = () => {
           </div>
 
           <div className="grid grid-cols-1 gap-4 md:hidden">
-            {filteredEvents.map((event) => (
+            {events.map((event) => (
               <div
                 key={event.id}
                 className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm 
@@ -325,6 +324,10 @@ export const TrainingHistoryDashboard = () => {
                     </span>
                   </div>
                   <div className="flex items-center gap-1">
+                    <BookOpen size={14} className="text-slate-400" />
+                    <span>{event.topicCount} Temas</span>
+                  </div>
+                  <div className="flex items-center gap-1">
                     <Users size={14} className="text-slate-400" />
                     <span>{event.attendeeCount} Operadores</span>
                   </div>
@@ -354,6 +357,32 @@ export const TrainingHistoryDashboard = () => {
             ))}
           </div>
         </>
+      )}
+      {!isLoading && !error && (
+        <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-slate-500">
+          <p>{totalCount} registros en total</p>
+          <nav aria-label="Paginación del historial" className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setPage(page - 1)}
+              disabled={page <= 1 || isDeleting}
+              className="px-3 py-2 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Anterior
+            </button>
+            <span className="font-medium">
+              {totalPages > 0 ? `Página ${page} de ${totalPages}` : "Sin resultados"}
+            </span>
+            <button
+              type="button"
+              onClick={() => setPage(page + 1)}
+              disabled={page >= totalPages || isDeleting}
+              className="px-3 py-2 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Siguiente
+            </button>
+          </nav>
+        </div>
       )}
     </div>
   );

@@ -2,9 +2,11 @@ import { API_CONFIG } from "../../config/api";
 import type {
   AssignAttendees,
   CreateTrainingEvent,
+  PagedResult,
   SaveAttendance,
   TrainingEventDetail,
   TrainingEvents,
+  TrainingEventsQuery,
   UpdateTrainingEvent,
 } from "../../types/Types";
 import { apiClient } from "../client";
@@ -18,8 +20,22 @@ class TrainingEventService {
   private saveAttendanceEndpoint = API_CONFIG.endpoint.trainingEvent.saveAttendance;
   private updateAttendeesEndpoint = API_CONFIG.endpoint.trainingEvent.updateAttendees;
   private updateEventEndpoint = API_CONFIG.endpoint.trainingEvent.updateEvent;
-  async getTrainingEvents(): Promise<TrainingEvents[]> {
-    return apiClient.get<TrainingEvents[]>(this.getTrainingEventsEndpoint);
+  async getTrainingEvents(
+    { page = 1, pageSize = 25, search, status }: TrainingEventsQuery = {},
+    signal?: AbortSignal,
+  ): Promise<PagedResult<TrainingEvents>> {
+    return apiClient.get<PagedResult<TrainingEvents>>(
+      this.getTrainingEventsEndpoint,
+      {
+        params: {
+          page,
+          pageSize,
+          search: search?.trim() || undefined,
+          status: status?.trim() || undefined,
+        },
+        signal,
+      },
+    );
   }
 
   async getDetails(id: number): Promise<TrainingEventDetail> {
