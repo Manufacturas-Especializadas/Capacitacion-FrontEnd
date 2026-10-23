@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   AlertCircle,
@@ -17,8 +17,6 @@ import type { TrainingReportSummary } from "../../types/Types";
 export const TrainingReports = () => {
   const navigate = useNavigate();
 
-  const [searchTerm, setSearchTerm] = useState("");
-
   const [reportToDelete, setReportToDelete] =
     useState<TrainingReportSummary | null>(null);
 
@@ -29,31 +27,17 @@ export const TrainingReports = () => {
     deletingReportId,
     fetchReports,
     deleteReport,
-  } = useTrainingReports();
-
-  useEffect(() => {
-    void fetchReports();
-  }, [fetchReports]);
-
-  const filteredReports = useMemo(() => {
-    const term = searchTerm.trim().toLowerCase();
-
-    if (!term) {
-      return reports;
-    }
-
-    return reports.filter((report) => {
-      return (
-        report.leaderName
-          .toLowerCase()
-          .includes(term) ||
-        report.id.toString().includes(term) ||
-        report.trainingType
-          .toLowerCase()
-          .includes(term)
-      );
-    });
-  }, [reports, searchTerm]);
+    page,
+    totalCount,
+    totalPages,
+    search,
+    trainingType,
+    weekNumber,
+    setPage,
+    setSearch,
+    setTrainingType,
+    setWeekNumber,
+  } = useTrainingReports(true);
 
   const handleViewDetails = (id: number) => {
     navigate(`/reportes-entrenamientos/ver/${id}`);
@@ -119,8 +103,12 @@ export const TrainingReports = () => {
         "
       >
         <TrainingReportsHeader
-          searchTerm={searchTerm}
-          onSearchChange={setSearchTerm}
+          searchTerm={search}
+          onSearchChange={setSearch}
+          trainingType={trainingType}
+          onTrainingTypeChange={setTrainingType}
+          weekNumber={weekNumber}
+          onWeekNumberChange={setWeekNumber}
         />
 
         {reportsError && (
@@ -190,12 +178,44 @@ export const TrainingReports = () => {
           </div>
         ) : (
           <TrainingReportsGrid
-            data={filteredReports}
+            data={reports}
             onViewDetails={handleViewDetails}
             onEdit={handleEdit}
             onDelete={handleDelete}
             deletingReportId={deletingReportId}
           />
+        )}
+
+        {!isLoadingReports && !reportsError && (
+          <nav
+            aria-label="Paginación de reportes de entrenamiento"
+            className="mt-6 flex flex-col items-center justify-between gap-4 sm:flex-row"
+          >
+            <p className="text-sm text-slate-500" aria-live="polite">
+              {totalCount} registros en total
+            </p>
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setPage(page - 1)}
+                disabled={page <= 1 || deletingReportId !== null}
+                className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Anterior
+              </button>
+              <span className="text-sm text-slate-600" aria-live="polite">
+                {totalPages > 0 ? `Página ${page} de ${totalPages}` : "Sin resultados"}
+              </span>
+              <button
+                type="button"
+                onClick={() => setPage(page + 1)}
+                disabled={page >= totalPages || deletingReportId !== null}
+                className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Siguiente
+              </button>
+            </div>
+          </nav>
         )}
       </div>
 

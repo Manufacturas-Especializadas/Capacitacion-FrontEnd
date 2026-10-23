@@ -1,6 +1,8 @@
 import { API_CONFIG } from "../../config/api";
 import type {
   CreateTrainingReportPayload,
+  PagedResult,
+  TrainingReportsQuery,
   TrainingReportDetails,
   TrainingReportSignatureValue,
   TrainingReportSummary,
@@ -499,12 +501,24 @@ class TrainingReportsService {
     );
   }
 
-  async getAll(): Promise<
-    TrainingReportSummary[]
-  > {
-    return apiClient.get<
-      TrainingReportSummary[]
-    >(this.getAllEndpoint);
+  async getAll(
+    { page = 1, pageSize = 25, search, trainingType, weekNumber }: TrainingReportsQuery = {},
+    signal?: AbortSignal,
+  ): Promise<PagedResult<TrainingReportSummary>> {
+    return apiClient.get<PagedResult<TrainingReportSummary>>(this.getAllEndpoint, {
+      params: {
+        page,
+        pageSize,
+        search: search?.trim() || undefined,
+        trainingType: trainingType?.trim() || undefined,
+        weekNumber:
+          typeof weekNumber === "number" && Number.isInteger(weekNumber)
+            && weekNumber >= 1 && weekNumber <= 53
+            ? weekNumber
+            : undefined,
+      },
+      signal,
+    });
   }
 
   async delete(

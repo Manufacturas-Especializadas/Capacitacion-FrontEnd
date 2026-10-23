@@ -4,11 +4,19 @@ import { useNavigate } from "react-router-dom";
 interface HeaderProps {
   searchTerm: string;
   onSearchChange: (value: string) => void;
+  trainingType: string;
+  onTrainingTypeChange: (value: string) => void;
+  weekNumber: number | null;
+  onWeekNumberChange: (value: number | null) => void;
 }
 
 export const TrainingReportsHeader = ({
   searchTerm,
   onSearchChange,
+  trainingType,
+  onTrainingTypeChange,
+  weekNumber,
+  onWeekNumberChange,
 }: HeaderProps) => {
   const navigate = useNavigate();
 
@@ -68,9 +76,9 @@ export const TrainingReportsHeader = ({
 
       <div
         className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex 
-        items-center"
+        flex-col gap-4 md:flex-row md:items-end"
       >
-        <div className="relative w-full md:w-96">
+        <div className="relative w-full md:flex-1">
           <div
             className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none 
             text-slate-400"
@@ -79,6 +87,7 @@ export const TrainingReportsHeader = ({
           </div>
           <input
             type="text"
+            aria-label="Buscar por líder o ID de reporte"
             placeholder="Buscar por líder o ID de reporte..."
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
@@ -87,6 +96,32 @@ export const TrainingReportsHeader = ({
             focus:border-blue-500 outline-none transition-all"
           />
         </div>
+        <label className="flex w-full flex-col gap-1 text-sm font-semibold text-slate-600 md:w-52">
+          Tipo de entrenamiento
+          <select
+            value={trainingType}
+            onChange={(e) => onTrainingTypeChange(e.target.value)}
+            className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/20"
+          >
+            <option value="">Todos los tipos</option>
+            <option value="EMPAQUE">EMPAQUE</option>
+            <option value="SOLDADURA">SOLDADURA</option>
+            <option value="FABRICACION">FABRICACION</option>
+          </select>
+        </label>
+        <label className="flex w-full flex-col gap-1 text-sm font-semibold text-slate-600 md:w-48">
+          Semana
+          <select
+            value={weekNumber ?? ""}
+            onChange={(e) => onWeekNumberChange(e.target.value === "" ? null : Number(e.target.value))}
+            className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/20"
+          >
+            <option value="">Todas las semanas</option>
+            {Array.from({ length: 53 }, (_, index) => index + 1).map((week) => (
+              <option key={week} value={week}>Semana {week}</option>
+            ))}
+          </select>
+        </label>
       </div>
     </div>
   );
