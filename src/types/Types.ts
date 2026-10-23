@@ -340,6 +340,14 @@ export interface UpdateTrainingReportResponse {
 }
 
 //"EMPAQUE" | "SOLDADURA" | "FABRICACION";
+export interface TrainingReportsQuery {
+  page?: number;
+  pageSize?: number;
+  search?: string;
+  trainingType?: string;
+  weekNumber?: number | null;
+}
+
 export interface TrainingReportSummary {
   id: number;
   trainingType: string;

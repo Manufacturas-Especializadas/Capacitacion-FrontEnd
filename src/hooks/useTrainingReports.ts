@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { trainingReportsService } from "../api/services/TrainingReportsService";
 import type {
@@ -14,7 +14,18 @@ interface UseTrainingReportsResult {
   reportsError: string | null;
   isSubmitting: boolean;
   deletingReportId: number | null;
-  fetchReports: () => Promise<void>;
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages: number;
+  search: string;
+  trainingType: string;
+  weekNumber: number | null;
+  setPage: (value: number) => void;
+  setSearch: (value: string) => void;
+  setTrainingType: (value: string) => void;
+  setWeekNumber: (value: number | null) => void;
+  fetchReports: () => void;
   createReport: (
     payload: CreateTrainingReportPayload,
   ) => Promise<boolean>;
@@ -32,43 +43,115 @@ interface UseTrainingReportDetailsResult {
   refetch: () => Promise<void>;
 }
 
-export const useTrainingReports = (): UseTrainingReportsResult => {
+// The form also uses this hook; only the listing opts into automatic loading.
+export const useTrainingReports = (enabled = false): UseTrainingReportsResult => {
   const [reports, setReports] = useState<TrainingReportSummary[]>([]);
-  const [isLoadingReports, setIsLoadingReports] = useState(false);
+  const [isLoadingReports, setIsLoadingReports] = useState(enabled);
   const [reportsError, setReportsError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [deletingReportId, setDeletingReportId] =
     useState<number | null>(null);
 
-  const fetchReports = useCallback(async (): Promise<void> => {
+  const [page, setPageValue] = useState(1);
+  const pageSize = 25;
+  const [totalCount, setTotalCount] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [search, setSearchValue] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [trainingType, setTrainingTypeValue] = useState("");
+  const [weekNumber, setWeekNumberValue] = useState<number | null>(null);
+  const [refreshCount, setRefreshCount] = useState(0);
+  const activeRequest = useRef<AbortController | null>(null);
+  const normalizedSearch = search.trim();
+
+  useEffect(() => {
+    if (normalizedSearch === debouncedSearch) return;
+    const timer = window.setTimeout(() => setDebouncedSearch(normalizedSearch), 400);
+    return () => window.clearTimeout(timer);
+  }, [normalizedSearch, debouncedSearch]);
+
+  useEffect(() => {
+    if ((!enabled && refreshCount === 0) || normalizedSearch !== debouncedSearch) return;
+
+    const controller = new AbortController();
+    activeRequest.current = controller;
+
+    const loadReports = async () => {
+      try {
+        const data = await trainingReportsService.getAll(
+          { page, pageSize, search: debouncedSearch, trainingType, weekNumber },
+          controller.signal,
+        );
+        if (controller.signal.aborted) return;
+
+        if (!Array.isArray(data.items)) {
+          throw new Error("La respuesta del servidor no contiene una lista de reportes.");
+        }
+
+        const lastPage = Math.max(1, data.totalPages);
+        if (page > lastPage) {
+          setPageValue(lastPage);
+          return;
+        }
+
+        setReports(data.items);
+        setTotalCount(data.totalCount);
+        setTotalPages(data.totalPages);
+        setIsLoadingReports(false);
+      } catch (error) {
+        if (controller.signal.aborted) return;
+        console.error("Error al cargar los reportes:", error);
+        setReports([]);
+        setReportsError(error instanceof Error ? error.message : "No se pudieron cargar los reportes.");
+        setIsLoadingReports(false);
+      }
+    };
+
+    void loadReports();
+    return () => controller.abort();
+  }, [enabled, page, pageSize, normalizedSearch, debouncedSearch, trainingType, weekNumber, refreshCount]);
+
+  const prepareRequest = useCallback(() => {
+    activeRequest.current?.abort();
     setIsLoadingReports(true);
     setReportsError(null);
-
-    try {
-      const data = await trainingReportsService.getAll();
-
-      if (!Array.isArray(data)) {
-        throw new Error(
-          "La respuesta del servidor no contiene una lista de reportes.",
-        );
-      }
-
-      setReports(data);
-    } catch (error) {
-      console.error("Error al cargar los reportes:", error);
-
-      const message =
-        error instanceof Error
-          ? error.message
-          : "No se pudieron cargar los reportes.";
-
-      setReports([]);
-      setReportsError(message);
-    } finally {
-      setIsLoadingReports(false);
-    }
   }, []);
+
+  const setPage = (value: number) => {
+    if (!Number.isInteger(value)) return;
+    const nextPage = Math.max(1, Math.min(value, Math.max(1, totalPages)));
+    if (nextPage === page) return;
+    prepareRequest();
+    setPageValue(nextPage);
+  };
+
+  const setSearch = (value: string) => {
+    setSearchValue(value);
+    if (value.trim() === normalizedSearch) return;
+    prepareRequest();
+    setPageValue(1);
+  };
+
+  const setTrainingType = (value: string) => {
+    if (value === trainingType) return;
+    prepareRequest();
+    setTrainingTypeValue(value);
+    setPageValue(1);
+  };
+
+  const setWeekNumber = (value: number | null) => {
+    if (value !== null && (!Number.isInteger(value) || value < 1 || value > 53)) return;
+    if (value === weekNumber) return;
+    prepareRequest();
+    setWeekNumberValue(value);
+    setPageValue(1);
+  };
+
+  const fetchReports = useCallback(() => {
+    prepareRequest();
+    setRefreshCount((count) => count + 1);
+  }, [prepareRequest]);
 
   const createReport = useCallback(
     async (
@@ -117,11 +200,7 @@ export const useTrainingReports = (): UseTrainingReportsResult => {
       try {
         const response =
           await trainingReportsService.delete(reportId);
-        setReports((currentReports) =>
-          currentReports.filter(
-            (report) => report.id !== reportId,
-          ),
-        );
+        fetchReports();
 
         toast.success(
           response.message ||
@@ -147,7 +226,7 @@ export const useTrainingReports = (): UseTrainingReportsResult => {
         setDeletingReportId(null);
       }
     },
-    [],
+    [fetchReports],
   );
 
   const updateReport = useCallback(
@@ -208,6 +287,17 @@ export const useTrainingReports = (): UseTrainingReportsResult => {
     reportsError,
     isSubmitting,
     deletingReportId,
+    page,
+    pageSize,
+    totalCount,
+    totalPages,
+    search,
+    trainingType,
+    weekNumber,
+    setPage,
+    setSearch,
+    setTrainingType,
+    setWeekNumber,
     fetchReports,
     createReport,
     deleteReport,
